@@ -1,7 +1,8 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // esbuild-wasm is needed for Serwist to compile the SW on the fly
+  serverExternalPackages: ['esbuild-wasm'],
 };
 
 export default nextConfig;
