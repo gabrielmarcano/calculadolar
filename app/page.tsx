@@ -1,194 +1,137 @@
 /// <reference lib="dom" />
-
 'use client';
 
-import { useState, ChangeEvent } from 'react';
-import { evaluate, format } from 'mathjs';
+import { useState, useEffect } from 'react';
+import { getSupabaseClient } from '@/lib/supabase';
+import { Database } from '@/lib/database.types';
+import RateView from '@/components/RateView';
+import CalculatorView from '@/components/CalculatorView';
 
-const RATES: Record<string, number> = {
-  EUR: 0.92,
-  GBP: 0.79,
-  JPY: 148.2,
-  CAD: 1.35,
-};
+type Rate = Database['public']['Tables']['rates']['Row'];
+
+// Rate Caching
+const CACHE_KEY = 'calculadolar_rates_cache';
 
 export default function Home() {
-  const [input, setInput] = useState('');
-  const [result, setResult] = useState('');
+  // --- TAB STATE ---
+  const [activeTab, setActiveTab] = useState<'price' | 'calculator'>('price');
+
+  // --- RATES STATE ---
+  const [rates, setRates] = useState<Record<string, { price: number; displayName: string }>>({});
+  const [isLoadingRates, setIsLoadingRates] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [targetCurrency, setTargetCurrency] = useState('EUR');
-  const [hasError, setHasError] = useState(false);
 
-  // Helper: Checks if a character is a math operator
-  const isOperator = (char: string) => ['/', '*', '-', '+', '.'].includes(char);
+  useEffect(() => {
+    async function fetchRates() {
+      // 1. Load from cache immediately
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          setRates(parsed);
+          // Infer target currency from cache if needed
+          if (Object.keys(parsed).length > 0 && !parsed[targetCurrency] && !Object.keys(parsed).includes(targetCurrency)) {
+            setTargetCurrency(Object.keys(parsed)[0]);
+          }
+          setIsLoadingRates(false);
+        } catch (e) {
+          console.error('Error parsing cache', e);
+        }
+      }
 
-  // 1. FIXED: Logic moved from useEffect to here
-  // Calculates the result based on a string string immediately
-  const calculateLiveResult = (expression: string) => {
-    if (!expression) return '';
+      // 2. Fetch fresh data
+      const supabase = getSupabaseClient();
+      if (!supabase) {
+        if (!cached) setFetchError('Supabase client not initialized');
+        setIsLoadingRates(false);
+        return;
+      }
 
-    // Don't calculate if the expression ends with an operator (e.g. "2 +")
-    const lastChar = expression.slice(-1);
-    if (isOperator(lastChar)) return result; // Keep old result
+      const { data, error } = await supabase.from('rates').select('*');
 
-    try {
-      const val = evaluate(expression);
-      const formatted = format(val, { precision: 14 });
-      setHasError(false);
-      return formatted;
-    } catch (e) {
-      // Return current result if calculation fails (don't show error yet)
-      console.error('Calculation error:', e);
-      return result;
+      if (error) {
+        console.error('Error fetching rates:', error);
+        if (!cached) setFetchError('Failed to fetch rates');
+      } else if (data) {
+        const ratesMap: Record<string, { price: number; displayName: string }> = {};
+        data.forEach((rate: Rate) => {
+          if (rate.name && typeof rate.price === 'number') {
+            ratesMap[rate.name] = {
+              price: rate.price,
+              displayName: rate.display_name || rate.name,
+            };
+          }
+        });
+
+        setRates(ratesMap);
+        localStorage.setItem(CACHE_KEY, JSON.stringify(ratesMap));
+
+        if (data.length > 0 && data[0].name && !ratesMap[targetCurrency] && !Object.keys(ratesMap).includes(targetCurrency)) {
+          setTargetCurrency(data[0].name);
+        }
+        setFetchError(null);
+      }
+      setIsLoadingRates(false);
     }
-  };
 
-  // 2. UPDATED: Central function to update input and trigger calculation
-  const updateInput = (nextInput: string) => {
-    setInput(nextInput);
-    const newResult = calculateLiveResult(nextInput);
-    setResult(newResult);
-  };
-
-  const handleClick = (value: string) => {
-    if (hasError) {
-      updateInput(value);
-      setHasError(false);
-      return;
-    }
-
-    // Logic to reset if typing after a result (optional, depends on preference)
-    // If we just committed a result, we might want to append or start fresh
-    // For now, we just append to whatever is in 'input'
-
-    // Prevent double operators
-    if (isOperator(value) && isOperator(input.slice(-1))) {
-      const replacedInput = input.slice(0, -1) + value;
-      updateInput(replacedInput);
-      return;
-    }
-
-    const nextInput = input + value;
-    updateInput(nextInput);
-  };
-
-  const clear = () => {
-    setInput('');
-    setResult('');
-    setHasError(false);
-  };
-
-  const commitResult = () => {
-    if (!result) return;
-    setInput(result); // Move result to input
-    // Result stays visible
-  };
-
-  const handleConvert = () => {
-    const currentVal = result
-      ? parseFloat(result)
-      : input
-      ? evaluate(input)
-      : 0;
-
-    if (isNaN(currentVal)) return;
-
-    const rate = RATES[targetCurrency];
-    const converted = currentVal * rate;
-    const finalString = converted.toFixed(2);
-
-    // Update both input and result to show the converted value
-    setInput(finalString);
-    setResult(`${targetCurrency} ${finalString}`);
-  };
-
-  const handleCurrencyChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setTargetCurrency(e.target.value);
-  };
-
-  const buttons = [
-    '7',
-    '8',
-    '9',
-    '/',
-    '4',
-    '5',
-    '6',
-    '*',
-    '1',
-    '2',
-    '3',
-    '-',
-    '0',
-    '.',
-    '=',
-    '+',
-  ];
+    fetchRates();
+  }, []);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4 select-none">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-900/5">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-xl font-bold text-gray-800">Conversion</h1>
-          <select
-            value={targetCurrency}
-            onChange={handleCurrencyChange}
-            className="bg-gray-100 text-sm font-semibold text-gray-700 py-1 px-2 rounded border border-gray-300 outline-none focus:border-blue-500"
-          >
-            {Object.keys(RATES).map((currency) => (
-              <option key={currency} value={currency}>
-                USD → {currency}
-              </option>
-            ))}
-          </select>
-        </div>
+    <main className="flex min-h-screen flex-col items-center bg-gray-100 p-4 select-none">
+      <div className="w-full max-w-sm flex flex-col gap-4 mt-8 h-[85vh]">
 
-        {/* Display Area */}
-        <div className="mb-4 flex flex-col justify-end rounded-lg bg-gray-900 p-4 text-right text-white h-28">
-          <div className="text-sm text-gray-400 h-6 overflow-hidden">
-            {input || ' '}
-          </div>
-          <div
-            className={`text-3xl font-bold overflow-hidden text-ellipsis ${
-              hasError ? 'text-red-400' : ''
-            }`}
-          >
-            {result || '0'}
-          </div>
-        </div>
-
-        <div className="mb-3 grid grid-cols-1">
+        {/* --- TABS --- */}
+        <div className="grid grid-cols-2 rounded-xl bg-white p-1 shadow-md flex-shrink-0">
           <button
-            onClick={handleConvert}
-            className="w-full rounded-lg bg-green-600 py-3 text-sm font-bold text-white shadow-sm hover:bg-green-700 active:translate-y-0.5 transition-all"
+            onClick={() => setActiveTab('price')}
+            className={`rounded-lg py-2.5 text-sm font-bold transition-all
+              ${activeTab === 'price'
+                ? 'bg-gray-900 text-white shadow-sm'
+                : 'text-gray-500 hover:bg-gray-50'
+              }`}
           >
-            CONVERT TO {targetCurrency}
+            RATE
+          </button>
+          <button
+            onClick={() => setActiveTab('calculator')}
+            className={`rounded-lg py-2.5 text-sm font-bold transition-all
+              ${activeTab === 'calculator'
+                ? 'bg-gray-900 text-white shadow-sm'
+                : 'text-gray-500 hover:bg-gray-50'
+              }`}
+          >
+            CALCULATOR
           </button>
         </div>
 
-        <div className="grid grid-cols-4 gap-3">
-          <button
-            onClick={clear}
-            className="col-span-4 rounded-lg bg-red-500 p-3 font-bold text-white shadow-sm hover:bg-red-600 active:translate-y-0.5 transition-all"
-          >
-            CLEAR
-          </button>
-
-          {buttons.map((btn) => (
-            <button
-              key={btn}
-              onClick={() => (btn === '=' ? commitResult() : handleClick(btn))}
-              className={`rounded-lg p-4 text-xl font-bold shadow-sm active:translate-y-0.5 transition-all
-                ${
-                  btn === '='
-                    ? 'bg-blue-600 text-white hover:bg-blue-700'
-                    : ['/', '*', '-', '+'].includes(btn)
-                    ? 'bg-gray-100 text-blue-600 hover:bg-gray-200'
-                    : 'bg-white text-gray-800 hover:bg-gray-50 ring-1 ring-gray-200'
-                }`}
-            >
-              {btn}
-            </button>
-          ))}
+        {/* --- CONTENT --- */}
+        <div className={`rounded-3xl shadow-xl ring-1 ring-gray-900/5 flex-1 relative overflow-hidden transition-all duration-300
+            ${activeTab === 'calculator' ? 'bg-[#121212] p-0' : 'bg-white p-2'}
+        `}>
+          {(isLoadingRates && Object.keys(rates).length === 0) ? (
+            <div className="flex items-center justify-center h-full text-gray-400 font-bold animate-pulse">
+              Loading rates...
+            </div>
+          ) : fetchError && Object.keys(rates).length === 0 ? (
+            <div className="flex items-center justify-center h-full text-red-500 font-bold px-8 text-center">
+              {fetchError}
+            </div>
+          ) : (
+            <div className="h-full p-4">
+              {activeTab === 'price' && (
+                <RateView
+                  rates={rates}
+                  targetCurrency={targetCurrency}
+                  onCurrencyChange={setTargetCurrency}
+                />
+              )}
+              {activeTab === 'calculator' && (
+                <CalculatorView rates={rates} />
+              )}
+            </div>
+          )}
         </div>
       </div>
     </main>

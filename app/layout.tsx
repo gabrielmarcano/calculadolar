@@ -3,11 +3,11 @@ import type { Metadata, Viewport } from 'next';
 import SerwistProvider from './SerwistProvider';
 
 export const metadata: Metadata = {
-  title: 'Conversion PWA',
-  description: 'Simple Calculator',
+  title: 'Calculadolar',
+  description: 'Calculadora de Dolar',
   manifest: '/manifest.json',
   appleWebApp: {
-    title: 'Conversion',
+    title: 'Calculadolar',
     statusBarStyle: 'default',
   },
 };
