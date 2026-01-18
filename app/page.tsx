@@ -123,7 +123,7 @@ export default function Home() {
         `}>
           {(isLoadingRates && Object.keys(rates).length === 0) ? (
             <div className="flex items-center justify-center h-full text-gray-400 font-bold animate-pulse">
-              Loading rates...
+              Cargando precios...
             </div>
           ) : fetchError && Object.keys(rates).length === 0 ? (
             <div className="flex items-center justify-center h-full text-red-500 font-bold px-8 text-center">
