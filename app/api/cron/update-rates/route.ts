@@ -80,7 +80,14 @@ async function getBinanceAds(asset: string, fiat: string, tradeType: string) {
 
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+        return new Response('Unauthorized', {
+            status: 401,
+        });
+    }
+
     try {
         const html = await getHTML("https://www.bcv.org.ve/glosario/cambio-oficial");
 
