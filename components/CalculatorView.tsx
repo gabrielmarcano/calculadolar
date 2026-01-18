@@ -174,14 +174,14 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
       {/* Top Bar / Rate Selector */}
       <div className="flex-none flex justify-between items-center p-4 relative z-20">
         <label className="text-gray-400 text-xs font-bold uppercase tracking-wider">
-          Active Rates
+          Precios Activos
         </label>
         <div className="relative">
             <button 
                 onClick={() => setIsSelectorOpen(!isSelectorOpen)}
                 className="flex items-center gap-2 bg-[#2d2d2d] hover:bg-[#3d3d3d] text-white text-xs font-bold py-2 px-4 rounded-full transition-all"
             >
-                <span>{selectedRates.length} Selected</span>
+                <span>{`${selectedRates.length} Precio${selectedRates.length === 1 ? '' : 's'} Activo${selectedRates.length === 1 ? '' : 's'}`}</span>
                 <span className={`transform transition-transform ${isSelectorOpen ? 'rotate-180' : ''}`}>▼</span>
             </button>
 

@@ -100,7 +100,7 @@ export default function Home() {
                 : 'text-gray-500 hover:bg-[#2d2d2d]'
               }`}
           >
-            RATE
+            PRECIO
           </button>
           <button
             onClick={() => setActiveTab('calculator')}
@@ -110,7 +110,7 @@ export default function Home() {
                 : 'text-gray-500 hover:bg-[#2d2d2d]'
               }`}
           >
-            CALCULATOR
+            CALCULADORA
           </button>
         </div>
 
