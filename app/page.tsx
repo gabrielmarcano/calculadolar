@@ -54,7 +54,10 @@ export default function Home() {
         return;
       }
 
-      const { data, error } = await supabase.from('rates').select('*');
+      const { data, error } = await supabase
+        .from('rates')
+        .select('*')
+        .order('display_name', { ascending: true });
 
       if (error) {
         console.error('Error fetching rates:', error);

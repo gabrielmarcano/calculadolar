@@ -260,10 +260,9 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
              </div>
         </div>
         
-        {/* 3. Multi-Currency Results */}
         {!isSelectorOpen && selectedRates.length > 0 && (
             <div className="w-full space-y-2 overflow-y-auto flex-shrink min-h-0 pt-2 border-t border-gray-800/50">
-                 {selectedRates.map(currency => {
+                 {Object.keys(rates).filter(k => selectedRates.includes(k)).map(currency => {
                     const rate = rates[currency]?.price || 0;
                     const displayName = rates[currency]?.displayName || currency;
                     const imageUrl = rates[currency]?.imageUrl;
