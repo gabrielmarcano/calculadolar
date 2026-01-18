@@ -221,7 +221,7 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
       </div>
 
       {/* Screen / Display Area */}
-      <div className="flex-1 min-h-0 flex flex-col justify-between mt-10 px-6 pb-6 space-y-4 relative z-0">
+      <div className="flex-1 min-h-0 flex flex-col justify-between mt-2 px-6 pb-6 space-y-4 relative z-0">
         
         {/* 1. User Input (Scrollable) */}
         <div className="w-full relative group">
@@ -252,7 +252,7 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
         {/* 2. Main Result */}
         <div className="w-full text-right flex items-center justify-end gap-3">
              <div className="text-5xl sm:text-6xl font-normal tracking-tight text-white break-all line-clamp-1">
-                = {result ? parseFloat(result).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0'}
+                = $ {result ? parseFloat(result).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0'}
              </div>
         </div>
         
@@ -266,7 +266,7 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
                     return (
                         <div key={currency} className="flex justify-between items-end text-sm text-gray-400 pb-1">
                             <span className="font-medium">{displayName}</span>
-                            <span className="text-white font-mono text-lg">{converted.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}</span>
+                            <span className="text-white font-mono text-lg">{converted.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })} Bs</span>
                         </div>
                     )
                  })}
@@ -275,7 +275,7 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
       </div>
 
       {/* Keypad */}
-      <div className="grid grid-cols-4 gap-3 p-4 bg-[#0a0a0a] mb-10">
+      <div className="grid grid-cols-4 gap-2 p-4 bg-[#0a0a0a] mb-5">
         {buttons.map((btn) => (
           <button
             key={btn.label}
@@ -288,7 +288,7 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
                 else handleClick(btn.value);
             }}
             className={`
-              h-16 w-16 rounded-full text-2xl font-medium transition-all active:scale-95 flex items-center justify-center mx-auto
+              h-20 w-20 rounded-full text-3xl font-medium transition-all active:scale-95 flex items-center justify-center mx-auto
               
               /* Default Num Style */
               bg-[#2D2E36] text-white hover:bg-[#3D3E4A]
