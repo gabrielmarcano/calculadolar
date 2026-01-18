@@ -108,27 +108,62 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
       );
   };
 
-  // Layout based on image
+  const handleParentheses = () => {
+      const openCount = (input.match(/\(/g) || []).length;
+      const closeCount = (input.match(/\)/g) || []).length;
+      
+      if (openCount > closeCount) {
+          const lastChar = input.slice(-1);
+          if (/\d|\)/.test(lastChar)) {
+              updateInput(input + ')');
+          } else {
+              updateInput(input + '(');
+          }
+      } else {
+          const lastChar = input.slice(-1);
+          if (/\d|\)/.test(lastChar)) {
+              updateInput(input + '*(');
+          } else {
+              updateInput(input + '(');
+          }
+      }
+  };
+
+  const handlePercent = () => {
+      // Basic implementation: divide last number by 100
+      // For now, simply appending '/100' works mathematically but might look messy.
+      // Better: if input ends in number, append '/100'.
+      if (/\d$/.test(input)) {
+          updateInput(input + '/100');
+      }
+  };
+
+  // Layout based on image provided (4x5 grid)
   const buttons = [
-    { label: 'C', value: 'C', type: 'secondary' },
-    { label: '(', value: '(', type: 'secondary' },
-    { label: ')', value: ')', type: 'secondary' },
-    { label: '÷', value: '÷', type: 'secondary' },
+    { label: 'AC', value: 'AC', type: 'func' },
+    { label: '( )', value: '()', type: 'func' },
+    { label: '%', value: '%', type: 'func' },
+    { label: '÷', value: '÷', type: 'op' },
+    
     { label: '7', value: '7', type: 'num' },
     { label: '8', value: '8', type: 'num' },
     { label: '9', value: '9', type: 'num' },
-    { label: '×', value: '×', type: 'secondary' },
+    { label: '×', value: '×', type: 'op' },
+    
     { label: '4', value: '4', type: 'num' },
     { label: '5', value: '5', type: 'num' },
     { label: '6', value: '6', type: 'num' },
-    { label: '-', value: '-', type: 'secondary' },
+    { label: '-', value: '-', type: 'op' },
+    
     { label: '1', value: '1', type: 'num' },
     { label: '2', value: '2', type: 'num' },
     { label: '3', value: '3', type: 'num' },
-    { label: '+', value: '+', type: 'secondary' },
-    { label: '0', value: '0', type: 'num', span: 2 },
-    { label: ',', value: '.', type: 'num' },
-    { label: '=', value: '=', type: 'accent' },
+    { label: '+', value: '+', type: 'op' },
+    
+    { label: '0', value: '0', type: 'num' },
+    { label: '.', value: '.', type: 'num' },
+    { label: '⌫', value: 'BACK', type: 'num' }, // Using num style or maybe distinct? Image shows dark like nums
+    { label: '=', value: '=', type: 'equal' },
   ];
 
   const numericResult = result ? parseFloat(result) : 0;
@@ -212,8 +247,6 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
                      <span className="text-gray-500 text-xl font-bold">›</span>
                  </div>
              )}
-
-             {/* Backspace Absolute Trigger (Invisible overlay handled by UI? No, explicit button better) */}
         </div>
 
         {/* 2. Main Result */}
@@ -221,17 +254,6 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
              <div className="text-5xl sm:text-6xl font-normal tracking-tight text-white break-all line-clamp-1">
                 = {result ? parseFloat(result).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0'}
              </div>
-             
-             {/* Floating Backspace Button nicely integrated */}
-             {input && (
-                <button 
-                  onClick={handleBackspace}
-                  className="text-gray-500 hover:text-white p-2 bg-[#1e1e1e] rounded-full transition-colors active:scale-95"
-                  aria-label="Backspace"
-                >
-                   ⌫
-                </button>
-             )}
         </div>
         
         {/* 3. Multi-Currency Results */}
@@ -253,32 +275,39 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
       </div>
 
       {/* Keypad */}
-      <div className="grid grid-cols-4 gap-3 p-4 bg-[#121212] flex-none">
+      <div className="grid grid-cols-4 gap-3 p-4 bg-[#0a0a0a]">
         {buttons.map((btn) => (
           <button
             key={btn.label}
             onClick={() => {
-                if (btn.value === 'C') clear();
+                if (btn.value === 'AC') clear();
+                else if (btn.value === 'BACK') handleBackspace();
                 else if (btn.value === '=') commitResult();
+                else if (btn.value === '()') handleParentheses();
+                else if (btn.value === '%') handlePercent();
                 else handleClick(btn.value);
             }}
             className={`
-              h-14 sm:h-16 rounded-2xl text-2xl font-medium transition-all active:scale-95 flex items-center justify-center
-              ${btn.span === 2 ? 'col-span-2' : ''}
-              ${btn.type === 'accent' 
-                  ? 'bg-white text-black hover:bg-gray-200' 
-                  : btn.type === 'secondary'
-                    ? 'bg-[#2d2d2d] text-[#3399ff] hover:bg-[#3d3d3d]'
-                   : 'bg-[#2d2d2d] text-white hover:bg-[#3d3d3d]'
-              }
-              ${btn.type === 'secondary' ? 'bg-[#1e1e1e] text-green-500' : ''} 
-              ${btn.value === 'C' || btn.value === '(' || btn.value === ')' ? 'text-red-400' : ''}
-              ${['÷', '×', '-', '+'].includes(btn.label) ? 'text-green-500 bg-[#1e1e1e]' : ''} 
-              ${btn.type === 'num' ? 'bg-[#2d2d2d]' : ''}
-              ${btn.type === 'accent' ? '!bg-white !text-black' : ''}
+              h-16 w-16 rounded-full text-2xl font-medium transition-all active:scale-95 flex items-center justify-center mx-auto
+              
+              /* Default Num Style */
+              bg-[#2D2E36] text-white hover:bg-[#3D3E4A]
+
+              /* Func Style (AC, (), %) - Muted/Dark or Purple for AC */
+              ${btn.type === 'func' ? 'bg-[#3F4050] text-white hover:bg-[#4F5060]' : ''}
+              ${btn.value === 'AC' ? '!bg-[#5B5D85] text-white hover:!bg-[#6B6D95]' : ''}
+
+              /* Op Style (+, -, *, /) */
+              ${btn.type === 'op' ? 'bg-[#3F4050] text-white hover:bg-[#4F5060]' : ''}
+
+              /* Equal Style */
+              ${btn.type === 'equal' ? '!bg-[#FFD1E8] !text-black hover:!bg-[#FFE1F0]' : ''}
+              
+              /* Backspace Icon */
+              ${btn.value === 'BACK' ? 'text-white' : ''}
             `}
           >
-            {btn.label}
+            {btn.value === 'BACK' ? <span className="text-lg">⌫</span> : btn.label}
           </button>
         ))}
       </div>
