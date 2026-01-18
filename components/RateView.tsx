@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 interface RateViewProps {
-    rates: Record<string, { price: number; displayName: string; lastUpdated: string }>;
+    rates: Record<string, { price: number; displayName: string; lastUpdated: string; imageUrl: string | null }>;
     targetCurrency: string;
     onCurrencyChange: (currency: string) => void;
 }
@@ -12,6 +12,7 @@ export default function RateView({ rates, targetCurrency, onCurrencyChange }: Ra
     const currentRate = rates[targetCurrency]?.price || 0;
     const currentDisplayName = rates[targetCurrency]?.displayName || targetCurrency;
     const lastUpdated = rates[targetCurrency]?.lastUpdated || new Date().toISOString();
+    const currentImage = rates[targetCurrency]?.imageUrl;
 
     // Format date: "20 de enero de 2026"
     const formattedDate = new Date(lastUpdated).toLocaleDateString('es-ES', {
@@ -49,10 +50,14 @@ export default function RateView({ rates, targetCurrency, onCurrencyChange }: Ra
                     onClick={() => setIsSelectorOpen(!isSelectorOpen)}
                     className="flex items-center gap-3 bg-[#1e1e1e] hover:bg-[#2d2d2d] px-6 py-3 rounded-full transition-all border border-gray-800 shadow-lg"
                 >
-                    {/* Placeholder Icon */}
-                    <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xs ring-2 ring-blue-500/50">
-                        {currentDisplayName.charAt(0)}
-                    </div>
+                    {/* Icon */}
+                    {currentImage ? (
+                        <img src={currentImage} alt={currentDisplayName} className="w-8 h-8 rounded-full bg-white object-contain p-0.5" />
+                    ) : (
+                        <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xs ring-2 ring-blue-500/50">
+                            {currentDisplayName.charAt(0)}
+                        </div>
+                    )}
                     
                     <span className="font-bold text-lg tracking-wide">{currentDisplayName}</span>
                     <span className={`text-gray-500 transform transition-transform ${isSelectorOpen ? 'rotate-180' : ''}`}>▼</span>
@@ -63,20 +68,27 @@ export default function RateView({ rates, targetCurrency, onCurrencyChange }: Ra
                     <>
                         <div className="fixed inset-0 z-10" onClick={() => setIsSelectorOpen(false)} />
                         <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-64 bg-[#1e1e1e] border border-gray-800 rounded-2xl shadow-2xl p-2 z-20 max-h-60 overflow-y-auto">
-                            {Object.keys(rates).map((currency) => (
-                                <button
-                                    key={currency}
-                                    onClick={() => handleSelect(currency)}
-                                    className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-colors ${
-                                        currency === targetCurrency 
-                                        ? 'bg-blue-600/10 text-blue-400' 
-                                        : 'hover:bg-[#2d2d2d] text-gray-300'
-                                    }`}
-                                >
-                                     <div className={`w-2 h-2 rounded-full ${currency === targetCurrency ? 'bg-blue-400' : 'bg-transparent'}`} />
-                                     <span className="font-medium">{rates[currency].displayName}</span>
-                                </button>
-                            ))}
+                            {Object.keys(rates).map((currency) => {
+                                const rate = rates[currency];
+                                return (
+                                    <button
+                                        key={currency}
+                                        onClick={() => handleSelect(currency)}
+                                        className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-colors ${
+                                            currency === targetCurrency 
+                                            ? 'bg-blue-600/10 text-blue-400' 
+                                            : 'hover:bg-[#2d2d2d] text-gray-300'
+                                        }`}
+                                    >
+                                        {rate.imageUrl ? (
+                                            <img src={rate.imageUrl} alt={rate.displayName} className="w-6 h-6 rounded-full bg-white object-contain p-0.5" />
+                                        ) : (
+                                            <div className={`w-2 h-2 rounded-full ${currency === targetCurrency ? 'bg-blue-400' : 'bg-gray-600'}`} />
+                                        )}
+                                        <span className="font-medium">{rate.displayName}</span>
+                                    </button>
+                                );
+                            })}
                         </div>
                     </>
                 )}

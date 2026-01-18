@@ -17,10 +17,16 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<'price' | 'calculator'>('price');
 
   // --- RATES STATE ---
-  const [rates, setRates] = useState<Record<string, { price: number; displayName: string; lastUpdated: string }>>({});
+  const [rates, setRates] = useState<Record<string, { price: number; displayName: string; lastUpdated: string; imageUrl: string | null }>>({});
   const [isLoadingRates, setIsLoadingRates] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [targetCurrency, setTargetCurrency] = useState('EUR');
+
+  const getRateIcon = (name: string) => {
+      if (name.includes('BCV')) return 'https://sptjftsocyxytuizjlzv.supabase.co/storage/v1/object/public/logos/BCV.png';
+      if (name.includes('BINANCE')) return 'https://sptjftsocyxytuizjlzv.supabase.co/storage/v1/object/public/logos/BINANCE.png';
+      return null;
+  };
 
   useEffect(() => {
     async function fetchRates() {
@@ -54,13 +60,14 @@ export default function Home() {
         console.error('Error fetching rates:', error);
         if (!cached) setFetchError('Failed to fetch rates');
       } else if (data) {
-        const ratesMap: Record<string, { price: number; displayName: string; lastUpdated: string }> = {};
+        const ratesMap: Record<string, { price: number; displayName: string; lastUpdated: string; imageUrl: string | null }> = {};
         data.forEach((rate: Rate) => {
           if (rate.name && typeof rate.price === 'number') {
             ratesMap[rate.name] = {
               price: rate.price,
               displayName: rate.display_name || rate.name,
               lastUpdated: rate.updated_at || new Date().toISOString(),
+              imageUrl: getRateIcon(rate.name),
             };
           }
         });

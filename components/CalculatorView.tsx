@@ -2,7 +2,7 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { evaluate, format } from 'mathjs';
 
 interface CalculatorViewProps {
-  rates: Record<string, { price: number; displayName: string }>;
+  rates: Record<string, { price: number; displayName: string; imageUrl: string | null }>;
 }
 
 export default function CalculatorView({ rates }: CalculatorViewProps) {
@@ -198,17 +198,21 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
                         ) : (
                             Object.keys(rates).map(currency => {
                                 const isSelected = selectedRates.includes(currency);
+                                const rate = rates[currency];
                                 return (
                                     <button
                                         key={currency}
                                         onClick={() => toggleRate(currency)}
-                                        className={`w-full text-left flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium mb-1 transition-colors ${
+                                        className={`w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium mb-1 transition-colors ${
                                             isSelected 
                                             ? 'bg-blue-600/20 text-blue-400' 
                                             : 'text-gray-300 hover:bg-[#2d2d2d]'
                                         }`}
                                     >
-                                        <span>{rates[currency].displayName}</span>
+                                        {rate.imageUrl && (
+                                            <img src={rate.imageUrl} alt={rate.displayName} className="w-5 h-5 rounded-full bg-white object-contain p-0.5" />
+                                        )}
+                                        <span className="flex-1">{rate.displayName}</span>
                                         {isSelected && <span>✓</span>}
                                     </button>
                                 );
@@ -262,10 +266,16 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
                  {selectedRates.map(currency => {
                     const rate = rates[currency]?.price || 0;
                     const displayName = rates[currency]?.displayName || currency;
+                    const imageUrl = rates[currency]?.imageUrl;
                     const converted = numericResult * rate;
                     return (
                         <div key={currency} className="flex justify-between items-end text-sm text-gray-400 pb-1">
-                            <span className="font-medium">{displayName}</span>
+                            <div className="flex items-center gap-2">
+                                {imageUrl && (
+                                    <img src={imageUrl} alt={displayName} className="w-4 h-4 rounded-full bg-white object-contain p-[1px] mb-0.5" />
+                                )}
+                                <span className="font-medium">{displayName}</span>
+                            </div>
                             <span className="text-white font-mono text-lg">{converted.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })} Bs</span>
                         </div>
                     )
