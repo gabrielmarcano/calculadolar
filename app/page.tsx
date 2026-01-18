@@ -17,7 +17,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<'price' | 'calculator'>('price');
 
   // --- RATES STATE ---
-  const [rates, setRates] = useState<Record<string, { price: number; displayName: string }>>({});
+  const [rates, setRates] = useState<Record<string, { price: number; displayName: string; lastUpdated: string }>>({});
   const [isLoadingRates, setIsLoadingRates] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [targetCurrency, setTargetCurrency] = useState('EUR');
@@ -54,12 +54,13 @@ export default function Home() {
         console.error('Error fetching rates:', error);
         if (!cached) setFetchError('Failed to fetch rates');
       } else if (data) {
-        const ratesMap: Record<string, { price: number; displayName: string }> = {};
+        const ratesMap: Record<string, { price: number; displayName: string; lastUpdated: string }> = {};
         data.forEach((rate: Rate) => {
           if (rate.name && typeof rate.price === 'number') {
             ratesMap[rate.name] = {
               price: rate.price,
               displayName: rate.display_name || rate.name,
+              lastUpdated: rate.updated_at || new Date().toISOString(),
             };
           }
         });
@@ -79,17 +80,17 @@ export default function Home() {
   }, []);
 
   return (
-    <main className={`flex min-h-screen flex-col items-center bg-gray-100 select-none ${activeTab === 'calculator' ? 'p-0 bg-[#121212]' : 'p-4'}`}>
+    <main className={`flex min-h-screen flex-col items-center bg-[#0a0a0a] select-none ${activeTab === 'calculator' ? 'p-0' : 'p-4'}`}>
       <div className={`w-full flex flex-col gap-4 ${activeTab === 'calculator' ? 'h-screen max-w-md' : 'max-w-sm mt-8 h-[85vh]'}`}>
 
         {/* --- TABS --- */}
-        <div className={`grid grid-cols-2 rounded-xl bg-white p-1 shadow-md flex-shrink-0 ${activeTab === 'calculator' ? 'mx-4 mt-4 mb-2' : ''}`}>
+        <div className={`grid grid-cols-2 rounded-xl bg-[#1e1e1e] p-1 shadow-md flex-shrink-0 ${activeTab === 'calculator' ? 'mx-4 mt-4 mb-2' : ''}`}>
           <button
             onClick={() => setActiveTab('price')}
             className={`rounded-lg py-2.5 text-sm font-bold transition-all
               ${activeTab === 'price'
-                ? 'bg-gray-900 text-white shadow-sm'
-                : 'text-gray-500 hover:bg-gray-50'
+                ? 'bg-[#333] text-white shadow-sm'
+                : 'text-gray-500 hover:bg-[#2d2d2d]'
               }`}
           >
             RATE
@@ -98,8 +99,8 @@ export default function Home() {
             onClick={() => setActiveTab('calculator')}
             className={`rounded-lg py-2.5 text-sm font-bold transition-all
               ${activeTab === 'calculator'
-                ? 'bg-gray-900 text-white shadow-sm'
-                : 'text-gray-500 hover:bg-gray-50'
+                ? 'bg-[#333] text-white shadow-sm'
+                : 'text-gray-500 hover:bg-[#2d2d2d]'
               }`}
           >
             CALCULATOR
@@ -108,7 +109,7 @@ export default function Home() {
 
         {/* --- CONTENT --- */}
         <div className={`flex-1 relative overflow-hidden transition-all duration-300
-            ${activeTab === 'calculator' ? 'bg-[#121212] p-0 rounded-none' : 'bg-white p-2 rounded-3xl shadow-xl ring-1 ring-gray-900/5'}
+            ${activeTab === 'calculator' ? 'bg-[#121212] p-0 rounded-none' : 'bg-[#121212] p-2 rounded-3xl shadow-none'}
         `}>
           {(isLoadingRates && Object.keys(rates).length === 0) ? (
             <div className="flex items-center justify-center h-full text-gray-400 font-bold animate-pulse">

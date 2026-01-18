@@ -1,58 +1,92 @@
-import { ChangeEvent } from 'react';
+import { useState } from 'react';
 
 interface RateViewProps {
-    rates: Record<string, { price: number; displayName: string }>;
+    rates: Record<string, { price: number; displayName: string; lastUpdated: string }>;
     targetCurrency: string;
     onCurrencyChange: (currency: string) => void;
 }
 
 export default function RateView({ rates, targetCurrency, onCurrencyChange }: RateViewProps) {
+    const [isSelectorOpen, setIsSelectorOpen] = useState(false);
+
     const currentRate = rates[targetCurrency]?.price || 0;
     const currentDisplayName = rates[targetCurrency]?.displayName || targetCurrency;
+    const lastUpdated = rates[targetCurrency]?.lastUpdated || new Date().toISOString();
 
-    const handleCurrencyChange = (e: ChangeEvent<HTMLSelectElement>) => {
-        onCurrencyChange(e.target.value);
+    // Format date: "20 de enero de 2026"
+    const formattedDate = new Date(lastUpdated).toLocaleDateString('es-ES', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+    });
+
+    const handleSelect = (currency: string) => {
+        onCurrencyChange(currency);
+        setIsSelectorOpen(false);
     };
 
     return (
-        <div className="flex flex-col items-center justify-center h-full space-y-6 animate-in fade-in duration-300">
+        <div className="flex flex-col items-center justify-center h-full text-white space-y-8 animate-in fade-in duration-300 relative">
+            
+            {/* Title */}
+            <h2 className="text-gray-400 text-sm font-bold uppercase tracking-widest">
+                EL <span className="text-white font-extrabold">DÓLAR</span> ESTÁ EN
+            </h2>
+
+            {/* Price Display */}
             <div className="text-center">
-                <p className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">
-                    Today's Rate
-                </p>
-                <div className="flex items-center justify-center gap-2 mb-1">
-                    <span className="text-2xl font-bold text-gray-400">
-                        1 USD =
-                    </span>
+                <div className="text-7xl font-bold tracking-tighter">
+                    {currentRate.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
-
-                {/* Big Price Display */}
-                <div className="text-6xl font-black text-gray-900 tracking-tight">
-                    {currentRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </div>
-
-                <div className="mt-2 text-xl font-bold text-blue-600">
-                    {currentDisplayName}
+                <div className="text-2xl text-gray-400 mt-2 font-medium">
+                    bolívares
                 </div>
             </div>
 
-            {/* Simple Selector for Price View */}
-            <div className="w-full pt-6 border-t border-gray-100">
-                <label className="block text-xs font-bold text-gray-400 mb-2 uppercase text-center">
-                    Change Currency
-                </label>
-                <select
-                    value={targetCurrency}
-                    onChange={handleCurrencyChange}
-                    className="w-full bg-gray-50 text-center font-bold text-gray-800 py-3 rounded-xl border border-gray-200 outline-none focus:border-blue-500 transition-all"
+            {/* Custom Selector */}
+            <div className="relative z-50">
+                <button 
+                    onClick={() => setIsSelectorOpen(!isSelectorOpen)}
+                    className="flex items-center gap-3 bg-[#1e1e1e] hover:bg-[#2d2d2d] px-6 py-3 rounded-full transition-all border border-gray-800 shadow-lg"
                 >
-                    {Object.keys(rates).map((currency) => (
-                        <option key={currency} value={currency}>
-                            {rates[currency].displayName}
-                        </option>
-                    ))}
-                </select>
+                    {/* Placeholder Icon */}
+                    <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xs ring-2 ring-blue-500/50">
+                        {currentDisplayName.charAt(0)}
+                    </div>
+                    
+                    <span className="font-bold text-lg tracking-wide">{currentDisplayName}</span>
+                    <span className={`text-gray-500 transform transition-transform ${isSelectorOpen ? 'rotate-180' : ''}`}>▼</span>
+                </button>
+
+                {/* Dropdown */}
+                {isSelectorOpen && (
+                    <>
+                        <div className="fixed inset-0 z-10" onClick={() => setIsSelectorOpen(false)} />
+                        <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-64 bg-[#1e1e1e] border border-gray-800 rounded-2xl shadow-2xl p-2 z-20 max-h-60 overflow-y-auto">
+                            {Object.keys(rates).map((currency) => (
+                                <button
+                                    key={currency}
+                                    onClick={() => handleSelect(currency)}
+                                    className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-colors ${
+                                        currency === targetCurrency 
+                                        ? 'bg-blue-600/10 text-blue-400' 
+                                        : 'hover:bg-[#2d2d2d] text-gray-300'
+                                    }`}
+                                >
+                                     <div className={`w-2 h-2 rounded-full ${currency === targetCurrency ? 'bg-blue-400' : 'bg-transparent'}`} />
+                                     <span className="font-medium">{rates[currency].displayName}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </>
+                )}
             </div>
+
+            {/* Date */}
+            <div className="text-gray-500 text-sm font-medium">
+                {formattedDate}
+            </div>
+
         </div>
     );
 }
