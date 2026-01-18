@@ -81,7 +81,7 @@ export default function Home() {
 
   return (
     <main className={`flex min-h-screen flex-col items-center bg-[#0a0a0a] select-none ${activeTab === 'calculator' ? 'p-0' : 'p-4'}`}>
-      <div className={`w-full flex flex-col gap-4 ${activeTab === 'calculator' ? 'h-screen max-w-md' : 'max-w-sm mt-8 h-[85vh]'}`}>
+      <div className={`w-full flex flex-col gap-4 ${activeTab === 'calculator' ? 'h-screen max-w-md' : 'max-w-sm h-[85vh]'}`}>
 
         {/* --- TABS --- */}
         <div className={`grid grid-cols-2 rounded-xl bg-[#1e1e1e] p-1 shadow-md flex-shrink-0 ${activeTab === 'calculator' ? 'mx-4 mt-4 mb-2' : ''}`}>
