@@ -79,11 +79,11 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="flex min-h-screen flex-col items-center bg-gray-100 p-4 select-none">
-      <div className="w-full max-w-sm flex flex-col gap-4 mt-8 h-[85vh]">
+    <main className={`flex min-h-screen flex-col items-center bg-gray-100 select-none ${activeTab === 'calculator' ? 'p-0 bg-[#121212]' : 'p-4'}`}>
+      <div className={`w-full flex flex-col gap-4 ${activeTab === 'calculator' ? 'h-screen max-w-md' : 'max-w-sm mt-8 h-[85vh]'}`}>
 
         {/* --- TABS --- */}
-        <div className="grid grid-cols-2 rounded-xl bg-white p-1 shadow-md flex-shrink-0">
+        <div className={`grid grid-cols-2 rounded-xl bg-white p-1 shadow-md flex-shrink-0 ${activeTab === 'calculator' ? 'mx-4 mt-4 mb-2' : ''}`}>
           <button
             onClick={() => setActiveTab('price')}
             className={`rounded-lg py-2.5 text-sm font-bold transition-all
@@ -107,8 +107,8 @@ export default function Home() {
         </div>
 
         {/* --- CONTENT --- */}
-        <div className={`rounded-3xl shadow-xl ring-1 ring-gray-900/5 flex-1 relative overflow-hidden transition-all duration-300
-            ${activeTab === 'calculator' ? 'bg-[#121212] p-0' : 'bg-white p-2'}
+        <div className={`flex-1 relative overflow-hidden transition-all duration-300
+            ${activeTab === 'calculator' ? 'bg-[#121212] p-0 rounded-none' : 'bg-white p-2 rounded-3xl shadow-xl ring-1 ring-gray-900/5'}
         `}>
           {(isLoadingRates && Object.keys(rates).length === 0) ? (
             <div className="flex items-center justify-center h-full text-gray-400 font-bold animate-pulse">
@@ -119,7 +119,7 @@ export default function Home() {
               {fetchError}
             </div>
           ) : (
-            <div className="h-full p-4">
+            <div className={`h-full ${activeTab === 'calculator' ? 'p-0' : 'p-4'}`}>
               {activeTab === 'price' && (
                 <RateView
                   rates={rates}

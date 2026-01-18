@@ -169,7 +169,7 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
   const numericResult = result ? parseFloat(result) : 0;
 
   return (
-    <div className="flex flex-col h-full bg-[#121212] text-white rounded-3xl overflow-hidden font-sans">
+    <div className="flex flex-col h-full bg-[#121212] text-white font-sans">
       
       {/* Top Bar / Rate Selector */}
       <div className="flex-none flex justify-between items-center p-4 relative z-20">
@@ -221,7 +221,7 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
       </div>
 
       {/* Screen / Display Area */}
-      <div className="flex-1 min-h-0 flex flex-col justify-end px-6 pb-6 space-y-4 relative z-0">
+      <div className="flex-1 min-h-0 flex flex-col justify-between mt-10 px-6 pb-6 space-y-4 relative z-0">
         
         {/* 1. User Input (Scrollable) */}
         <div className="w-full relative group">
@@ -275,7 +275,7 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
       </div>
 
       {/* Keypad */}
-      <div className="grid grid-cols-4 gap-3 p-4 bg-[#0a0a0a]">
+      <div className="grid grid-cols-4 gap-3 p-4 bg-[#0a0a0a] mb-10">
         {buttons.map((btn) => (
           <button
             key={btn.label}
