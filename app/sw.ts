@@ -3,7 +3,7 @@
 /// <reference lib="webworker" />
 import { defaultCache } from '@serwist/turbopack/worker';
 import type { PrecacheEntry, SerwistGlobalConfig } from 'serwist';
-import { ExpirationPlugin, NetworkFirst, Serwist } from 'serwist';
+import { ExpirationPlugin, StaleWhileRevalidate, Serwist } from 'serwist';
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -21,7 +21,7 @@ const serwist = new Serwist({
   runtimeCaching: [
     {
       matcher: ({ request }) => request.mode === 'navigate',
-      handler: new NetworkFirst({
+      handler: new StaleWhileRevalidate({
         cacheName: "pages",
         plugins: [
           new ExpirationPlugin({
