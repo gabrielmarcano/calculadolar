@@ -67,7 +67,7 @@ export default function Home() {
 
       if (error) {
         console.error('Error fetching rates:', error);
-        if (!cached) setFetchError('Failed to fetch rates');
+        if (!cached) setFetchError('Error al obtener las tasas');
       } else if (data) {
         const ratesMap: Record<string, { price: number; displayName: string; lastUpdated: string; imageUrl: string | null }> = {};
         data.forEach((rate: Rate) => {
