@@ -7,6 +7,8 @@ import { Database } from '@/lib/database.types';
 import RateView from '@/components/RateView';
 import CalculatorView from '@/components/CalculatorView';
 import { triggerHaptic } from '@/lib/utils';
+import { usePWAInstall } from '@/hooks/usePWAInstall';
+import InstallPrompt from '@/components/InstallPrompt';
 
 type Rate = Database['public']['Tables']['rates']['Row'];
 
@@ -16,6 +18,9 @@ const CACHE_KEY = 'calculadolar_rates_cache';
 export default function Home() {
   // --- VIEW STATE ---
   const [view, setView] = useState<'dashboard' | 'calculator'>('dashboard');
+
+  // --- PWA INSTALL ---
+  const { isInstallable, promptInstall } = usePWAInstall();
 
   // --- RATES STATE ---
   const [rates, setRates] = useState<Record<string, { price: number; displayName: string; lastUpdated: string; imageUrl: string | null }>>({});
@@ -103,6 +108,13 @@ export default function Home() {
                         Calcula<span className="text-gray-400">dolar</span>
                     </h1>
                 </header>
+
+                {/* INSTALL PROMPT */}
+                {isInstallable && (
+                    <div className="pt-4 flex-none">
+                        <InstallPrompt onInstall={promptInstall} />
+                    </div>
+                )}
 
                 {/* 2. MAIN CONTENT (Full Height, Centered Rates) */}
                 <div className="flex-1 flex flex-col items-center justify-center p-6 pb-32">
