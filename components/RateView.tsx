@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { triggerHaptic } from '@/lib/utils';
 
 interface RateViewProps {
     rates: Record<string, { price: number; displayName: string; lastUpdated: string; imageUrl: string | null }>;
@@ -22,6 +23,7 @@ export default function RateView({ rates, targetCurrency, onCurrencyChange }: Ra
     });
 
     const handleSelect = (currency: string) => {
+        triggerHaptic();
         onCurrencyChange(currency);
         setIsSelectorOpen(false);
     };
@@ -47,14 +49,17 @@ export default function RateView({ rates, targetCurrency, onCurrencyChange }: Ra
             {/* Custom Selector */}
             <div className="relative z-50">
                 <button 
-                    onClick={() => setIsSelectorOpen(!isSelectorOpen)}
+                    onClick={() => {
+                        triggerHaptic();
+                        setIsSelectorOpen(!isSelectorOpen);
+                    }}
                     className="flex items-center gap-3 bg-[#1e1e1e] hover:bg-[#2d2d2d] px-6 py-3 rounded-full transition-all border border-gray-800 shadow-lg"
                 >
                     {/* Icon */}
                     {currentImage ? (
                         <img src={currentImage} alt={currentDisplayName} className="w-8 h-8 rounded-full bg-white object-contain p-0.5" />
                     ) : (
-                        <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xs ring-2 ring-blue-500/50">
+                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-xs ring-2 ring-white/20">
                             {currentDisplayName.charAt(0)}
                         </div>
                     )}
@@ -76,14 +81,14 @@ export default function RateView({ rates, targetCurrency, onCurrencyChange }: Ra
                                         onClick={() => handleSelect(currency)}
                                         className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-colors ${
                                             currency === targetCurrency 
-                                            ? 'bg-blue-600/10 text-blue-400' 
+                                            ? 'bg-white/10 text-white' 
                                             : 'hover:bg-[#2d2d2d] text-gray-300'
                                         }`}
                                     >
                                         {rate.imageUrl ? (
                                             <img src={rate.imageUrl} alt={rate.displayName} className="w-6 h-6 rounded-full bg-white object-contain p-0.5" />
                                         ) : (
-                                            <div className={`w-2 h-2 rounded-full ${currency === targetCurrency ? 'bg-blue-400' : 'bg-gray-600'}`} />
+                                            <div className={`w-2 h-2 rounded-full ${currency === targetCurrency ? 'bg-white' : 'bg-gray-600'}`} />
                                         )}
                                         <span className="font-medium">{rate.displayName}</span>
                                     </button>

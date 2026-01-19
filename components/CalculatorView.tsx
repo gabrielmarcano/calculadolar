@@ -3,9 +3,12 @@ import { evaluate, format } from 'mathjs';
 
 interface CalculatorViewProps {
   rates: Record<string, { price: number; displayName: string; imageUrl: string | null }>;
+  onBack: () => void;
 }
 
-export default function CalculatorView({ rates }: CalculatorViewProps) {
+import { triggerHaptic } from '@/lib/utils';
+
+export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
   const [input, setInput] = useState('');
   const [result, setResult] = useState('');
   const [hasError, setHasError] = useState(false);
@@ -172,10 +175,24 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
     <div className="flex flex-col h-full bg-[#121212] text-white font-sans">
       
       {/* Top Bar / Rate Selector */}
+      {/* Top Bar / Rate Selector */}
       <div className="flex-none flex justify-between items-center p-4 relative z-20">
-        <label className="text-gray-400 text-xs font-bold uppercase tracking-wider">
-          Precios Activos
-        </label>
+        <div className="flex items-center gap-4">
+            <button 
+                onClick={() => {
+                    triggerHaptic();
+                    onBack();
+                }}
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-[#2d2d2d] hover:bg-[#3d3d3d] text-gray-300 transition-colors active:scale-95 group"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+            </button>
+            <label className="text-gray-400 text-xs font-bold uppercase tracking-wider hidden sm:block">
+              Precios Activos
+            </label>
+        </div>
         <div className="relative">
             <button 
                 onClick={() => setIsSelectorOpen(!isSelectorOpen)}
@@ -202,7 +219,10 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
                                 return (
                                     <button
                                         key={currency}
-                                        onClick={() => toggleRate(currency)}
+                                        onClick={() => {
+                                            triggerHaptic();
+                                            toggleRate(currency);
+                                        }}
                                         className={`w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium mb-1 transition-colors ${
                                             isSelected 
                                             ? 'bg-blue-600/20 text-blue-400' 
@@ -225,7 +245,8 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
       </div>
 
       {/* Screen / Display Area */}
-      <div className="flex-1 min-h-0 flex flex-col justify-between mt-2 px-6 pb-6 space-y-4 relative z-0">
+      {/* Screen / Display Area (Fixed/Auto Height - Always Visible) */}
+      <div className="flex-none flex flex-col justify-end mt-2 px-6 pb-4 space-y-4 relative z-0">
         
         {/* 1. User Input (Scrollable) */}
         <div className="w-full relative group">
@@ -260,65 +281,68 @@ export default function CalculatorView({ rates }: CalculatorViewProps) {
              </div>
         </div>
         
-        {!isSelectorOpen && selectedRates.length > 0 && (
-            <div className="w-full space-y-2 overflow-y-auto flex-shrink min-h-0 pt-2 border-t border-gray-800/50">
-                 {Object.keys(rates).filter(k => selectedRates.includes(k)).map(currency => {
-                    const rate = rates[currency]?.price || 0;
-                    const displayName = rates[currency]?.displayName || currency;
-                    const imageUrl = rates[currency]?.imageUrl;
-                    const converted = numericResult * rate;
-                    return (
-                        <div key={currency} className="flex justify-between items-end text-sm text-gray-400 pb-1">
-                            <div className="flex items-center gap-2">
-                                {imageUrl && (
-                                    <img src={imageUrl} alt={displayName} className="w-4 h-4 rounded-full bg-white object-contain p-[1px] mb-0.5" />
-                                )}
-                                <span className="font-medium">{displayName}</span>
-                            </div>
-                            <span className="text-white font-mono text-lg">{converted.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })} Bs</span>
+        {/* Rate Results - Fixed Height to prevent keypad jumps */}
+        <div className="w-full h-32 space-y-2 overflow-y-auto flex-shrink-0 pt-2 border-t border-gray-800/50">
+                {selectedRates.length > 0 && Object.keys(rates).filter(k => selectedRates.includes(k)).map(currency => {
+                const rate = rates[currency]?.price || 0;
+                const displayName = rates[currency]?.displayName || currency;
+                const imageUrl = rates[currency]?.imageUrl;
+                const converted = numericResult * rate;
+                return (
+                    <div key={currency} className="flex justify-between items-end text-sm text-gray-400 pb-1">
+                        <div className="flex items-center gap-2">
+                            {imageUrl && (
+                                <img src={imageUrl} alt={displayName} className="w-4 h-4 rounded-full bg-white object-contain p-[1px] mb-0.5" />
+                            )}
+                            <span className="font-medium">{displayName}</span>
                         </div>
-                    )
-                 })}
-            </div>
-        )}
+                        <span className="text-white font-mono text-lg">{converted.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })} Bs</span>
+                    </div>
+                )
+                })}
+        </div>
       </div>
 
       {/* Keypad */}
-      <div className="grid grid-cols-4 gap-2 p-4 bg-[#0a0a0a] mb-5">
-        {buttons.map((btn) => (
-          <button
-            key={btn.label}
-            onClick={() => {
-                if (btn.value === 'AC') clear();
-                else if (btn.value === 'BACK') handleBackspace();
-                else if (btn.value === '=') commitResult();
-                else if (btn.value === '()') handleParentheses();
-                else if (btn.value === '%') handlePercent();
-                else handleClick(btn.value);
-            }}
-            className={`
-              h-20 w-20 rounded-full text-3xl font-medium transition-all active:scale-95 flex items-center justify-center mx-auto
-              
-              /* Default Num Style */
-              bg-[#2D2E36] text-white hover:bg-[#3D3E4A]
+      {/* Keypad (Flexible - Fills remaining space) */}
+      <div className="flex-1 min-h-0 p-4 bg-[#0a0a0a] mb-5">
+        <div className="h-full w-full grid grid-cols-4 grid-rows-5 gap-2 sm:gap-3">
+            {buttons.map((btn) => (
+            <button
+                key={btn.label}
+                onClick={() => {
+                    triggerHaptic();
+                    if (btn.value === 'AC') clear();
+                    else if (btn.value === 'BACK') handleBackspace();
+                    else if (btn.value === '=') commitResult();
+                    else if (btn.value === '()') handleParentheses();
+                    else if (btn.value === '%') handlePercent();
+                    else handleClick(btn.value);
+                }}
+                className={`
+                h-full w-full rounded-[2rem] sm:rounded-[2.5rem] text-2xl sm:text-3xl font-medium transition-all active:scale-95 flex items-center justify-center
+                
+                /* Default Num Style */
+                bg-[#2D2E36] text-white hover:bg-[#3D3E4A]
 
-              /* Func Style (AC, (), %) - Muted/Dark or Purple for AC */
-              ${btn.type === 'func' ? 'bg-[#3F4050] text-white hover:bg-[#4F5060]' : ''}
-              ${btn.value === 'AC' ? '!bg-[#5B5D85] text-white hover:!bg-[#6B6D95]' : ''}
+                /* Func Style (AC, (), %) - Muted/Dark or Purple for AC */
+                ${btn.type === 'func' ? 'bg-[#3F4050] text-white hover:bg-[#4F5060]' : ''}
+                ${btn.value === 'AC' ? '!bg-[#5B5D85] text-white hover:!bg-[#6B6D95]' : ''}
 
-              /* Op Style (+, -, *, /) */
-              ${btn.type === 'op' ? 'bg-[#3F4050] text-white hover:bg-[#4F5060]' : ''}
+                /* Op Style (+, -, *, /) */
+                ${btn.type === 'op' ? 'bg-[#3F4050] text-white hover:bg-[#4F5060]' : ''}
 
-              /* Equal Style */
-              ${btn.type === 'equal' ? '!bg-[#FFD1E8] !text-black hover:!bg-[#FFE1F0]' : ''}
-              
-              /* Backspace Icon */
-              ${btn.value === 'BACK' ? 'text-white' : ''}
-            `}
-          >
-            {btn.value === 'BACK' ? <span className="text-lg">⌫</span> : btn.label}
-          </button>
-        ))}
+                /* Equal Style */
+                ${btn.type === 'equal' ? '!bg-[#FFD1E8] !text-black hover:!bg-[#FFE1F0]' : ''}
+                
+                /* Backspace Icon */
+                ${btn.value === 'BACK' ? 'text-white' : ''}
+                `}
+            >
+                {btn.value === 'BACK' ? <span className="text-lg">⌫</span> : btn.label}
+            </button>
+            ))}
+        </div>
       </div>
     </div>
   );

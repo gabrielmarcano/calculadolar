@@ -6,6 +6,7 @@ import { getSupabaseClient } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
 import RateView from '@/components/RateView';
 import CalculatorView from '@/components/CalculatorView';
+import { triggerHaptic } from '@/lib/utils';
 
 type Rate = Database['public']['Tables']['rates']['Row'];
 
@@ -13,8 +14,8 @@ type Rate = Database['public']['Tables']['rates']['Row'];
 const CACHE_KEY = 'calculadolar_rates_cache';
 
 export default function Home() {
-  // --- TAB STATE ---
-  const [activeTab, setActiveTab] = useState<'price' | 'calculator'>('price');
+  // --- VIEW STATE ---
+  const [view, setView] = useState<'dashboard' | 'calculator'>('dashboard');
 
   // --- RATES STATE ---
   const [rates, setRates] = useState<Record<string, { price: number; displayName: string; lastUpdated: string; imageUrl: string | null }>>({});
@@ -90,60 +91,60 @@ export default function Home() {
   }, []);
 
   return (
-    <main className={`flex min-h-screen flex-col items-center bg-[#0a0a0a] select-none ${activeTab === 'calculator' ? 'p-0' : 'p-4'}`}>
-      <div className={`w-full flex flex-col gap-4 ${activeTab === 'calculator' ? 'h-screen max-w-md' : 'max-w-sm h-[85vh]'}`}>
+    <main className={`flex min-h-[100dvh] flex-col items-center bg-[#0a0a0a] select-none text-white ${view === 'calculator' ? 'p-0' : 'p-0'}`}>
+      <div className={`w-full flex flex-col ${view === 'calculator' ? 'h-[100dvh] max-w-md mx-auto' : 'h-[100dvh] w-full'}`}>
 
-        {/* --- TABS --- */}
-        <div className={`grid grid-cols-2 rounded-xl bg-[#1e1e1e] p-1 shadow-md flex-shrink-0 ${activeTab === 'calculator' ? 'mx-4 mt-4 mb-2' : ''}`}>
-          <button
-            onClick={() => setActiveTab('price')}
-            className={`rounded-lg py-2.5 text-sm font-bold transition-all
-              ${activeTab === 'price'
-                ? 'bg-[#333] text-white shadow-sm'
-                : 'text-gray-500 hover:bg-[#2d2d2d]'
-              }`}
-          >
-            PRECIO
-          </button>
-          <button
-            onClick={() => setActiveTab('calculator')}
-            className={`rounded-lg py-2.5 text-sm font-bold transition-all
-              ${activeTab === 'calculator'
-                ? 'bg-[#333] text-white shadow-sm'
-                : 'text-gray-500 hover:bg-[#2d2d2d]'
-              }`}
-          >
-            CALCULADORA
-          </button>
-        </div>
+        {view === 'dashboard' && (
+            <div className="flex flex-col h-full relative">
+                
+                {/* 1. TOP NAV BAR */}
+                <header className="flex-none h-16 flex items-center justify-center border-b border-white/5 bg-[#0a0a0a]/80 backdrop-blur-md sticky top-0 z-50">
+                    <h1 className="text-xl font-black tracking-widest uppercase">
+                        Calcula<span className="text-gray-400">dolar</span>
+                    </h1>
+                </header>
 
-        {/* --- CONTENT --- */}
-        <div className={`flex-1 relative overflow-hidden transition-all duration-300
-            ${activeTab === 'calculator' ? 'bg-[#121212] p-0 rounded-none' : 'bg-[#121212] p-2 rounded-3xl shadow-none'}
-        `}>
-          {(isLoadingRates && Object.keys(rates).length === 0) ? (
-            <div className="flex items-center justify-center h-full text-gray-400 font-bold animate-pulse">
-              Cargando precios...
+                {/* 2. MAIN CONTENT (Full Height, Centered Rates) */}
+                <div className="flex-1 flex flex-col items-center justify-center p-6 pb-32">
+                     {(isLoadingRates && Object.keys(rates).length === 0) ? (
+                        <div className="flex items-center justify-center h-full text-gray-400 font-bold animate-pulse">
+                        Cargando precios...
+                        </div>
+                    ) : fetchError && Object.keys(rates).length === 0 ? (
+                        <div className="flex items-center justify-center h-full text-red-500 font-bold px-8 text-center">
+                        {fetchError}
+                        </div>
+                    ) : (
+                        <RateView
+                            rates={rates}
+                            targetCurrency={targetCurrency}
+                            onCurrencyChange={setTargetCurrency}
+                        />
+                    )}
+                </div>
+
+                <div className="fixed bottom-8 left-0 right-0 flex justify-center z-50 px-4 pointer-events-none">
+                    <button
+                        onClick={() => {
+                            triggerHaptic();
+                            setView('calculator');
+                        }}
+                        className="pointer-events-auto bg-[#1e1e1e]/80 hover:bg-[#2d2d2d]/90 text-white border border-white/10 font-bold py-4 px-8 rounded-full text-lg shadow-[0_0_30px_-5px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-all active:scale-95 flex items-center gap-3 active:shadow-none"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-gray-300">
+                          <path fillRule="evenodd" d="M3 4.5A2.25 2.25 0 0 1 5.25 2.25h13.5A2.25 2.25 0 0 1 21 4.5v15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 19.5v-15ZM10.5 7.5a.75.75 0 0 0 .75.75h4.5a.75.75 0 0 0 0-1.5h-4.5a.75.75 0 0 0-.75.75Zm-3.75 3a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Zm0 3a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Zm0 3a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75ZM10.5 10.5a.75.75 0 0 0 .75.75h1.5a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 0-.75.75Zm.75 3.75a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Zm0 3a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Zm3.75-3.75a.75.75 0 0 0 .75.75h1.5a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 0-.75.75Zm.75 3.75a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
+                        </svg>
+                        <span className="tracking-wide">CALCULADORA</span>
+                    </button>
+                </div>
             </div>
-          ) : fetchError && Object.keys(rates).length === 0 ? (
-            <div className="flex items-center justify-center h-full text-red-500 font-bold px-8 text-center">
-              {fetchError}
-            </div>
-          ) : (
-            <div className={`h-full ${activeTab === 'calculator' ? 'p-0' : 'p-4'}`}>
-              {activeTab === 'price' && (
-                <RateView
-                  rates={rates}
-                  targetCurrency={targetCurrency}
-                  onCurrencyChange={setTargetCurrency}
-                />
-              )}
-              {activeTab === 'calculator' && (
-                <CalculatorView rates={rates} />
-              )}
-            </div>
-          )}
-        </div>
+        )}
+
+        {view === 'calculator' && (
+             <div className="h-full w-full">
+                <CalculatorView rates={rates} onBack={() => setView('dashboard')} />
+             </div>
+        )}
       </div>
     </main>
   );
