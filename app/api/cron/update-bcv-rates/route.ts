@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     }
 
     try {
-        const html = await getHTML("https://www.bcv.org.ve/glosario/cambio-oficial");
+        const html = await getHTML("https://www.bcv.org.ve/");
         if (!html) throw new Error("Failed to fetch BCV HTML");
 
         const $ = cheerio.load(html);
