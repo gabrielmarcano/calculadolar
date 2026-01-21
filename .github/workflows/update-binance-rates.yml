@@ -1,0 +1,18 @@
+name: "Update Binance Rates (USDT)"
+
+on:
+  schedule:
+    # Runs every hour at minute 10
+    - cron: "10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  update-binance-rate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call update-binance-rates endpoint
+        run: |
+          curl -X GET ${{ secrets.PRODUCTION_URL }}/api/cron/update-binance-rates \
+          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+          -H "User-Agent: GitHub-Action" \
+          --fail

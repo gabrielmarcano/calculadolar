@@ -1,0 +1,18 @@
+name: "Update BCV Rates"
+
+on:
+  schedule:
+    # 6:30 AM and 5:30 PM (GMT-4)
+    - cron: "30 10,21 * * *"
+  workflow_dispatch:
+
+jobs:
+  update-bcv-rates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call update-bcv-rates endpoint
+        run: |
+          curl -X GET ${{ secrets.PRODUCTION_URL }}/api/cron/update-bcv-rates \
+          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+          -H "User-Agent: GitHub-Action" \
+          --fail
