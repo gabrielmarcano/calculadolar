@@ -3,7 +3,9 @@ name: "Update BCV Rates"
 on:
   schedule:
     # 6:30 AM and 5:30 PM (GMT-4)
-    - cron: "30 10,21 * * *"
+    # - cron: "30 10,21 * * *"
+    # Every hour
+    - cron: "0 * * * *"
   workflow_dispatch:
 
 jobs:
