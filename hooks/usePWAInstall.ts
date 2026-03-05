@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
 
+interface BeforeInstallPromptEvent extends Event {
+    prompt: () => void;
+    userChoice: Promise<{ outcome: string }>;
+}
+
 export function usePWAInstall() {
-    const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+    const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
     const [isInstallable, setIsInstallable] = useState(false);
 
     useEffect(() => {
         const handler = (e: Event) => {
-            // Prevent the mini-infobar from appearing on mobile
             e.preventDefault();
-            // Stash the event so it can be triggered later.
-            setDeferredPrompt(e);
+            setDeferredPrompt(e as BeforeInstallPromptEvent);
             setIsInstallable(true);
         };
 
@@ -23,13 +26,9 @@ export function usePWAInstall() {
     const promptInstall = async () => {
         if (!deferredPrompt) return;
 
-        // Show the install prompt
         deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
 
-        // Wait for the user to respond to the prompt
-        const { outcome } = await deferredPrompt.userChoice;
-
-        // We've used the prompt, and can't use it again, throw it away
         setDeferredPrompt(null);
         setIsInstallable(false);
     };

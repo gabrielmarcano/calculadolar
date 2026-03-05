@@ -103,8 +103,9 @@ export async function GET(request: Request) {
             ],
             error: null,
         });
-    } catch (error: any) {
-        console.error("Updating BCV rates failed:", error.message);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : "Unknown error";
+        console.error("Updating BCV rates failed:", message);
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

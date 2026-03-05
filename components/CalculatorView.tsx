@@ -1,5 +1,6 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { evaluate, format } from 'mathjs';
+import Image from 'next/image';
 
 interface CalculatorViewProps {
   rates: Record<string, { price: number; displayName: string; imageUrl: string | null }>;
@@ -15,21 +16,15 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
   const [isReversed, setIsReversed] = useState(false);
   
   // State for selected rates to show conversions for
-  const [selectedRates, setSelectedRates] = useState<string[]>([]);
+  const [selectedRates, setSelectedRates] = useState<string[]>(() =>
+    Object.keys(rates).slice(0, 3)
+  );
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
 
   // Scroll Indicators
   const inputRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
-
-  // Initialize selected rates
-  useMemo(() => {
-    if (selectedRates.length === 0 && Object.keys(rates).length > 0) {
-        // Default to showing first 3 rates
-        setSelectedRates(Object.keys(rates).slice(0, 3)); 
-    }
-  }, [rates]);
   
   // Scroll Logic
   const checkScroll = () => {
@@ -51,8 +46,6 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
   }, [input]);
 
   // --- LOGIC ---
-  const isOperator = (char: string) => ['/', '*', '-', '+', '.', '(', ')'].includes(char);
-
   const calculateLiveResult = (expression: string) => {
     if (!expression) return '';
     
@@ -68,7 +61,7 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
       const formatted = format(val, { precision: 14 });
       setHasError(false);
       return formatted;
-    } catch (e) {
+    } catch {
       return result;
     }
   };
@@ -256,7 +249,7 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
                                         }`}
                                     >
                                         {rate.imageUrl && (
-                                            <img src={rate.imageUrl} alt={rate.displayName} className="w-5 h-5 rounded-full bg-white object-contain p-0.5" />
+                                            <Image src={rate.imageUrl} alt={rate.displayName} width={20} height={20} className="w-5 h-5 rounded-full bg-white object-contain p-0.5" />
                                         )}
                                         <span className="flex-1">{rate.displayName}</span>
                                         {isSelected && <span>✓</span>}
@@ -331,7 +324,7 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
                     >
                         <div className="flex items-center gap-2">
                             {imageUrl && (
-                                <img src={imageUrl} alt={displayName} className="w-4 h-4 rounded-full bg-white object-contain p-[1px] mb-0.5" />
+                                <Image src={imageUrl} alt={displayName} width={16} height={16} className="w-4 h-4 rounded-full bg-white object-contain p-[1px] mb-0.5" />
                             )}
                             <span className="font-medium">{displayName}</span>
                         </div>

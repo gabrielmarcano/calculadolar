@@ -5,7 +5,7 @@ interface InstallPromptProps {
     onDismiss?: () => void;
 }
 
-export default function InstallPrompt({ onInstall, onDismiss }: InstallPromptProps) {
+export default function InstallPrompt({ onInstall }: InstallPromptProps) {
     return (
         <div className="w-full px-4 mb-4 animate-in slide-in-from-top-4 fade-in duration-500">
             <div className="bg-[#1e1e1e]/90 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex items-center justify-between shadow-xl relative overflow-hidden group">
