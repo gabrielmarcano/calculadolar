@@ -12,6 +12,7 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
   const [input, setInput] = useState('');
   const [result, setResult] = useState('');
   const [hasError, setHasError] = useState(false);
+  const [isReversed, setIsReversed] = useState(false);
   
   // State for selected rates to show conversions for
   const [selectedRates, setSelectedRates] = useState<string[]>([]);
@@ -177,8 +178,8 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
       {/* Top Bar / Rate Selector */}
       {/* Top Bar / Rate Selector */}
       <div className="flex-none flex justify-between items-center p-4 relative z-20">
-        <div className="flex items-center gap-4">
-            <button 
+        <div className="flex items-center gap-2">
+            <button
                 onClick={() => {
                     triggerHaptic();
                     onBack();
@@ -189,9 +190,34 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                 </svg>
             </button>
-            <label className="text-gray-400 text-xs font-bold uppercase tracking-wider hidden sm:block">
-              Precios Activos
-            </label>
+            <div className="relative flex bg-[#2d2d2d] rounded-full p-[3px]">
+                <div
+                    className="absolute top-[3px] bottom-[3px] w-[calc(50%-3px)] bg-[#4a4a5a] rounded-full transition-all duration-300 ease-in-out"
+                    style={{ left: isReversed ? 'calc(50%)' : '3px' }}
+                />
+                <button
+                    onClick={() => {
+                        triggerHaptic();
+                        setIsReversed(false);
+                    }}
+                    className={`relative z-10 text-xs font-bold py-1.5 px-3.5 rounded-full transition-colors duration-300 ${
+                        !isReversed ? 'text-white' : 'text-gray-500'
+                    }`}
+                >
+                    USD
+                </button>
+                <button
+                    onClick={() => {
+                        triggerHaptic();
+                        setIsReversed(true);
+                    }}
+                    className={`relative z-10 text-xs font-bold py-1.5 px-3.5 rounded-full transition-colors duration-300 ${
+                        isReversed ? 'text-white' : 'text-gray-500'
+                    }`}
+                >
+                    VES
+                </button>
+            </div>
         </div>
         <div className="relative">
             <button 
@@ -277,7 +303,7 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
         {/* 2. Main Result */}
         <div className="w-full text-right flex items-center justify-end gap-3">
              <div className="text-5xl sm:text-6xl font-normal tracking-tight text-white break-all line-clamp-1">
-                = $ {result ? parseFloat(result).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0'}
+                = {isReversed ? 'Bs' : '$'} {result ? parseFloat(result).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0'}
              </div>
         </div>
         
@@ -287,16 +313,29 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
                 const rate = rates[currency]?.price || 0;
                 const displayName = rates[currency]?.displayName || currency;
                 const imageUrl = rates[currency]?.imageUrl;
-                const converted = numericResult * rate;
+                const converted = isReversed
+                    ? (rate > 0 ? numericResult / rate : 0)
+                    : numericResult * rate;
+                const currencySymbol = currency.toLowerCase().includes('eur') ? '€' : '$';
+                const suffix = isReversed ? ` ${currencySymbol}` : ' Bs';
+                const convertedStr = converted.toFixed(2);
                 return (
-                    <div key={currency} className="flex justify-between items-end text-sm text-gray-400 pb-1">
+                    <div
+                        key={currency}
+                        onClick={() => {
+                            triggerHaptic();
+                            setIsReversed(prev => !prev);
+                            updateInput(convertedStr);
+                        }}
+                        className="flex justify-between items-end text-sm text-gray-400 pb-1 rounded-lg px-1 -mx-1 cursor-pointer hover:bg-[#1a1a1a] active:scale-[0.98] active:bg-[#1e1e1e] transition-all"
+                    >
                         <div className="flex items-center gap-2">
                             {imageUrl && (
                                 <img src={imageUrl} alt={displayName} className="w-4 h-4 rounded-full bg-white object-contain p-[1px] mb-0.5" />
                             )}
                             <span className="font-medium">{displayName}</span>
                         </div>
-                        <span className="text-white font-mono text-lg">{converted.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })} Bs</span>
+                        <span className="text-white font-mono text-lg">{converted.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}{suffix}</span>
                     </div>
                 )
                 })}
