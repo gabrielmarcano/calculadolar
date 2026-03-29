@@ -89,7 +89,7 @@ export function useLongPressCopy() {
       capturedElement.current = null;
       cancelLongPress();
     },
-    style: { touchAction: options?.touchAction ?? 'none' } as React.CSSProperties,
+    ...(options?.touchAction ? { style: { touchAction: options.touchAction } as React.CSSProperties } : {}),
   });
 
   const toastProps = {

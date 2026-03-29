@@ -29,8 +29,8 @@ export default function Home() {
   const [targetCurrency, setTargetCurrency] = useState('EUR');
 
   const getRateIcon = (name: string) => {
-      if (name.includes('BCV')) return 'https://sptjftsocyxytuizjlzv.supabase.co/storage/v1/object/public/logos/BCV.png';
-      if (name.includes('BINANCE')) return 'https://sptjftsocyxytuizjlzv.supabase.co/storage/v1/object/public/logos/BINANCE.png';
+      if (name.includes('BCV')) return '/BCV.png';
+      if (name.includes('BINANCE')) return '/BINANCE.png';
       return null;
   };
 
@@ -97,7 +97,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className={`flex min-h-[100dvh] flex-col items-center bg-[#0a0a0a] select-none text-white ${view === 'calculator' ? 'p-0' : 'p-0'}`}>
+    <main className={`flex h-[100dvh] overflow-hidden flex-col items-center bg-[#0a0a0a] select-none text-white ${view === 'calculator' ? 'p-0' : 'p-0'}`}>
       <div className={`w-full flex flex-col ${view === 'calculator' ? 'h-[100dvh] max-w-md mx-auto' : 'h-[100dvh] w-full'}`}>
 
         {view === 'dashboard' && (

@@ -37,8 +37,8 @@ CalculaDolar is a **Next.js 16 (App Router)** PWA for Venezuelan currency exchan
 - Stale-while-revalidate caching for navigation routes
 
 ### Config
-- `next.config.ts` — `serverExternalPackages: ['esbuild-wasm']` for Serwist SW compilation; `images.remotePatterns` allows Supabase storage domain for rate icons
-- Rate icons are stored in Supabase Storage and referenced via `next/image` with external URLs
+- `next.config.ts` — `serverExternalPackages: ['esbuild-wasm']` for Serwist SW compilation
+- Rate icons are served locally from `/public/` via `next/image` (BCV.png, BINANCE.png)
 
 ### Key Libraries
 - **mathjs** — expression evaluation in the calculator

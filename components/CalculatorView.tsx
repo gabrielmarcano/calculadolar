@@ -286,7 +286,7 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
                 onScroll={checkScroll}
                 {...getLongPressProps(input || '0', input || '0')}
                 className="w-full overflow-x-auto whitespace-nowrap scrollbar-hide text-right text-3xl font-light tracking-wide text-gray-300"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'none' }}
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
              >
                 {input || '0'}
              </div>
