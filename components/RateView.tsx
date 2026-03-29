@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { triggerHaptic } from '@/lib/utils';
+import { useLongPressCopy } from '@/hooks/useLongPressCopy';
+import Toast from '@/components/Toast';
 
 interface RateViewProps {
     rates: Record<string, { price: number; displayName: string; lastUpdated: string; imageUrl: string | null }>;
@@ -10,6 +12,7 @@ interface RateViewProps {
 
 export default function RateView({ rates, targetCurrency, onCurrencyChange }: RateViewProps) {
     const [isSelectorOpen, setIsSelectorOpen] = useState(false);
+    const { getLongPressProps, toastProps } = useLongPressCopy();
 
     const currentRate = rates[targetCurrency]?.price || 0;
     const currentDisplayName = rates[targetCurrency]?.displayName || targetCurrency;
@@ -39,7 +42,10 @@ export default function RateView({ rates, targetCurrency, onCurrencyChange }: Ra
 
             {/* Price Display */}
             <div className="text-center">
-                <div className="text-7xl font-bold tracking-tighter">
+                <div
+                    {...getLongPressProps(currentRate.toFixed(2), currentRate.toFixed(2))}
+                    className="text-7xl font-bold tracking-tighter"
+                >
                     {currentRate.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 <div className="text-2xl text-gray-400 mt-2 font-medium">
@@ -105,6 +111,7 @@ export default function RateView({ rates, targetCurrency, onCurrencyChange }: Ra
                 {formattedDate}
             </div>
 
+            <Toast {...toastProps} />
         </div>
     );
 }

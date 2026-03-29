@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { evaluate, format } from 'mathjs';
 import Image from 'next/image';
+import { triggerHaptic } from '@/lib/utils';
+import { useLongPressCopy } from '@/hooks/useLongPressCopy';
+import Toast from '@/components/Toast';
 
 interface CalculatorViewProps {
   rates: Record<string, { price: number; displayName: string; imageUrl: string | null }>;
   onBack: () => void;
 }
-
-import { triggerHaptic } from '@/lib/utils';
 
 export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
   const [input, setInput] = useState('');
@@ -20,6 +21,9 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
     Object.keys(rates).slice(0, 3)
   );
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
+
+  // Long-press to copy
+  const { getLongPressProps, toastProps } = useLongPressCopy();
 
   // Scroll Indicators
   const inputRef = useRef<HTMLDivElement>(null);
@@ -277,11 +281,12 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
              )}
              
              {/* Input Text */}
-             <div 
+             <div
                 ref={inputRef}
                 onScroll={checkScroll}
+                {...getLongPressProps(input || '0', input || '0')}
                 className="w-full overflow-x-auto whitespace-nowrap scrollbar-hide text-right text-3xl font-light tracking-wide text-gray-300"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} // Hide scrollbar
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', touchAction: 'none' }}
              >
                 {input || '0'}
              </div>
@@ -295,7 +300,13 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
 
         {/* 2. Main Result */}
         <div className="w-full text-right flex items-center justify-end gap-3">
-             <div className="text-5xl sm:text-6xl font-normal tracking-tight text-white break-all line-clamp-1">
+             <div
+                {...getLongPressProps(
+                  result ? parseFloat(result).toFixed(2) : '0',
+                  result ? parseFloat(result).toFixed(2) : '0'
+                )}
+                className="text-5xl sm:text-6xl font-normal tracking-tight text-white break-all line-clamp-1"
+             >
                 = {isReversed ? 'Bs' : '$'} {result ? parseFloat(result).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0'}
              </div>
         </div>
@@ -312,14 +323,19 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
                 const currencySymbol = currency.toLowerCase().includes('eur') ? '€' : '$';
                 const suffix = isReversed ? ` ${currencySymbol}` : ' Bs';
                 const convertedStr = converted.toFixed(2);
+                const formattedValue = converted.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+                const copyValue = converted.toFixed(2);
                 return (
                     <div
                         key={currency}
-                        onClick={() => {
-                            triggerHaptic();
-                            setIsReversed(prev => !prev);
-                            updateInput(convertedStr);
-                        }}
+                        {...getLongPressProps(copyValue, `${displayName}: ${copyValue}`, {
+                            onTap: () => {
+                                triggerHaptic();
+                                setIsReversed(prev => !prev);
+                                updateInput(convertedStr);
+                            },
+                            touchAction: 'pan-y',
+                        })}
                         className="flex justify-between items-end text-sm text-gray-400 pb-1 rounded-lg px-1 -mx-1 cursor-pointer hover:bg-[#1a1a1a] active:scale-[0.98] active:bg-[#1e1e1e] transition-all"
                     >
                         <div className="flex items-center gap-2">
@@ -328,7 +344,7 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
                             )}
                             <span className="font-medium">{displayName}</span>
                         </div>
-                        <span className="text-white font-mono text-lg">{converted.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}{suffix}</span>
+                        <span className="text-white font-mono text-lg">{formattedValue}{suffix}</span>
                     </div>
                 )
                 })}
@@ -376,6 +392,8 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
             ))}
         </div>
       </div>
+
+      <Toast {...toastProps} />
     </div>
   );
 }

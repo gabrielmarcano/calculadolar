@@ -28,6 +28,11 @@ export default function RootLayout({
   return (
     <html lang="en" dir="ltr">
       <body>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.addEventListener('contextmenu',function(e){e.preventDefault()})`,
+          }}
+        />
         <SerwistProvider>{children}</SerwistProvider>
       </body>
     </html>
