@@ -82,6 +82,13 @@ export async function GET(request: Request) {
 
         if (error) throw new Error(error.message);
 
+        // Record USDT history (best-effort)
+        await supabase.from("rate_history").insert({
+            rate_name: "USDT_BINANCE",
+            price: roundedRateUSDT,
+            recorded_at: new Date().toISOString(),
+        }).then(({ error: histErr }) => { if (histErr) console.error("USDT history insert failed:", histErr.message); });
+
         return NextResponse.json({
             success: true,
             rates: [

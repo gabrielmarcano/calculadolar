@@ -8,9 +8,10 @@ interface RateViewProps {
     rates: Record<string, { price: number; displayName: string; lastUpdated: string; imageUrl: string | null }>;
     targetCurrency: string;
     onCurrencyChange: (currency: string) => void;
+    onViewHistory: (rateName: string) => void;
 }
 
-export default function RateView({ rates, targetCurrency, onCurrencyChange }: RateViewProps) {
+export default function RateView({ rates, targetCurrency, onCurrencyChange, onViewHistory }: RateViewProps) {
     const [isSelectorOpen, setIsSelectorOpen] = useState(false);
     const { getLongPressProps, toastProps } = useLongPressCopy();
 
@@ -110,6 +111,17 @@ export default function RateView({ rates, targetCurrency, onCurrencyChange }: Ra
             <div className="text-gray-500 text-sm font-medium">
                 {formattedDate}
             </div>
+
+            {/* History Link */}
+            <button
+                onClick={() => {
+                    triggerHaptic();
+                    onViewHistory(targetCurrency);
+                }}
+                className="text-gray-500 hover:text-gray-300 text-sm font-medium transition-colors active:scale-95"
+            >
+                Ver historial &rsaquo;
+            </button>
 
             <Toast {...toastProps} />
         </div>

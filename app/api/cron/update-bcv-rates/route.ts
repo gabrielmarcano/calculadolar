@@ -79,6 +79,13 @@ export async function GET(request: Request) {
 
         if (usdError) throw new Error(usdError.message);
 
+        // Record USD history (best-effort, don't fail the cron)
+        await supabase.from("rate_history").insert({
+            rate_name: "USD_BCV",
+            price: roundedRateUSD,
+            recorded_at: new Date().toISOString(),
+        }).then(({ error }) => { if (error) console.error("USD history insert failed:", error.message); });
+
         // BCV EUR
         const { data: eurData, error: eurError } = await supabase
             .from("rates")
@@ -94,6 +101,13 @@ export async function GET(request: Request) {
             .select();
 
         if (eurError) throw new Error(eurError.message);
+
+        // Record EUR history (best-effort)
+        await supabase.from("rate_history").insert({
+            rate_name: "EUR_BCV",
+            price: roundedRateEUR,
+            recorded_at: new Date().toISOString(),
+        }).then(({ error }) => { if (error) console.error("EUR history insert failed:", error.message); });
 
         return NextResponse.json({
             success: true,

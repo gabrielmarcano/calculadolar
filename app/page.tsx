@@ -6,6 +6,7 @@ import { getSupabaseClient } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
 import RateView from '@/components/RateView';
 import CalculatorView from '@/components/CalculatorView';
+import HistoryView from '@/components/HistoryView';
 import { triggerHaptic } from '@/lib/utils';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import InstallPrompt from '@/components/InstallPrompt';
@@ -17,7 +18,8 @@ const CACHE_KEY = 'calculadolar_rates_cache';
 
 export default function Home() {
   // --- VIEW STATE ---
-  const [view, setView] = useState<'dashboard' | 'calculator'>('dashboard');
+  const [view, setView] = useState<'dashboard' | 'calculator' | 'history'>('dashboard');
+  const [historyRateName, setHistoryRateName] = useState('USD_BCV');
 
   // --- PWA INSTALL ---
   const { isInstallable, promptInstall } = usePWAInstall();
@@ -132,6 +134,10 @@ export default function Home() {
                             rates={rates}
                             targetCurrency={targetCurrency}
                             onCurrencyChange={setTargetCurrency}
+                            onViewHistory={(name) => {
+                                setHistoryRateName(name);
+                                setView('history');
+                            }}
                         />
                     )}
                 </div>
@@ -156,6 +162,12 @@ export default function Home() {
         {view === 'calculator' && (
              <div className="h-full w-full">
                 <CalculatorView rates={rates} onBack={() => setView('dashboard')} />
+             </div>
+        )}
+
+        {view === 'history' && (
+             <div className="h-full w-full">
+                <HistoryView rates={rates} initialRateName={historyRateName} onBack={() => setView('dashboard')} />
              </div>
         )}
       </div>

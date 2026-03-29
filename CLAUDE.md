@@ -17,18 +17,20 @@ CalculaDolar is a **Next.js 16 (App Router)** PWA for Venezuelan currency exchan
 
 ### Data Flow
 - `app/page.tsx` fetches rates from Supabase on mount, caches to localStorage (`calculadolar_rates_cache`), and passes data down to child components
-- Two views toggled by state: `RateView` (rate display) and `CalculatorView` (calculator with multi-currency conversion)
+- Three views toggled by state: `RateView` (rate display), `CalculatorView` (calculator with multi-currency conversion), and `HistoryView` (historic price chart)
 - No global state library — props drilling from page to components
 
 ### Backend
 - **BCV rate updater**: `app/api/cron/update-bcv-rates/route.ts` — scrapes BCV website (Cheerio/Axios) for USD/EUR→VES rates. Upserts `USD_BCV` and `EUR_BCV` to Supabase.
 - **Binance rate updater**: `app/api/cron/update-binance-rates/route.ts` — fetches Binance P2P API for USDT/VES merchant ads. Upserts `USDT_BINANCE` to Supabase.
 - Both endpoints are protected by `Authorization: Bearer CRON_SECRET` header.
+- Both endpoints also INSERT into `rate_history` table for historic tracking (best-effort, non-fatal).
+- **History API**: `app/api/history/route.ts` — public GET endpoint returning downsampled price history. Params: `rate_name`, `range` (7d/30d/90d/1y).
 - **Cron**: 3 GitHub Actions workflows in `.github/workflows/`:
   - `update-rates.yml` — hourly at :00, calls both endpoints
-  - `update-bcv-rates.yml` — hourly at :00, calls BCV only
+  - `update-bcv-rates.yml` — hourly at :00, calls BCV only (redundant with update-rates.yml)
   - `update-binance-rates.yml` — hourly at :10, calls Binance only
-- **DB rate names**: `USD_BCV`, `EUR_BCV`, `USDT_BINANCE` (upserted on `name` column)
+- **DB tables**: `rates` (live prices, upserted on `name` column), `rate_history` (append-only, indexed on `rate_name, recorded_at DESC`)
 
 ### PWA / Service Worker
 - Uses **Serwist** for service worker management
@@ -43,7 +45,8 @@ CalculaDolar is a **Next.js 16 (App Router)** PWA for Venezuelan currency exchan
 ### Key Libraries
 - **mathjs** — expression evaluation in the calculator
 - **Cheerio + Axios** — HTML scraping for BCV rates
-- **Supabase** — database (single `rates` table: id, name, display_name, price, timestamps)
+- **Supabase** — database (`rates` table for live prices, `rate_history` for historic data)
+- **Recharts** — SVG line charts for historic price visualization
 - **esbuild-wasm** — required by Serwist for on-the-fly SW compilation
 
 ## Conventions
