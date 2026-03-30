@@ -29,6 +29,19 @@ export default function Home() {
   const [isLoadingRates, setIsLoadingRates] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [targetCurrency, setTargetCurrency] = useState('EUR');
+  const [isOffline, setIsOffline] = useState(false);
+
+  useEffect(() => {
+    const goOffline = () => setIsOffline(true);
+    const goOnline = () => setIsOffline(false);
+    window.addEventListener('offline', goOffline);
+    window.addEventListener('online', goOnline);
+    setIsOffline(!navigator.onLine);
+    return () => {
+      window.removeEventListener('offline', goOffline);
+      window.removeEventListener('online', goOnline);
+    };
+  }, []);
 
   const getRateIcon = (name: string) => {
       if (name.includes('BCV')) return '/BCV.png';
@@ -111,6 +124,13 @@ export default function Home() {
                         Calcula<span className="text-gray-400">dolar</span>
                     </h1>
                 </header>
+
+                {/* OFFLINE INDICATOR */}
+                {isOffline && Object.keys(rates).length > 0 && (
+                    <div className="flex-none mx-4 mt-3 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-xs font-medium text-center">
+                        Sin conexión — mostrando última actualización
+                    </div>
+                )}
 
                 {/* INSTALL PROMPT */}
                 {isInstallable && (

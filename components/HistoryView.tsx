@@ -14,6 +14,8 @@ const RANGES: { label: string; value: HistoryRange }[] = [
     { label: '1A', value: '1y' },
 ];
 
+const HISTORY_CACHE_PREFIX = 'calculadolar_history_';
+
 interface HistoryViewProps {
     rates: Record<string, { price: number; displayName: string; imageUrl: string | null }>;
     initialRateName: string;
@@ -25,31 +27,64 @@ interface DataPoint {
     recorded_at: string;
 }
 
+function loadCachedHistory(key: string): DataPoint[] | null {
+    try {
+        const raw = localStorage.getItem(HISTORY_CACHE_PREFIX + key);
+        if (!raw) return null;
+        return JSON.parse(raw);
+    } catch { return null; }
+}
+
+function saveCachedHistory(key: string, data: DataPoint[]) {
+    try {
+        localStorage.setItem(HISTORY_CACHE_PREFIX + key, JSON.stringify(data));
+    } catch { /* storage full — ignore */ }
+}
+
 export default function HistoryView({ rates, initialRateName, onBack }: HistoryViewProps) {
     const [selectedRate, setSelectedRate] = useState(initialRateName);
     const [selectedRange, setSelectedRange] = useState<HistoryRange>('7d');
     const [data, setData] = useState<DataPoint[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const cache = useRef<Map<string, DataPoint[]>>(new Map());
+    const [isOffline, setIsOffline] = useState(false);
+    const memCache = useRef<Map<string, DataPoint[]>>(new Map());
 
     useEffect(() => {
         const cacheKey = `${selectedRate}_${selectedRange}`;
-        const cached = cache.current.get(cacheKey);
-        if (cached) {
-            setData(cached);
+
+        // 1. Try in-memory cache first
+        const memCached = memCache.current.get(cacheKey);
+        if (memCached) {
+            setData(memCached);
             setIsLoading(false);
+            setIsOffline(false);
             return;
         }
 
-        setIsLoading(true);
+        // 2. Show localStorage cache immediately while fetching
+        const localCached = loadCachedHistory(cacheKey);
+        if (localCached) {
+            setData(localCached);
+            setIsLoading(false);
+        } else {
+            setIsLoading(true);
+        }
+
+        // 3. Fetch fresh data
         fetch(`/api/history?rate_name=${selectedRate}&range=${selectedRange}`)
             .then(res => res.json())
             .then(json => {
-                const points = json.data || [];
-                cache.current.set(cacheKey, points);
+                const points: DataPoint[] = json.data || [];
+                memCache.current.set(cacheKey, points);
+                saveCachedHistory(cacheKey, points);
                 setData(points);
+                setIsOffline(false);
             })
-            .catch(() => setData([]))
+            .catch(() => {
+                // Offline or fetch failed — keep showing cached data if we have it
+                if (!localCached) setData([]);
+                setIsOffline(true);
+            })
             .finally(() => setIsLoading(false));
     }, [selectedRate, selectedRange]);
 
@@ -80,6 +115,13 @@ export default function HistoryView({ rates, initialRateName, onBack }: HistoryV
                 <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400">Historial</h2>
                 <div className="w-10" />
             </div>
+
+            {/* Offline Indicator */}
+            {isOffline && data.length > 0 && (
+                <div className="flex-none mx-4 mb-2 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-xs font-medium text-center">
+                    Sin conexión — mostrando datos guardados
+                </div>
+            )}
 
             {/* Rate Selector */}
             <div className="flex-none flex gap-2 px-4 pb-4 overflow-x-auto">
