@@ -52,6 +52,16 @@
     - Calibracion de jerarquia en botones del teclado emulando proporciones de Android Stock (~45-50% de altura de tecla con `text-[32px]`).
     - Sustitucion del caracter unicode de borrado por icono vectorial SVG optimizado para pantallas tactiles.
 
+- [x] **Optimizacion de carga y persistencia en cache de imagenes locales**
+  - **Descripcion**: Erradicar el parpadeo visual (flicker) de los iconos de tasas y recursos graficos al abrir la aplicacion o alternar entre pantallas mediante precarga, cache inmutable y derivacion sincrona de estado.
+  - **Alcance**:
+    - Inicializacion sincrona de estado en `app/page.tsx` desde `localStorage`, eliminando el marco en blanco inicial.
+    - Configurado `unoptimized: true` y `priority` en componentes `<Image />`, evitando peticiones dinamicas a `/_next/image` y sirviendo directamente los archivos estaticos precacheados.
+    - Estrategia `CacheFirst` en Serwist (`app/sw.ts`) con expiracion a 30 dias para imagenes locales.
+    - Enlaces de precarga `<link rel="preload" as="image">` en el `<head>` de `app/layout.tsx`.
+    - Cabeceras `Cache-Control: public, max-age=31536000, immutable` en `next.config.ts`.
+    - Compresion y optimizacion de `BCV.png` reduciendo su tamano en un 81% (de 154 KB a 29 KB).
+
 ## Tareas Pendientes
 
 - [ ] **Modal de configuracion con boton de engranaje en calculadora**
@@ -118,14 +128,6 @@
     - Preservacion estricta de estabilidad visual para evitar desajustes acumulados de layout (CLS).
   - **Investigacion previa**: Comparar el rendimiento de animaciones CSS nativas frente a la View Transitions API en navegadores moviles WebKit y Chromium, definiendo una curva de aceleracion tipo cubic-bezier que replique la fisica de Material Design 3 sin retrasar la ejecucion de callbacks.
 
-- [ ] **Optimizacion de carga y persistencia en cache de imagenes locales**
-  - **Descripcion**: Erradicar el parpadeo visual (flicker) de los iconos de tasas y recursos graficos al abrir la aplicacion o alternar entre pantallas, garantizando disponibilidad y renderizado instantaneo sin refetch.
-  - **Alcance**:
-    - Politica de precache inmutable en Serwist para activos graficos locales en `/public/` (`BCV.png`, `BINANCE.png`, divisas).
-    - Optimizacion del ciclo de vida de carga en componentes `next/image` mediante precarga (`priority`), decodificacion asincrona (`decoding="async"`) y atributos de dimension fijos.
-    - Persistencia en cache de memoria para prevenir repintados o solicitudes redundantes entre montajes de componentes.
-  - **Investigacion previa**: Analizar las causas por las cuales `next/image` revalida imagenes estaticas locales entre navegaciones internas del App Router y evaluar si empaquetar los iconos de divisas como componentes SVG en linea o precargarlos en el documento HTML elimina por completo la latencia de renderizado.
-
 - [ ] **Rediseno de identidad visual, logotipo y activos de marca**
   - **Descripcion**: Crear una identidad grafica renovada y profesional para CalculaDolar, integrando nuevo logotipo, isotipo, favicon y el paquete completo de iconos de instalacion PWA.
   - **Alcance**:
@@ -133,3 +135,11 @@
     - Generacion del conjunto completo de activos para instalacion: favicon (`favicon.ico`), icono tactil de Apple (`apple-icon.png`), e iconos adaptativos para Android (`web-app-manifest-192x192.png`, `web-app-manifest-512x512.png`, maskable).
     - Actualizacion de la pantalla de carga inicial (Splash Screen) y elementos de marca en encabezados.
   - **Investigacion previa**: Validar los requisitos de zona segura (safe zone del 80%) para iconos maskable de Android para evitar recortes irregulares en diferentes capas de personalizacion (One UI, MIUI, Pixel Launcher), y asegurar compatibilidad de contrastes WCAG AAA sobre fondos `#0a0a0a`.
+
+- [ ] **Auditoria y reemplazo de emojis por iconografia vectorial SVG**
+  - **Descripcion**: Identificar y sustituir cualquier uso de emojis unicode en la interfaz por iconos vectoriales SVG estandarizados y accesibles, asegurando una apariencia profesional y uniforme en cualquier plataforma movil.
+  - **Alcance**:
+    - Auditar vistas y componentes en busqueda de caracteres emoji unicode (`app/`, `components/`).
+    - Sustituir glifos o emojis del sistema por componentes SVG vectoriales limpios y coherentes con Tailwind.
+    - Asegurar alineacion vertical, proporciones tactiles y compatibilidad estricta con lectores de pantalla (a11y).
+  - **Investigacion previa**: Mapear todas las ocurrencias de caracteres unicode dependientes de fuentes del sistema operativo (que en iOS y Android presentan representaciones heterogeneas) y consolidar una libreria interna de iconos SVG reutilizables.
