@@ -124,6 +124,16 @@
     - Panel de configuracion con interruptores (opt-in / opt-out) para tipos de alertas y umbrales.
   - **Investigacion previa**: Investigar el soporte y limitaciones de Web Push en iOS Safari (requiere que la PWA este instalada en pantalla de inicio a partir de iOS 16.4), las politicas de retencion de suscripciones invalidas en Supabase, y el costo/latencia de ejecucion desde el cron de despacho.
 
+- [ ] **Navegacion por deslizamiento horizontal (swipe) interactivo en tiempo real entre pantallas**
+  - **Descripcion**: Implementar transicion interactiva de pantalla completa entre la vista de Calculadora y la vista de Tasas (dashboard) mediante gestos tactiles horizontales (swipe/drag) con seguimiento continuo 1:1 del dedo del usuario y fisica de resorte (spring snap), emulando la fluidez de aplicaciones moviles nativas.
+  - **Alcance**:
+    - Contenedor interactivo de pantallas contiguas en `app/page.tsx` con seguimiento tactil continuo (`pointerdown`, `pointermove`, `pointerup`) y aceleracion por hardware (`transform: translate3d`).
+    - Deteccion direccional de intencion con bloqueo de eje (`Math.abs(dx) > Math.abs(dy)`), respetando el desplazamiento vertical nativo de la pantalla de cotizaciones.
+    - Exclusion rigurosa de zonas con scroll horizontal local (el visor de expresion editable de `CalculatorDisplay`).
+    - Fisica de resorte (snap): umbral de avance (>25% del ancho de pantalla) o inercia de velocidad (>0.3 px/ms) para transicionar o rebotar a la vista actual con curva `cubic-bezier(0.16, 1, 0.3, 1)`.
+    - Persistencia sincronizada en `localStorage` (`calculadolar_last_view`).
+  - **Investigacion previa**: Analizado el patron de arquitectura de doble carril (`[ Tasas (0%) | Calculadora (-100%) ]`) gestionando el arrastre continuo en tiempo real directamente sobre el `ref.style.transform` del DOM sin disparar re-renders de React durante el movimiento del puntero, reservando el `setView` exclusivamente para la finalizacion del gesto (pointerup).
+
 - [ ] **Sistema de microinteracciones y animaciones fluidas de alto rendimiento**
   - **Descripcion**: Incorporar transiciones y animaciones interactivas ligeras que aporten dinamismo y elegancia a la interfaz sin degradar la respuesta tactil ni la tasa de cuadros por segundo (60 fps).
   - **Alcance**:
