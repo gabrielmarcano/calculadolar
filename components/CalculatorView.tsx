@@ -4,26 +4,67 @@ import Image from 'next/image';
 import { triggerHaptic } from '@/lib/utils';
 import { useLongPressCopy } from '@/hooks/useLongPressCopy';
 import Toast from '@/components/Toast';
+import { sanitizeClipboardExpression } from '@/lib/sanitizer';
+import { copyToClipboard } from '@/lib/clipboard';
+
+const SELECTED_RATES_KEY = 'calculadolar_selected_rates';
 
 interface CalculatorViewProps {
   rates: Record<string, { price: number; displayName: string; imageUrl: string | null }>;
-  onBack: () => void;
+  isOffline?: boolean;
+  onOpenRates?: () => void;
+  onBack?: () => void;
 }
 
-export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
+export default function CalculatorView({ rates, isOffline = false, onOpenRates, onBack }: CalculatorViewProps) {
+  const handleOpenRates = onOpenRates || onBack || (() => {});
   const [input, setInput] = useState('');
   const [result, setResult] = useState('');
   const [hasError, setHasError] = useState(false);
   const [isReversed, setIsReversed] = useState(false);
   
-  // State for selected rates to show conversions for
-  const [selectedRates, setSelectedRates] = useState<string[]>(() =>
-    Object.keys(rates).slice(0, 3)
-  );
+  // State for user-selected rates (persisted in localStorage)
+  const [userSelectedRates, setUserSelectedRates] = useState<string[] | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem(SELECTED_RATES_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch {}
+    }
+    return null;
+  });
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
 
-  // Long-press to copy
-  const { getLongPressProps, toastProps } = useLongPressCopy();
+  // Pure derivation: automatically adapts as soon as rates arrive from cache/network
+  const rateKeys = Object.keys(rates);
+  const selectedRates = (() => {
+    if (userSelectedRates && userSelectedRates.length > 0) {
+      const valid = userSelectedRates.filter(k => rateKeys.includes(k));
+      if (valid.length > 0) return valid;
+    }
+    return rateKeys.slice(0, 3);
+  })();
+
+  // Gestures (semantic direct copy for read-only outputs, context menu for input)
+  const { bindDirectCopy, bindContextMenu, toastProps, showToast } = useLongPressCopy();
+
+  // Floating Contextual Bubble & Smart Resume Suggestion (Zero permanent UI buttons)
+  const [showContextBubble, setShowContextBubble] = useState(false);
+  const [showResumeSuggestion, setShowResumeSuggestion] = useState(false);
+
+  // App resume detection (returns from WhatsApp/notes/banking apps)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        setShowResumeSuggestion(true);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
 
   // Scroll Indicators
   const inputRef = useRef<HTMLDivElement>(null);
@@ -76,37 +117,106 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
     setResult(newResult);
   };
 
+  const dismissContextMenus = () => {
+    setShowContextBubble(false);
+    setShowResumeSuggestion(false);
+  };
+
+  const handlePasteFromClipboard = async () => {
+    triggerHaptic();
+    dismissContextMenus();
+
+    try {
+      if (typeof navigator === 'undefined' || !navigator.clipboard?.readText) {
+        showToast('Pegar requiere HTTPS (o localhost en este equipo)');
+        return;
+      }
+
+      const text = await navigator.clipboard.readText();
+      const sanitized = sanitizeClipboardExpression(text);
+
+      if (!sanitized.isValid) {
+        showToast(sanitized.error || 'No se encontró una cuenta o monto válido');
+        return;
+      }
+
+      // Si el texto pegado empieza con operador (+, -, ×, ÷), concatenar a la cuenta actual
+      // Si la cuenta actual está vacía o es '0', o no empieza con operador: reemplazar
+      const isOperatorStart = /^[+\-×÷]/.test(sanitized.displayExpression);
+      if (input && input !== '0' && isOperatorStart) {
+        updateInput(input + sanitized.displayExpression);
+      } else {
+        updateInput(sanitized.displayExpression);
+      }
+
+      if (sanitized.previewValue !== null) {
+        showToast(`Pegado: ${sanitized.displayExpression}`);
+      } else {
+        showToast(`Monto pegado: ${sanitized.displayExpression}`);
+      }
+    } catch (err) {
+      console.error('Clipboard read error:', err);
+      showToast('Permiso de portapapeles no concedido');
+    }
+  };
+
+  const handleCopyInput = () => {
+    triggerHaptic();
+    dismissContextMenus();
+    const toCopy = input || '0';
+    copyToClipboard(toCopy).finally(() => {
+      showToast('Cuenta copiada');
+    });
+  };
+
   const handleClick = (value: string) => {
+    dismissContextMenus();
     if (hasError) {
       updateInput(value);
       setHasError(false);
+      return;
+    }
+    // Si la entrada actual es '0' o '0.00' y se introduce un dígito (no un punto ni operador), reemplazar
+    if ((input === '0' || input === '0.00') && /^\d$/.test(value)) {
+      updateInput(value);
+      return;
+    }
+    // Si la entrada es '0.00' y se pulsa punto, reiniciar a '0.'
+    if (input === '0.00' && value === '.') {
+      updateInput('0.');
       return;
     }
     updateInput(input + value);
   };
 
   const handleBackspace = () => {
-      const next = input.slice(0, -1);
-      updateInput(next);
-  }
+    dismissContextMenus();
+    const next = input.slice(0, -1);
+    updateInput(next);
+  };
 
   const clear = () => {
+    dismissContextMenus();
     setInput('');
     setResult('');
     setHasError(false);
   };
 
   const commitResult = () => {
+    dismissContextMenus();
     if (!result) return;
     setInput(result);
   };
   
   const toggleRate = (currency: string) => {
-      setSelectedRates(prev => 
-          prev.includes(currency) 
-          ? prev.filter(c => c !== currency) 
-          : [...prev, currency]
-      );
+    const current = selectedRates;
+    const next = current.includes(currency) 
+      ? current.filter(c => c !== currency) 
+      : [...current, currency];
+    setUserSelectedRates(next);
+    try {
+      localStorage.setItem(SELECTED_RATES_KEY, JSON.stringify(next));
+    } catch {}
   };
 
   const handleParentheses = () => {
@@ -173,19 +283,24 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
     <div className="flex flex-col h-full bg-[#121212] text-white font-sans">
       
       {/* Top Bar / Rate Selector */}
-      {/* Top Bar / Rate Selector */}
-      <div className="flex-none flex justify-between items-center p-4 relative z-20">
+      <div className={`flex-none flex justify-between items-center p-4 relative ${isSelectorOpen ? 'z-40' : 'z-10'}`}>
         <div className="flex items-center gap-2">
             <button
                 onClick={() => {
                     triggerHaptic();
-                    onBack();
+                    handleOpenRates();
                 }}
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-[#2d2d2d] hover:bg-[#3d3d3d] text-gray-300 transition-colors active:scale-95 group"
+                className="flex items-center gap-1.5 bg-[#2d2d2d] hover:bg-[#3d3d3d] text-gray-200 text-xs font-bold py-2 px-3 rounded-full transition-all active:scale-95 border border-white/5 shadow-sm"
+                title="Ver tasas de cambio"
+                aria-label="Ver tasas de cambio"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-emerald-400">
+                  <path fillRule="evenodd" d="M1 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4Zm12 4a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-5 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0Zm-5 5a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm14-1a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM4 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm13-1a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" clipRule="evenodd" />
                 </svg>
+                <span>Tasas</span>
+                {isOffline && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse ml-0.5" title="Modo sin conexión" />
+                )}
             </button>
             <div className="relative flex bg-[#2d2d2d] rounded-full p-[3px]">
                 <div
@@ -229,10 +344,10 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
             {isSelectorOpen && (
                 <>
                     <div 
-                        className="fixed inset-0 z-10 bg-black/50" 
+                        className="fixed inset-0 z-40 bg-black/50" 
                         onClick={() => setIsSelectorOpen(false)}
                     />
-                    <div className="absolute right-0 top-full mt-2 w-64 bg-[#1e1e1e] rounded-xl shadow-2xl border border-gray-800 p-2 z-20 max-h-60 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+                    <div className="absolute right-0 top-full mt-2 w-64 bg-[#1e1e1e] rounded-xl shadow-2xl border border-gray-800 p-2 z-50 max-h-60 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
                         {Object.keys(rates).length === 0 ? (
                             <div className="text-gray-500 text-xs text-center py-2">No rates available</div>
                         ) : (
@@ -249,7 +364,7 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
                                         className={`w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium mb-1 transition-colors ${
                                             isSelected 
                                             ? 'bg-blue-600/20 text-blue-400' 
-                                            : 'text-gray-300 hover:bg-[#2d2d2d]'
+                                             : 'text-gray-300 hover:bg-[#2d2d2d]'
                                         }`}
                                     >
                                         {rate.imageUrl && (
@@ -267,12 +382,59 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
         </div>
       </div>
 
-      {/* Screen / Display Area */}
       {/* Screen / Display Area (Fixed/Auto Height - Always Visible) */}
-      <div className="flex-none flex flex-col justify-end mt-2 px-6 pb-4 space-y-4 relative z-0">
+      <div className="flex-none flex flex-col justify-end pt-3 px-6 pb-4 space-y-4 relative z-20">
         
         {/* 1. User Input (Scrollable) */}
         <div className="w-full relative group">
+             {/* Smart Resume Suggestion (Appears when returning from another app) */}
+             {showResumeSuggestion && (
+                 <div className="absolute -top-9 right-0 z-30 flex items-center animate-in fade-in slide-in-from-bottom-2 duration-200">
+                     <button
+                         onClick={handlePasteFromClipboard}
+                         className="flex items-center gap-1.5 bg-[#252525] hover:bg-[#333333] text-gray-200 border border-white/15 px-3 py-1 rounded-full text-xs font-medium shadow-xl active:scale-95 transition-all"
+                     >
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5 text-blue-400">
+                           <path fillRule="evenodd" d="M13.887 3.182c.396.037.79.08 1.183.128C16.194 3.45 17 4.414 17 5.517V16.5A2.5 2.5 0 0 1 14.5 19h-9A2.5 2.5 0 0 1 3 16.5V5.517c0-1.103.806-2.068 1.93-2.207.393-.048.787-.09 1.183-.128A3.001 3.001 0 0 1 9 1h2c1.373 0 2.531.923 2.887 2.182ZM7.5 4A1.5 1.5 0 0 1 9 2.5h2A1.5 1.5 0 0 1 12.5 4v.5h-5V4Z" clipRule="evenodd" />
+                         </svg>
+                         <span>Pegar portapapeles</span>
+                         <span
+                             onClick={(e) => {
+                                 e.stopPropagation();
+                                 setShowResumeSuggestion(false);
+                             }}
+                             className="text-gray-500 hover:text-gray-300 ml-1 p-0.5"
+                         >
+                             ✕
+                         </span>
+                     </button>
+                 </div>
+             )}
+
+             {/* Contextual Action Bubble (Triggered on long-press on display) */}
+             {showContextBubble && (
+                 <div className="absolute -top-9 right-0 z-30 flex items-center bg-[#252525] border border-white/15 rounded-full shadow-2xl overflow-hidden py-0.5 px-1 animate-in zoom-in-95 duration-150">
+                     {input && input !== '0' && (
+                         <button
+                             onClick={handleCopyInput}
+                             className="px-3 py-1 text-xs font-semibold text-gray-200 hover:text-white hover:bg-white/10 rounded-full transition-colors active:scale-95"
+                         >
+                             Copiar
+                         </button>
+                     )}
+                     {input && input !== '0' && <div className="w-[1px] h-3 bg-white/20 my-auto" />}
+                     <button
+                         onClick={handlePasteFromClipboard}
+                         className="px-3 py-1 text-xs font-semibold text-gray-200 hover:text-white hover:bg-white/10 rounded-full transition-colors active:scale-95 flex items-center gap-1"
+                     >
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3 text-blue-400">
+                           <path fillRule="evenodd" d="M13.887 3.182c.396.037.79.08 1.183.128C16.194 3.45 17 4.414 17 5.517V16.5A2.5 2.5 0 0 1 14.5 19h-9A2.5 2.5 0 0 1 3 16.5V5.517c0-1.103.806-2.068 1.93-2.207.393-.048.787-.09 1.183-.128A3.001 3.001 0 0 1 9 1h2c1.373 0 2.531.923 2.887 2.182ZM7.5 4A1.5 1.5 0 0 1 9 2.5h2A1.5 1.5 0 0 1 12.5 4v.5h-5V4Z" clipRule="evenodd" />
+                         </svg>
+                         <span>Pegar</span>
+                     </button>
+                 </div>
+             )}
+
              {/* Indicators */}
              {canScrollLeft && (
                  <div className="absolute left-0 top-0 bottom-0 flex items-center justify-center bg-gradient-to-r from-[#121212] to-transparent pr-4 z-10 pointer-events-none">
@@ -284,8 +446,16 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
              <div
                 ref={inputRef}
                 onScroll={checkScroll}
-                {...getLongPressProps(input || '0', input || '0')}
-                className="w-full overflow-x-auto whitespace-nowrap scrollbar-hide text-right text-3xl font-light tracking-wide text-gray-300"
+                {...bindContextMenu({
+                  onLongPress: () => {
+                    setShowContextBubble(true);
+                    setShowResumeSuggestion(false);
+                  },
+                  onTap: () => {
+                    dismissContextMenus();
+                  },
+                })}
+                className="w-full overflow-x-auto whitespace-nowrap scrollbar-hide text-right text-3xl font-light tracking-wide text-gray-300 cursor-pointer active:opacity-80 transition-opacity"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
              >
                 {input || '0'}
@@ -301,13 +471,16 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
         {/* 2. Main Result */}
         <div className="w-full text-right flex items-center justify-end gap-3">
              <div
-                {...getLongPressProps(
-                  result ? parseFloat(result).toFixed(2) : '0',
-                  result ? parseFloat(result).toFixed(2) : '0'
+                {...bindDirectCopy(
+                  result && parseFloat(result) !== 0 ? parseFloat(result).toFixed(2) : '0',
+                  result && parseFloat(result) !== 0 ? parseFloat(result).toFixed(2) : '0',
+                  {
+                    onTap: commitResult,
+                  }
                 )}
-                className="text-5xl sm:text-6xl font-normal tracking-tight text-white break-all line-clamp-1"
+                className="text-5xl sm:text-6xl font-normal tracking-tight text-white break-all line-clamp-1 cursor-pointer"
              >
-                = {isReversed ? 'Bs' : '$'} {result ? parseFloat(result).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0'}
+                = {isReversed ? 'Bs' : '$'} {result && parseFloat(result) !== 0 ? parseFloat(result).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0'}
              </div>
         </div>
         
@@ -320,19 +493,26 @@ export default function CalculatorView({ rates, onBack }: CalculatorViewProps) {
                 const converted = isReversed
                     ? (rate > 0 ? numericResult / rate : 0)
                     : numericResult * rate;
+                const isZero = numericResult === 0 || converted === 0;
                 const currencySymbol = currency.toLowerCase().includes('eur') ? '€' : '$';
                 const suffix = isReversed ? ` ${currencySymbol}` : ' Bs';
-                const convertedStr = converted.toFixed(2);
-                const formattedValue = converted.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
-                const copyValue = converted.toFixed(2);
+                const convertedStr = isZero ? '0' : converted.toFixed(2);
+                const formattedValue = isZero
+                    ? '0'
+                    : converted.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+                const copyValue = isZero ? '0' : converted.toFixed(2);
                 return (
                     <div
                         key={currency}
-                        {...getLongPressProps(copyValue, `${displayName}: ${copyValue}`, {
+                        {...bindDirectCopy(copyValue, `${displayName}: ${copyValue}`, {
                             onTap: () => {
                                 triggerHaptic();
                                 setIsReversed(prev => !prev);
-                                updateInput(convertedStr);
+                                if (!isZero) {
+                                    updateInput(convertedStr);
+                                } else {
+                                    updateInput('0');
+                                }
                             },
                             touchAction: 'pan-y',
                         })}

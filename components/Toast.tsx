@@ -5,16 +5,16 @@ interface ToastProps {
   toastMessage: string | null;
   toastTranslateY: number;
   setToastTranslateY: (y: number) => void;
-  toastSwipeStart: MutableRefObject<number | null>;
+  toastSwipeStartRef: MutableRefObject<number | null>;
   dismissToast: () => void;
 }
 
-export default function Toast({ toastMessage, toastTranslateY, setToastTranslateY, toastSwipeStart, dismissToast }: ToastProps) {
+export default function Toast({ toastMessage, toastTranslateY, setToastTranslateY, toastSwipeStartRef, dismissToast }: ToastProps) {
   if (!toastMessage) return null;
 
   return createPortal(
     <div
-      className="fixed bottom-10 left-0 right-0 flex justify-center z-50 pointer-events-none px-4"
+      className="fixed bottom-10 left-0 right-0 flex justify-center z-[9999] pointer-events-none px-4"
       style={{
         transform: `translateY(${toastTranslateY}px)`,
         opacity: toastTranslateY > 30 ? Math.max(0, 1 - (toastTranslateY - 30) / 40) : 1,
@@ -24,11 +24,11 @@ export default function Toast({ toastMessage, toastTranslateY, setToastTranslate
       <div
         className="pointer-events-auto bg-[#2d2d2d] border border-white/10 text-white text-sm font-medium px-5 py-3 rounded-full shadow-lg animate-in slide-in-from-bottom-4 fade-in duration-200"
         onPointerDown={(e) => {
-          toastSwipeStart.current = e.clientY;
+          toastSwipeStartRef.current = e.clientY;
         }}
         onPointerMove={(e) => {
-          if (toastSwipeStart.current === null) return;
-          const dy = e.clientY - toastSwipeStart.current;
+          if (toastSwipeStartRef.current === null) return;
+          const dy = e.clientY - toastSwipeStartRef.current;
           if (dy > 0) setToastTranslateY(dy);
         }}
         onPointerUp={() => {
@@ -37,7 +37,7 @@ export default function Toast({ toastMessage, toastTranslateY, setToastTranslate
           } else {
             setToastTranslateY(0);
           }
-          toastSwipeStart.current = null;
+          toastSwipeStartRef.current = null;
         }}
       >
         {toastMessage}

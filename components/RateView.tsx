@@ -13,7 +13,7 @@ interface RateViewProps {
 
 export default function RateView({ rates, targetCurrency, onCurrencyChange, onViewHistory }: RateViewProps) {
     const [isSelectorOpen, setIsSelectorOpen] = useState(false);
-    const { getLongPressProps, toastProps } = useLongPressCopy();
+    const { bindDirectCopy, toastProps } = useLongPressCopy();
 
     const currentRate = rates[targetCurrency]?.price || 0;
     const currentDisplayName = rates[targetCurrency]?.displayName || targetCurrency;
@@ -44,7 +44,7 @@ export default function RateView({ rates, targetCurrency, onCurrencyChange, onVi
             {/* Price Display */}
             <div className="text-center">
                 <div
-                    {...getLongPressProps(currentRate.toFixed(2), currentRate.toFixed(2))}
+                    {...bindDirectCopy(currentRate.toFixed(2), currentRate.toFixed(2))}
                     className="text-7xl font-bold tracking-tighter"
                 >
                     {currentRate.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
