@@ -54,12 +54,13 @@ export default function RateView({
   const targetDate = latestTimestamp ? new Date(latestTimestamp) : new Date();
 
   // Prominent Spanish date string: "Lunes, 7 de septiembre de 2026"
-  const formattedDate = targetDate.toLocaleDateString('es-ES', {
+  const rawDate = targetDate.toLocaleDateString('es-ES', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   });
+  const formattedDate = rawDate.charAt(0).toUpperCase() + rawDate.slice(1);
 
   const formattedTime = latestTimestamp
     ? targetDate.toLocaleTimeString('es-ES', {
@@ -77,7 +78,7 @@ export default function RateView({
     <div className="w-full max-w-md mx-auto select-none pt-1">
       {/* Prominent Date Header */}
       <div className="px-2 pb-4 mb-3 border-b border-white/10">
-        <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white capitalize">
+        <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
           {formattedDate}
         </h2>
         <div className="h-5 mt-1.5 flex items-center">

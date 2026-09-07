@@ -91,51 +91,55 @@ export default function HistoryChart({
   const strokeColor = isPositive ? '#10b981' : '#f43f5e';
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <AreaChart
-        data={data}
-        margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-        onMouseLeave={() => onHoverPoint?.(null)}
-      >
-        <defs>
-          <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={strokeColor} stopOpacity={0.25} />
-            <stop offset="95%" stopColor={strokeColor} stopOpacity={0.0} />
-          </linearGradient>
-        </defs>
-        <XAxis
-          dataKey="recorded_at"
-          tickFormatter={(v) => formatXAxis(v, range)}
-          tick={{ fill: '#6b7280', fontSize: 10, fontFamily: 'monospace' }}
-          axisLine={{ stroke: '#ffffff10' }}
-          tickLine={false}
-          minTickGap={45}
-        />
-        <YAxis
-          domain={[min - padding, max + padding]}
-          tick={{ fill: '#6b7280', fontSize: 10, fontFamily: 'monospace' }}
-          axisLine={false}
-          tickLine={false}
-          tickFormatter={(v) => v.toFixed(2)}
-          width={48}
-          orientation="right"
-        />
-        <Tooltip content={<CustomTooltip onHoverPoint={onHoverPoint} />} />
-        <Area
-          type="monotone"
-          dataKey="price"
-          stroke={strokeColor}
-          strokeWidth={2.5}
-          fill="url(#areaGradient)"
-          dot={false}
-          activeDot={{
-            r: 5,
-            fill: strokeColor,
-            stroke: '#ffffff',
-            strokeWidth: 2,
-          }}
-        />
-      </AreaChart>
-    </ResponsiveContainer>
+    <div className="w-full h-full outline-none focus:outline-none focus:ring-0 [&_*]:outline-none [&_*]:focus:outline-none [&_*]:focus-visible:outline-none [&_svg]:outline-none select-none">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart
+          data={data}
+          tabIndex={-1}
+          style={{ outline: 'none' }}
+          margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+          onMouseLeave={() => onHoverPoint?.(null)}
+        >
+          <defs>
+            <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={strokeColor} stopOpacity={0.25} />
+              <stop offset="95%" stopColor={strokeColor} stopOpacity={0.0} />
+            </linearGradient>
+          </defs>
+          <XAxis
+            dataKey="recorded_at"
+            tickFormatter={(v) => formatXAxis(v, range)}
+            tick={{ fill: '#6b7280', fontSize: 10, fontFamily: 'monospace' }}
+            axisLine={{ stroke: '#ffffff10' }}
+            tickLine={false}
+            minTickGap={45}
+          />
+          <YAxis
+            domain={[min - padding, max + padding]}
+            tick={{ fill: '#6b7280', fontSize: 10, fontFamily: 'monospace' }}
+            axisLine={false}
+            tickLine={false}
+            tickFormatter={(v) => v.toFixed(2)}
+            width={48}
+            orientation="right"
+          />
+          <Tooltip content={<CustomTooltip onHoverPoint={onHoverPoint} />} />
+          <Area
+            type="monotone"
+            dataKey="price"
+            stroke={strokeColor}
+            strokeWidth={2.5}
+            fill="url(#areaGradient)"
+            dot={false}
+            activeDot={{
+              r: 5,
+              fill: strokeColor,
+              stroke: '#ffffff',
+              strokeWidth: 2,
+            }}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
