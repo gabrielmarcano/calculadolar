@@ -87,25 +87,16 @@ export default function RateView({
 
   return (
     <div className="w-full max-w-md mx-auto select-none pt-1">
-      {/* Prominent Date & Market Header */}
+      {/* Prominent Date Header */}
       <div className="px-2 pb-4 mb-3 border-b border-white/10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
-              Tasa Oficial del Día
-            </span>
-          </div>
-          {formattedTime && (
-            <span className="text-xs font-mono text-gray-400 tabular-nums">
-              Actualizado {formattedTime}
-            </span>
-          )}
-        </div>
-
-        <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white capitalize mt-2">
+        <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white capitalize">
           {formattedDate}
         </h2>
+        {formattedTime && (
+          <p className="text-xs font-mono text-gray-400 tabular-nums mt-1.5">
+            Actualizado {formattedTime}
+          </p>
+        )}
       </div>
 
       {/* Clean Edge-to-Edge List */}
@@ -122,7 +113,6 @@ export default function RateView({
               price={item?.price}
               imageUrl={item?.imageUrl || config.defaultImage}
               isLoading={isLoading || !hasRate}
-              onViewHistory={onViewHistory}
               onCopy={handleCopy}
             />
           );
@@ -141,11 +131,63 @@ export default function RateView({
               price={item.price}
               imageUrl={item.imageUrl}
               isLoading={isLoading}
-              onViewHistory={onViewHistory}
               onCopy={handleCopy}
             />
           );
         })}
+      </div>
+
+      {/* Dedicated Separate Chart Button */}
+      <div className="mt-5 px-1">
+        <button
+          type="button"
+          onClick={() => {
+            triggerHaptic();
+            onViewHistory('USD_BCV');
+          }}
+          className="w-full flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] hover:bg-white/[0.06] active:bg-white/[0.09] active:scale-[0.99] border border-white/5 transition-all duration-75 ease-out cursor-pointer"
+        >
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-gray-300 shrink-0">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-5 h-5 pointer-events-none"
+                aria-hidden="true"
+              >
+                <path d="M3 3v18h18" />
+                <path d="m19 9-5 5-4-4-3 3" />
+              </svg>
+            </div>
+            <div className="text-left">
+              <span className="font-semibold text-sm text-white block">
+                Ver gráficos históricos
+              </span>
+              <span className="text-xs text-gray-400 block mt-0.5">
+                Tendencias y evolución de precios
+              </span>
+            </div>
+          </div>
+
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="w-5 h-5 text-gray-500 shrink-0 pointer-events-none"
+            aria-hidden="true"
+          >
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </button>
       </div>
 
       {/* Toast Notification Portal */}
