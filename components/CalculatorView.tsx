@@ -552,12 +552,12 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
                 className={`
                 h-full w-full rounded-[2rem] sm:rounded-[2.5rem] transition-all active:scale-95 flex items-center justify-center
                 
-                /* Typography Scale (Android Stock Proportion ~55-60% of button height) */
+                /* Typography Scale: Numbers/Point/Back remain calibrated, outer perimeter buttons enlarged */
                 ${btn.type === 'num' ? 'text-[38px] sm:text-[40px] font-normal leading-none' : ''}
                 ${btn.value === '.' ? '!font-bold' : ''}
-                ${btn.type === 'op' ? 'text-[38px] sm:text-[40px] font-light leading-none' : ''}
-                ${btn.type === 'func' ? 'text-[26px] sm:text-[28px] font-normal leading-none' : ''}
-                ${btn.type === 'equal' ? 'text-[38px] sm:text-[40px] font-normal leading-none' : ''}
+                ${btn.type === 'op' ? 'text-[42px] sm:text-[44px] font-light leading-none' : ''}
+                ${btn.type === 'func' ? 'text-[30px] sm:text-[32px] font-normal leading-none' : ''}
+                ${btn.type === 'equal' ? 'text-[42px] sm:text-[44px] font-normal leading-none' : ''}
 
                 /* Default Num Style */
                 bg-[#2D2E36] text-white hover:bg-[#3D3E4A]
