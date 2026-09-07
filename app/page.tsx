@@ -15,10 +15,11 @@ type Rate = Database['public']['Tables']['rates']['Row'];
 
 // Rate Caching
 const CACHE_KEY = 'calculadolar_rates_cache';
+const LAST_VIEW_KEY = 'calculadolar_last_view';
 
 export default function Home() {
   // --- VIEW STATE ---
-  const [view, setView] = useState<'dashboard' | 'calculator' | 'history'>('dashboard');
+  const [view, setView] = useState<'dashboard' | 'calculator' | 'history'>('calculator');
   const [historyRateName, setHistoryRateName] = useState('USD_BCV');
 
   // --- PWA INSTALL ---
@@ -30,6 +31,28 @@ export default function Home() {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [targetCurrency, setTargetCurrency] = useState('EUR');
   const [isOffline, setIsOffline] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(LAST_VIEW_KEY);
+      if (saved === 'dashboard' || saved === 'calculator') {
+        setView(saved);
+      }
+    } catch {
+      // ignore localStorage errors
+    }
+  }, []);
+
+  const handleNavigate = (nextView: 'dashboard' | 'calculator' | 'history') => {
+    setView(nextView);
+    if (nextView === 'dashboard' || nextView === 'calculator') {
+      try {
+        localStorage.setItem(LAST_VIEW_KEY, nextView);
+      } catch {
+        // ignore
+      }
+    }
+  };
 
   useEffect(() => {
     const goOffline = () => setIsOffline(true);
@@ -112,8 +135,8 @@ export default function Home() {
   }, []);
 
   return (
-    <main className={`flex h-[100dvh] overflow-hidden flex-col items-center bg-[#0a0a0a] select-none text-white ${view === 'calculator' ? 'p-0' : 'p-0'}`}>
-      <div className={`w-full flex flex-col ${view === 'calculator' ? 'h-[100dvh] max-w-md mx-auto' : 'h-[100dvh] w-full'}`}>
+    <main className="flex h-[100dvh] overflow-hidden flex-col items-center bg-[#0a0a0a] select-none text-white p-0">
+      <div className="w-full flex flex-col h-[100dvh] max-w-md mx-auto">
 
         {view === 'dashboard' && (
             <div className="flex flex-col h-full relative">
@@ -156,17 +179,17 @@ export default function Home() {
                             onCurrencyChange={setTargetCurrency}
                             onViewHistory={(name) => {
                                 setHistoryRateName(name);
-                                setView('history');
+                                handleNavigate('history');
                             }}
                         />
                     )}
                 </div>
 
-                <div className="fixed bottom-8 left-0 right-0 flex justify-center z-50 px-4 pointer-events-none">
+                <div className="fixed bottom-8 left-0 right-0 flex justify-center z-50 px-4 pointer-events-none max-w-md mx-auto">
                     <button
                         onClick={() => {
                             triggerHaptic();
-                            setView('calculator');
+                            handleNavigate('calculator');
                         }}
                         className="pointer-events-auto bg-[#1e1e1e]/80 hover:bg-[#2d2d2d]/90 text-white border border-white/10 font-bold py-4 px-8 rounded-full text-lg shadow-[0_0_30px_-5px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-all active:scale-95 flex items-center gap-3 active:shadow-none"
                     >
@@ -181,13 +204,22 @@ export default function Home() {
 
         {view === 'calculator' && (
              <div className="h-full w-full">
-                <CalculatorView rates={rates} onBack={() => setView('dashboard')} />
+                <CalculatorView
+                  rates={rates}
+                  isOffline={isOffline}
+                  onOpenRates={() => handleNavigate('dashboard')}
+                  onBack={() => handleNavigate('dashboard')}
+                />
              </div>
         )}
 
         {view === 'history' && (
              <div className="h-full w-full">
-                <HistoryView rates={rates} initialRateName={historyRateName} onBack={() => setView('dashboard')} />
+                <HistoryView
+                  rates={rates}
+                  initialRateName={historyRateName}
+                  onBack={() => handleNavigate('dashboard')}
+                />
              </div>
         )}
       </div>
