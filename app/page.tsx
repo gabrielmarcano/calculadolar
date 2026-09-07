@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
 import { getSupabaseClient } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
 import RateView from '@/components/RateView';
@@ -20,7 +19,6 @@ const LAST_VIEW_KEY = 'calculadolar_last_view';
 
 export default function Home() {
   // --- MOUNT & VIEW STATE ---
-  const [isReady, setIsReady] = useState(false);
   const [view, setView] = useState<'dashboard' | 'calculator' | 'history'>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -70,11 +68,6 @@ export default function Home() {
     return 'EUR';
   });
   const [isOffline, setIsOffline] = useState(false);
-
-  useEffect(() => {
-    setIsReady(true);
-  }, []);
-
   const [navDirection, setNavDirection] = useState<'forward' | 'back' | 'none'>('none');
 
   const handleNavigate = useCallback((nextView: 'dashboard' | 'calculator' | 'history') => {
@@ -170,31 +163,6 @@ export default function Home() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!isReady) {
-    return (
-      <main className="flex h-[100dvh] overflow-hidden flex-col items-center justify-center bg-[#0a0a0a] select-none text-white p-0">
-        <div className="flex flex-col items-center gap-5 animate-fade-in">
-          <div className="w-20 h-20 rounded-3xl overflow-hidden shadow-2xl border border-white/10 animate-pulse">
-            <Image
-              src="/web-app-manifest-192x192.png"
-              alt="CalculaDolar"
-              width={80}
-              height={80}
-              className="w-full h-full object-cover"
-              priority
-              unoptimized
-            />
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <h1 className="text-xl font-black tracking-widest uppercase">
-              Calcula<span className="text-gray-400">dolar</span>
-            </h1>
-            <div className="w-6 h-1 rounded-full bg-emerald-400/80 animate-pulse" />
-          </div>
-        </div>
-      </main>
-    );
-  }
 
   return (
     <main className="flex h-[100dvh] overflow-hidden flex-col items-center bg-[#0a0a0a] select-none text-white p-0">

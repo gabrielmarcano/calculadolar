@@ -111,7 +111,7 @@
     - Generacion de icono para iOS (`app/apple-icon.png`, 180x180) con fondo opaco según los estandares de Apple HIG.
     - Generacion de favicon multirresolucion (`app/favicon.ico`, 16/32/48px), icono Next.js (`app/icon1.png`, 96x96) y favicon vectorial (`app/icon0.svg`).
     - Actualizacion de `app/manifest.ts` incorporando iconos estandares y maskable con tema oscuro `#0a0a0a`.
-    - Modernizacion de la pantalla de carga inicial (*Splash Screen*) en `app/page.tsx` con el nuevo isotipo y barra de carga verde esmeralda coherente con la identidad visual.
+    - Erradicacion de la doble pantalla de carga mediante eliminacion del splash screen artificial de cliente en `app/page.tsx`, delegando la bienvenida exclusivamente al splash screen nativo del sistema operativo gestionado por el manifiesto PWA.
   - **Investigacion previa**: Validada la zona segura del 80% (circulo central de 410px) en el icono maskable para prevenir deformaciones o recortes irregulares en capas de personalizacion de Android (One UI, Pixel Launcher, MIUI), y asegurada la opacidad total de fondo en el icono tactil de Apple conforme a las guias de diseno de iOS.
 
 ## Tareas Pendientes
