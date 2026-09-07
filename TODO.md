@@ -156,6 +156,17 @@
     - Arquitectura de skeletons granulares: renderizado permanente de la estructura de filas, logotipos oficiales y nombres estaticos, restringiendo los estados de carga con pulso animado exclusivamente a los valores numericos del precio.
   - **Investigacion previa**: Analizados los patrones de usabilidad movil y densidad de informacion: repetir la fecha y botones identicos en multiples tarjetas satura la interfaz visual. Al centralizar la fecha oficial en una cabecera tipografica prominente y dotar a cada fila de accion directa de copiado mas boton discreto para graficas, se maximiza la velocidad de uso a una sola mano (Thumb-Zone) preservando la claridad ergonomica.
 
+- [x] **Rediseno integral de la pantalla de graficas historicas**
+  - **Descripcion**: Transformar la pantalla de visualizacion historica en una experiencia financiera interactiva y ergonomica, con graficos de area con gradiente adaptativo segun la tendencia, seleccion fluida de divisas y rangos temporales, estadisticas clave del periodo (minimo, maximo y variacion) y respeto riguroso de Safe Areas.
+  - **Alcance**:
+    - Incorporacion de padding para Safe Areas (`env(safe-area-inset-top)` y `env(safe-area-inset-bottom)`) y contencion estricta de viewport con `100svh`.
+    - Selector de divisas estilizado con isotipos vectoriales limpios y tabs segmentadas de rangos temporales (7D, 30D, 90D, 1A) con areas de toque de 48px.
+    - Seccion hero de cotizacion con variacion absoluta y porcentual en insignias de alta legibilidad, soporte para inspeccion tactil (scrubbing/tooltip) y estadisticas de soporte (minimo y maximo del periodo).
+    - Grafica de area vectorial moderna (`AreaChart` de Recharts) con gradiente vertical adaptativo (verde esmeralda para tendencia positiva, rosa carmesi para negativa), tipografia mono tabular y ejes sutiles.
+    - Cascaron estatico con skeletons granulares que preservan las dimensiones y erradican el parpadeo de pantalla completa al alternar divisas o rangos.
+    - Descomposicion modular en componentes desacoplados de menos de 150 lineas (`useHistoryData`, `HistoryHero`, `HistoryStats`, `HistoryChart`, `HistoryView`) cumpliendo los principios de arquitectura limpia.
+  - **Investigacion previa**: Analizados los patrones de diseno de graficas financieras en aplicaciones moviles de referencia (Revolut, Apple Stocks, Bloomberg): los graficos de area con gradiente suave proporcionan mayor claridad volumetrica que una linea desnuda. Asimismo, la presentacion de valores de rango (minimo y maximo) aporta contexto indispensable para entender la volatilidad cambiaria sin sobrecargar la pantalla.
+
 ## Tareas Pendientes
 
 - [ ] **Historial de operaciones de calculo**
