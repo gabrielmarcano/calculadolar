@@ -136,7 +136,14 @@
   - **Alcance**:
     - Incorporacion de reglas `display: flex !important`, `flex-direction: column !important`, `height: 100dvh !important`, `height: 100% !important`, `max-width: 28rem !important` y safe-areas en el `<style>` en linea en `app/layout.tsx`.
     - Garantia de que `<main>` y `#view-calculator > div` esten completamente restringidos desde el primer byte de HTML servido por Serwist, sin depender del tiempo de evaluacion del bundle CSS externo de Tailwind.
-  - **Investigacion previa**: Comprobado que en navegadores moviles con CPU restringido o sobre conexiones moviles, el parseo del paquete CSS externo toma entre 20 y 50 ms. Durante esa ventana, los elementos hijos con `flex: 1 1 0%` carecian de un contenedor flexbox activo en el arbol de renderizado, comportandose como bloques de altura automatica no restringidos y generando un salto de rediseno (FOUC). La inyeccion directa en los estilos criticos bloqueantes de renderizado resuelve esta transicion sin scripts en runtime.
+- [x] **Estabilizacion de viewport mediante svh y contencion estricta de teclado en recarga**
+  - **Descripcion**: Erradicar el estiramiento vertical del teclado numerico y desborde del viewport durante la recarga de pagina y pull-to-refresh en navegadores moviles, migrando el calculo de altura a unidades estables Small Viewport (`100svh`) con contencion de desbordamiento en toda la cadena de renderizado.
+  - **Alcance**:
+    - Sustitucion del dimensionamiento reactivo basado en `100dvh` por `100svh` con fallback `100dvh` en `<main>` tanto en estilos criticos del encabezado (`app/layout.tsx`) como en `app/page.tsx`.
+    - Contencion de desbordamiento mediante `overflow-hidden` en `#view-calculator`, `#view-dashboard`, `CalculatorView` y el contenedor y rejilla de `CalculatorKeypad`.
+    - Restriccion estructural con `flex: 1 1 0% !important`, `min-height: 0 !important` y `max-h-full` en `#view-calculator > div` y `CalculatorKeypad`.
+    - Actualizacion de reglas y directrices de diseno movil (`AGENTS.md`, `GEMINI.md`, `.agents/rules/mobile-first-ergonomics.md`).
+  - **Investigacion previa**: Analizado el comportamiento del motor Chromium en Android al procesar pull-to-refresh y cold reload: durante la carga inicial del documento, la unidad `100dvh` es calculada transitoriamente como Large Viewport Height (`100lvh`), asumiendo barras del navegador contraidas cuando la barra de direcciones superior de Chrome (~56px) se encuentra visible. Esto incrementaba la altura de `<main>` en ~56px empujando el fondo de pantalla y estirando los botones flexibles del teclado (`flex-1`). Al adoptar `100svh` (Small Viewport Height), Chromium calcula la altura asumiendo las barras siempre desplegadas, garantizando una dimension invariable desde el primer fotograma sin saltos ni desbordamientos.
 
 ## Tareas Pendientes
 

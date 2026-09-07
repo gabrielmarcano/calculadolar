@@ -51,7 +51,7 @@ export default function CalculatorView({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#121212] text-white font-sans select-none">
+    <div className="flex flex-col flex-1 min-h-0 h-full overflow-hidden bg-[#121212] text-white font-sans select-none">
       {/* Top Bar: Tasas (Left), Currency Switcher (Center), Settings Gear (Right) */}
       <CalculatorTopBar
         isOffline={isOffline}

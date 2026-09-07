@@ -13,7 +13,7 @@ Todo cambio de código debe cumplir estrictamente con las reglas especializadas 
 1. [mobile-first-ergonomics.md](file:///.agents/rules/mobile-first-ergonomics.md):
    - **Thumb-Zone First:** Acciones principales y menús accesibles en la mitad inferior de la pantalla. Prohibidos menús desplegables superiores; usar *Bottom Sheets* o gavetas inferiores.
    - **Objetivos Táctiles:** Área mínima de toque de **48×48 px** con al menos 8 px de separación.
-   - **Safe Areas & dvh:** Respeto estricto de `100dvh`, muescas superiores (`env(safe-area-inset-top)`) y barra de gestos inferior (`env(safe-area-inset-bottom)`).
+   - **Safe Areas & svh/dvh:** Respeto estricto de `100svh` (con fallback `100dvh`), muescas superiores (`env(safe-area-inset-top)`) y barra de gestos inferior (`env(safe-area-inset-bottom)`).
    - **Estabilidad Numérica:** Uso obligatorio de `tabular-nums` en montos y expresiones para evitar temblores visuales (*jitter*).
    - **Microinteracciones:** Transición inmediata en `:active` (`scale(0.96)`), `select-none`, `-webkit-touch-callout: none` y `triggerHaptic()`.
 

@@ -169,13 +169,13 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="w-full h-[100dvh] max-w-md mx-auto flex flex-col pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] overflow-hidden relative select-none bg-[#0a0a0a] text-white p-0">
+    <main className="w-full h-full h-[100dvh] h-[100svh] max-w-md mx-auto flex flex-col pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] overflow-hidden relative select-none bg-[#0a0a0a] text-white p-0">
       {/* Screen 0: Dashboard (Tasas) */}
       <div
         id="view-dashboard"
         suppressHydrationWarning
         style={navDirection === 'back' ? { animation: 'slide-in-left 280ms cubic-bezier(0.16, 1, 0.3, 1) both' } : undefined}
-        className={`${view === 'dashboard' ? 'flex' : 'hidden'} flex-1 min-h-0 w-full flex-col relative bg-[#0a0a0a] will-change-transform ${navDirection === 'back' ? 'animate-slide-in-left' : ''}`}
+        className={`${view === 'dashboard' ? 'flex' : 'hidden'} flex-1 min-h-0 w-full flex-col relative overflow-hidden bg-[#0a0a0a] will-change-transform ${navDirection === 'back' ? 'animate-slide-in-left' : ''}`}
       >
             {/* 1. TOP NAV BAR */}
             <header className="flex-none h-16 flex items-center justify-center border-b border-white/5 bg-[#0a0a0a]/80 backdrop-blur-md sticky top-0 z-40">
@@ -244,7 +244,7 @@ export default function Home() {
           id="view-calculator"
           suppressHydrationWarning
           style={navDirection === 'forward' ? { animation: 'slide-in-right 280ms cubic-bezier(0.16, 1, 0.3, 1) both' } : undefined}
-          className={`${view === 'calculator' ? 'flex' : 'hidden'} flex-1 min-h-0 w-full flex-col relative bg-[#121212] will-change-transform ${navDirection === 'forward' ? 'animate-slide-in-right' : ''}`}
+          className={`${view === 'calculator' ? 'flex' : 'hidden'} flex-1 min-h-0 w-full flex-col relative overflow-hidden bg-[#121212] will-change-transform ${navDirection === 'forward' ? 'animate-slide-in-right' : ''}`}
         >
           <CalculatorView
             rates={rates}

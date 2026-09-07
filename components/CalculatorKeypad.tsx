@@ -68,8 +68,8 @@ export default function CalculatorKeypad({
   };
 
   return (
-    <div className="flex-1 min-h-0 px-4 pt-3 pb-4 bg-[#0a0a0a] select-none touch-none">
-      <div className="h-full w-full grid grid-cols-4 grid-rows-5 gap-2 sm:gap-2.5 touch-none">
+    <div className="flex-1 min-h-0 px-4 pt-3 pb-4 bg-[#0a0a0a] select-none touch-none overflow-hidden">
+      <div className="h-full w-full max-h-full grid grid-cols-4 grid-rows-5 gap-2 sm:gap-2.5 touch-none overflow-hidden">
         {BUTTONS.map((btn) => (
           <button
             key={btn.label}

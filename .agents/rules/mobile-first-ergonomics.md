@@ -37,9 +37,10 @@ Basado en los estudios de ergonomía de Steven Hoober y las guías de *Google Ma
 
 ## 3. Viewport Lock y Safe Area Insets
 
-1. **Unidades de Altura Dinámica (`dvh`):**
-   - Utilizar siempre `100dvh` (Dynamic Viewport Height) para el contenedor principal de la aplicación (`h-[100dvh]`).
-   - Queda prohibido el uso de `100vh` o `100%` en el marco raíz, ya que la aparición o retracción de las barras de navegación en Safari iOS y Chrome Android desajusta el layout.
+1. **Unidades de Altura de Viewport (`svh` con fallback `dvh`):**
+   - Utilizar `100svh` (Small Viewport Height) con fallback a `100dvh` para el contenedor principal (`h-[100svh]`).
+   - `100svh` garantiza la altura visible exacta con barras de navegación expandidas sin recalcularse dinámicamente en recargas o transiciones, erradicando saltos de diseño (FOUC) y estiramientos del teclado en Chrome Android y Safari iOS. En modo PWA instalada (standalone), `100svh` equivale de forma transparente al tamaño completo de pantalla.
+   - Queda prohibido el uso de `100vh` en el marco raíz.
 
 2. **Respeto Riguroso de Safe Areas (Muescas y Barras de Gestos):**
    - **Borde Inferior:** Todo elemento anclado al fondo o keypad debe incluir padding de seguridad:
