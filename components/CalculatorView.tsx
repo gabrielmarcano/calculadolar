@@ -368,7 +368,7 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
                                         }`}
                                     >
                                         {rate.imageUrl && (
-                                            <Image src={rate.imageUrl} alt={rate.displayName} width={20} height={20} className="w-5 h-5 rounded-full bg-white object-contain p-0.5" />
+                                            <Image src={rate.imageUrl} alt={rate.displayName} width={20} height={20} className="w-5 h-5 rounded-full bg-white object-contain p-0.5" unoptimized priority />
                                         )}
                                         <span className="flex-1">{rate.displayName}</span>
                                         {isSelected && <span>✓</span>}
@@ -522,7 +522,7 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
                     >
                         <div className="flex items-center gap-2">
                             {imageUrl && (
-                                <Image src={imageUrl} alt={displayName} width={16} height={16} className="w-4 h-4 rounded-full bg-white object-contain p-[1px] mb-0.5" />
+                                <Image src={imageUrl} alt={displayName} width={16} height={16} className="w-4 h-4 rounded-full bg-white object-contain p-[1px] mb-0.5" unoptimized priority />
                             )}
                             <span className="font-medium">{displayName}</span>
                         </div>

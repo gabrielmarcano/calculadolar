@@ -28,10 +28,39 @@ export default function Home() {
   const { isInstallable, promptInstall } = usePWAInstall();
 
   // --- RATES STATE ---
-  const [rates, setRates] = useState<Record<string, { price: number; displayName: string; lastUpdated: string; imageUrl: string | null }>>({});
-  const [isLoadingRates, setIsLoadingRates] = useState(true);
+  type RateItem = { price: number; displayName: string; lastUpdated: string; imageUrl: string | null };
+  type RatesMap = Record<string, RateItem>;
+
+  const [rates, setRates] = useState<RatesMap>(() => {
+    if (typeof window === 'undefined') return {};
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      return cached ? JSON.parse(cached) : {};
+    } catch {
+      return {};
+    }
+  });
+  const [isLoadingRates, setIsLoadingRates] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true;
+    try {
+      return !localStorage.getItem(CACHE_KEY);
+    } catch {
+      return true;
+    }
+  });
   const [fetchError, setFetchError] = useState<string | null>(null);
-  const [targetCurrency, setTargetCurrency] = useState('EUR');
+  const [targetCurrency, setTargetCurrency] = useState<string>(() => {
+    if (typeof window === 'undefined') return 'EUR';
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        const keys = Object.keys(parsed);
+        if (keys.length > 0) return keys[0];
+      }
+    } catch {}
+    return 'EUR';
+  });
   const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
@@ -150,6 +179,7 @@ export default function Home() {
               height={56}
               className="rounded-2xl object-contain"
               priority
+              unoptimized
             />
           </div>
           <div className="flex flex-col items-center gap-2">

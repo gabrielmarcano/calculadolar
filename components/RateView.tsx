@@ -65,7 +65,7 @@ export default function RateView({ rates, targetCurrency, onCurrencyChange, onVi
                 >
                     {/* Icon */}
                     {currentImage ? (
-                        <Image src={currentImage} alt={currentDisplayName} width={32} height={32} className="w-8 h-8 rounded-full bg-white object-contain p-0.5" />
+                        <Image src={currentImage} alt={currentDisplayName} width={32} height={32} className="w-8 h-8 rounded-full bg-white object-contain p-0.5" unoptimized priority />
                     ) : (
                         <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-xs ring-2 ring-white/20">
                             {currentDisplayName.charAt(0)}
@@ -94,7 +94,7 @@ export default function RateView({ rates, targetCurrency, onCurrencyChange, onVi
                                         }`}
                                     >
                                         {rate.imageUrl ? (
-                                            <Image src={rate.imageUrl} alt={rate.displayName} width={24} height={24} className="w-6 h-6 rounded-full bg-white object-contain p-0.5" />
+                                            <Image src={rate.imageUrl} alt={rate.displayName} width={24} height={24} className="w-6 h-6 rounded-full bg-white object-contain p-0.5" unoptimized priority />
                                         ) : (
                                             <div className={`w-2 h-2 rounded-full ${currency === targetCurrency ? 'bg-white' : 'bg-gray-600'}`} />
                                         )}

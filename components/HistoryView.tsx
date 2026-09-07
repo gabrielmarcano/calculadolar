@@ -140,7 +140,7 @@ export default function HistoryView({ rates, initialRateName, onBack }: HistoryV
                             }`}
                         >
                             {rate.imageUrl && (
-                                <Image src={rate.imageUrl} alt={rate.displayName} width={16} height={16} className="w-4 h-4 rounded-full bg-white object-contain p-[1px]" />
+                                <Image src={rate.imageUrl} alt={rate.displayName} width={16} height={16} className="w-4 h-4 rounded-full bg-white object-contain p-[1px]" unoptimized priority />
                             )}
                             {rate.displayName}
                         </button>
