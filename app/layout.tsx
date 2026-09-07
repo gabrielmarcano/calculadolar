@@ -1,5 +1,7 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
 import SerwistProvider from './SerwistProvider';
 
 export const metadata: Metadata = {
@@ -27,8 +29,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" dir="ltr">
-      <body>
+    <html lang="es" dir="ltr" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <body className="font-sans antialiased">
         <script
           dangerouslySetInnerHTML={{
             __html: `document.addEventListener('contextmenu',function(e){e.preventDefault()})`,

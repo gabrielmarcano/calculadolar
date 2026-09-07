@@ -550,8 +550,15 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
                     else handleClick(btn.value);
                 }}
                 className={`
-                h-full w-full rounded-[2rem] sm:rounded-[2.5rem] text-2xl sm:text-3xl font-medium transition-all active:scale-95 flex items-center justify-center
+                h-full w-full rounded-[2rem] sm:rounded-[2.5rem] transition-all active:scale-95 flex items-center justify-center
                 
+                /* Typography Scale (Android Stock Proportion ~45-50% of button height) */
+                ${btn.type === 'num' ? 'text-[32px] font-normal' : ''}
+                ${btn.type === 'op' ? 'text-[32px] font-normal' : ''}
+                ${btn.type === 'func' ? 'text-2xl font-medium' : ''}
+                ${btn.value === 'AC' ? '!text-xl !font-bold' : ''}
+                ${btn.type === 'equal' ? 'text-[34px] font-semibold' : ''}
+
                 /* Default Num Style */
                 bg-[#2D2E36] text-white hover:bg-[#3D3E4A]
 
@@ -569,7 +576,11 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
                 ${btn.value === 'BACK' ? 'text-white' : ''}
                 `}
             >
-                {btn.value === 'BACK' ? <span className="text-lg">⌫</span> : btn.label}
+                {btn.value === 'BACK' ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7">
+                        <path fillRule="evenodd" d="M2.515 10.674a1.875 1.875 0 0 1 0-2.648L8.03 2.51A2.625 2.625 0 0 1 9.885 1.75h10.365A2.625 2.625 0 0 1 22.875 4.375v15.25a2.625 2.625 0 0 1-2.625 2.625H9.885a2.625 2.625 0 0 1-1.855-.76l-5.515-5.516Zm13.015-3.204a.75.75 0 0 0-1.06 0L12 9.94l-2.47-2.47a.75.75 0 0 0-1.06 1.06L10.94 11l-2.47 2.47a.75.75 0 1 0 1.06 1.06L12 12.06l2.47 2.47a.75.75 0 0 0 1.06-1.06L13.06 11l2.47-2.47a.75.75 0 0 0 0-1.06Z" clipRule="evenodd" />
+                    </svg>
+                ) : btn.label}
             </button>
             ))}
         </div>
