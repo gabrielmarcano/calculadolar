@@ -30,7 +30,7 @@ export default function CalculatorRates({
 
   return (
     <div
-      className={`w-full h-[120px] space-y-1 overflow-x-hidden flex-shrink-0 pt-1.5 border-t border-gray-800/50 scrollbar-hide select-none ${
+      className={`w-full h-[116px] space-y-1 overflow-x-hidden flex-shrink-0 pt-1.5 border-t border-gray-800/50 scrollbar-hide select-none ${
         canScroll ? 'overflow-y-auto touch-pan-y' : 'overflow-y-hidden'
       }`}
     >
@@ -66,7 +66,7 @@ export default function CalculatorRates({
                 },
                 touchAction: canScroll ? 'pan-y' : undefined,
               })}
-              className="w-full max-w-full flex justify-between items-center text-sm text-gray-400 py-1 rounded-lg px-2 -mx-2 min-h-[34px] cursor-pointer hover:bg-[#1a1a1a] active:scale-[0.98] active:bg-[#1e1e1e] transition-all overflow-hidden"
+              className="w-full max-w-full flex justify-between items-center text-sm text-gray-400 py-0.5 rounded-lg px-2 -mx-2 min-h-[34px] cursor-pointer hover:bg-[#1a1a1a] active:scale-[0.98] active:bg-[#1e1e1e] transition-all overflow-hidden"
             >
               <div className="flex items-center gap-2 min-w-0 shrink-0">
                 {imageUrl && (

@@ -248,7 +248,7 @@ export default function CalculatorDisplay({
           onPointerCancel={() => {
             pointerStartRef.current = null;
           }}
-          className="w-full min-h-[46px] flex items-center justify-end overflow-x-auto whitespace-nowrap scrollbar-hide text-right text-3xl sm:text-4xl font-light tracking-wide text-gray-200 cursor-text select-none tabular-nums touch-pan-x py-0.5"
+          className="w-full min-h-[58px] flex items-center justify-end overflow-x-auto whitespace-nowrap scrollbar-hide text-right text-3xl sm:text-4xl font-light tracking-wide text-gray-200 cursor-text select-none tabular-nums touch-pan-x py-1"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {characters.length === 0 ? (
@@ -292,7 +292,7 @@ export default function CalculatorDisplay({
       </div>
 
       {/* 2. Main Result Line */}
-      <div className="w-full text-right flex items-center justify-end min-h-[54px]">
+      <div className="w-full text-right flex items-center justify-end min-h-[72px]">
         <div
           onClick={() => {
             triggerHaptic();
