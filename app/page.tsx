@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { getSupabaseClient } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
 import RateView from '@/components/RateView';
@@ -18,7 +19,8 @@ const CACHE_KEY = 'calculadolar_rates_cache';
 const LAST_VIEW_KEY = 'calculadolar_last_view';
 
 export default function Home() {
-  // --- VIEW STATE ---
+  // --- MOUNT & VIEW STATE ---
+  const [isReady, setIsReady] = useState(false);
   const [view, setView] = useState<'dashboard' | 'calculator' | 'history'>('calculator');
   const [historyRateName, setHistoryRateName] = useState('USD_BCV');
 
@@ -40,6 +42,8 @@ export default function Home() {
       }
     } catch {
       // ignore localStorage errors
+    } finally {
+      setIsReady(true);
     }
   }, []);
 
@@ -134,9 +138,34 @@ export default function Home() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  if (!isReady) {
+    return (
+      <main className="flex h-[100dvh] overflow-hidden flex-col items-center justify-center bg-[#0a0a0a] select-none text-white p-0">
+        <div className="flex flex-col items-center gap-5 animate-in fade-in duration-150">
+          <div className="w-20 h-20 rounded-3xl bg-[#1e1e1e] border border-white/10 flex items-center justify-center p-3 shadow-2xl animate-pulse">
+            <Image
+              src="/web-app-manifest-192x192.png"
+              alt="CalculaDolar"
+              width={56}
+              height={56}
+              className="rounded-2xl object-contain"
+              priority
+            />
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <h1 className="text-xl font-black tracking-widest uppercase">
+              Calcula<span className="text-gray-400">dolar</span>
+            </h1>
+            <div className="w-6 h-1 rounded-full bg-blue-500/60 animate-pulse" />
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="flex h-[100dvh] overflow-hidden flex-col items-center bg-[#0a0a0a] select-none text-white p-0">
-      <div className="w-full flex flex-col h-[100dvh] max-w-md mx-auto">
+      <div className="w-full flex flex-col h-[100dvh] max-w-md mx-auto pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)]">
 
         {view === 'dashboard' && (
             <div className="flex flex-col h-full relative">
@@ -185,7 +214,7 @@ export default function Home() {
                     )}
                 </div>
 
-                <div className="fixed bottom-8 left-0 right-0 flex justify-center z-50 px-4 pointer-events-none max-w-md mx-auto">
+                <div className="fixed bottom-[max(2rem,calc(env(safe-area-inset-bottom,0px)+1rem))] left-0 right-0 flex justify-center z-50 px-4 pointer-events-none max-w-md mx-auto">
                     <button
                         onClick={() => {
                             triggerHaptic();
