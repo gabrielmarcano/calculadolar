@@ -49,11 +49,14 @@ export function useLongPressCopy() {
     capturedElement.current = null;
   }, []);
 
+  const didMoveRef = useRef(false);
+
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!pointerOrigin.current) return;
     const dx = e.clientX - pointerOrigin.current.x;
     const dy = e.clientY - pointerOrigin.current.y;
     if (Math.abs(dx) > MOVE_THRESHOLD || Math.abs(dy) > MOVE_THRESHOLD) {
+      didMoveRef.current = true;
       cancelLongPress();
     }
   }, [cancelLongPress]);
@@ -75,6 +78,7 @@ export function useLongPressCopy() {
       cancelLongPress();
       didLongPress.current = false;
       wasLongPressRef.current = false;
+      didMoveRef.current = false;
       pointerOrigin.current = { x: e.clientX, y: e.clientY };
 
       longPressTimer.current = setTimeout(() => {
@@ -92,6 +96,7 @@ export function useLongPressCopy() {
       }
 
       const wasLong = didLongPress.current;
+      const didMove = didMoveRef.current;
       cancelLongPress();
 
       if (wasLong) {
@@ -99,7 +104,7 @@ export function useLongPressCopy() {
         setTimeout(() => {
           wasLongPressRef.current = false;
         }, 150);
-      } else if (onTapAction) {
+      } else if (!didMove && onTapAction) {
         onTapAction();
       }
     },
@@ -111,10 +116,11 @@ export function useLongPressCopy() {
         } catch {}
         capturedElement.current = null;
       }
+      didMoveRef.current = true;
       cancelLongPress();
     },
     onClickCapture: (e: React.MouseEvent) => {
-      if (wasLongPressRef.current) {
+      if (wasLongPressRef.current || didMoveRef.current) {
         e.stopPropagation();
         e.preventDefault();
         wasLongPressRef.current = false;
