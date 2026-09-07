@@ -306,36 +306,38 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
             </button>
         </div>
 
-        {/* Center: Currency Switcher (VES / USD) enlarged */}
+        {/* Center: Currency Toggle (Tap anywhere to flip USD <-> VES) */}
         <div className="flex items-center justify-center">
-            <div className="relative flex bg-[#202022] rounded-full p-1 border border-white/5 shadow-inner">
+            <button
+                type="button"
+                onClick={() => {
+                    triggerHaptic();
+                    setIsReversed(prev => !prev);
+                }}
+                className="relative flex items-center bg-[#1e1e22] hover:bg-[#26262c] active:scale-95 transition-all p-1 rounded-full border border-white/10 shadow-inner cursor-pointer select-none"
+                aria-label={`Cambiar moneda activa. Actual: ${isReversed ? 'VES' : 'USD'}`}
+                title="Toca para alternar moneda"
+            >
+                {/* Sliding indicator */}
                 <div
-                    className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-[#454555] rounded-full transition-all duration-300 ease-in-out shadow-sm"
+                    className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-[#454555] rounded-full transition-all duration-300 ease-in-out shadow-sm pointer-events-none"
                     style={{ left: isReversed ? 'calc(50%)' : '4px' }}
                 />
-                <button
-                    onClick={() => {
-                        triggerHaptic();
-                        setIsReversed(false);
-                    }}
-                    className={`relative z-10 text-xs font-bold py-1.5 px-4 rounded-full transition-colors duration-200 min-h-[34px] min-w-[54px] ${
-                        !isReversed ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
+                <span
+                    className={`relative z-10 text-xs font-bold py-1.5 px-4 rounded-full transition-colors duration-200 min-h-[32px] min-w-[52px] flex items-center justify-center pointer-events-none ${
+                        !isReversed ? 'text-white' : 'text-zinc-400'
                     }`}
                 >
                     USD
-                </button>
-                <button
-                    onClick={() => {
-                        triggerHaptic();
-                        setIsReversed(true);
-                    }}
-                    className={`relative z-10 text-xs font-bold py-1.5 px-4 rounded-full transition-colors duration-200 min-h-[34px] min-w-[54px] ${
-                        isReversed ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
+                </span>
+                <span
+                    className={`relative z-10 text-xs font-bold py-1.5 px-4 rounded-full transition-colors duration-200 min-h-[32px] min-w-[52px] flex items-center justify-center pointer-events-none ${
+                        isReversed ? 'text-white' : 'text-zinc-400'
                     }`}
                 >
                     VES
-                </button>
-            </div>
+                </span>
+            </button>
         </div>
 
         {/* Right: Settings Button */}
@@ -349,8 +351,9 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
                 aria-label="Abrir configuración"
                 title="Configuración"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                  <path fillRule="evenodd" d="M11.078 2.25c-.917 0-1.699.663-1.85 1.567L8.93 5.62a9.043 9.043 0 0 0-1.516.877L5.59 5.37a1.875 1.875 0 0 0-2.455.514L1.758 7.82a1.875 1.875 0 0 0 .34 2.486l1.527 1.25c-.07.499-.107 1.008-.107 1.524s.037 1.025.107 1.524l-1.527 1.25a1.875 1.875 0 0 0-.34 2.486l1.377 1.936a1.875 1.875 0 0 0 2.455.514l1.824-1.127c.47.33.978.627 1.516.877l.298 1.803c.151.904.933 1.567 1.85 1.567h2.844c.917 0 1.699-.663 1.85-1.567l.298-1.803a9.043 9.043 0 0 0 1.516-.877l1.824 1.127a1.875 1.875 0 0 0 2.455-.514l1.377-1.936a1.875 1.875 0 0 0-.34-2.486l-1.527-1.25c.07-.499.107-1.008.107-1.524s-.037-1.025-.107-1.524l1.527-1.25a1.875 1.875 0 0 0 .34-2.486l-1.377-1.936a1.875 1.875 0 0 0-2.455-.514l-1.824 1.127a9.043 9.043 0 0 0-1.516-.877l-.298-1.803A1.875 1.875 0 0 0 13.922 2.25h-2.844Zm-1.5 9.75a2.422 2.422 0 1 1 4.844 0 2.422 2.422 0 0 1-4.844 0Z" clipRule="evenodd" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                  <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                  <circle cx="12" cy="12" r="3"/>
                 </svg>
             </button>
         </div>

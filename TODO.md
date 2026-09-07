@@ -126,6 +126,7 @@
   - **Alcance**:
     - Transiciones aceleradas por hardware utilizando exclusivamente `transform` y `opacity` (`will-change: transform`).
     - Animaciones de transicion suaves para cambios de vista, despliegue de modales y actualizacion de cifras.
+    - Animacion de apertura y cierre con fisica de resorte (spring) y descarte por arrastre hacia abajo (drag-to-dismiss) en SettingsModal asegurando 60 fps y prevencion de pull-to-refresh en navegadores moviles.
     - Preservacion estricta de estabilidad visual para evitar desajustes acumulados de layout (CLS).
   - **Investigacion previa**: Comparar el rendimiento de animaciones CSS nativas frente a la View Transitions API en navegadores moviles WebKit y Chromium, definiendo una curva de aceleracion tipo cubic-bezier que replique la fisica de Material Design 3 sin retrasar la ejecucion de callbacks.
 
