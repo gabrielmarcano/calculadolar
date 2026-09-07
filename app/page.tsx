@@ -21,6 +21,7 @@ const LAST_VIEW_KEY = 'calculadolar_last_view';
 export default function Home() {
   // --- MOUNT & VIEW STATE ---
   const [isReady, setIsReady] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
   const [view, setView] = useState<'dashboard' | 'calculator' | 'history'>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -73,6 +74,9 @@ export default function Home() {
 
   useEffect(() => {
     setIsReady(true);
+    requestAnimationFrame(() => {
+      setHasMounted(true);
+    });
   }, []);
 
   const handleNavigate = useCallback((nextView: 'dashboard' | 'calculator' | 'history') => {
@@ -194,88 +198,100 @@ export default function Home() {
 
   return (
     <main className="flex h-[100dvh] overflow-hidden flex-col items-center bg-[#0a0a0a] select-none text-white p-0">
-      <div className="w-full flex-1 flex flex-col h-[100dvh] max-w-md mx-auto pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] overflow-hidden relative select-none">
-        {/* Continuous 2-Screen Track for Dashboard & Calculator with animated slide transition */}
+      <div className="w-full flex-1 flex flex-col h-[100dvh] max-w-md mx-auto overflow-hidden relative select-none">
+        {/* Screen 0: Dashboard (Tasas) */}
         <div
-          className="w-[200%] h-full flex will-change-transform"
+          className={`absolute inset-0 w-full h-full flex flex-col pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] will-change-transform bg-[#0a0a0a] ${
+            view === 'dashboard' ? 'pointer-events-auto' : 'pointer-events-none'
+          }`}
           style={{
-            transform: view === 'calculator' ? 'translate3d(-50%, 0, 0)' : 'translate3d(0%, 0, 0)',
-            transition: 'transform 320ms cubic-bezier(0.16, 1, 0.3, 1)',
+            transform: view === 'calculator' ? 'translate3d(-100%, 0, 0)' : 'translate3d(0%, 0, 0)',
+            transition: hasMounted ? 'transform 320ms cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
           }}
         >
-          {/* Screen 0: Dashboard (Tasas) */}
-          <div className="w-1/2 h-full flex-shrink-0 relative overflow-hidden flex flex-col">
-            {/* 1. TOP NAV BAR */}
-            <header className="flex-none h-16 flex items-center justify-center border-b border-white/5 bg-[#0a0a0a]/80 backdrop-blur-md sticky top-0 z-50">
-              <h1 className="text-xl font-black tracking-widest uppercase">
-                Calcula<span className="text-gray-400">dolar</span>
-              </h1>
-            </header>
+          {/* 1. TOP NAV BAR */}
+          <header className="flex-none h-16 flex items-center justify-center border-b border-white/5 bg-[#0a0a0a]/80 backdrop-blur-md sticky top-0 z-40">
+            <h1 className="text-xl font-black tracking-widest uppercase">
+              Calcula<span className="text-gray-400">dolar</span>
+            </h1>
+          </header>
 
-            {/* OFFLINE INDICATOR */}
-            {isOffline && Object.keys(rates).length > 0 && (
-              <div className="flex-none mx-4 mt-3 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-xs font-medium text-center">
-                Sin conexión — mostrando última actualización
-              </div>
-            )}
-
-            {/* INSTALL PROMPT */}
-            {isInstallable && (
-              <div className="pt-4 flex-none">
-                <InstallPrompt onInstall={promptInstall} />
-              </div>
-            )}
-
-            {/* 2. MAIN CONTENT (Full Height, Centered Rates) */}
-            <div className="flex-1 flex flex-col items-center justify-center p-6 pb-32 overflow-y-auto touch-pan-y">
-              {isLoadingRates && Object.keys(rates).length === 0 ? (
-                <div className="flex items-center justify-center h-full text-gray-400 font-bold animate-pulse">
-                  Cargando precios...
-                </div>
-              ) : fetchError && Object.keys(rates).length === 0 ? (
-                <div className="flex items-center justify-center h-full text-red-500 font-bold px-8 text-center">
-                  {fetchError}
-                </div>
-              ) : (
-                <RateView
-                  rates={rates}
-                  targetCurrency={targetCurrency}
-                  onCurrencyChange={setTargetCurrency}
-                  onViewHistory={(name) => {
-                    setHistoryRateName(name);
-                    handleNavigate('history');
-                  }}
-                />
-              )}
+          {/* OFFLINE INDICATOR */}
+          {isOffline && Object.keys(rates).length > 0 && (
+            <div className="flex-none mx-4 mt-3 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-xs font-medium text-center">
+              Sin conexión — mostrando última actualización
             </div>
+          )}
 
-            {/* Floating button to jump to Calculator */}
-            <div className="absolute bottom-[max(2rem,calc(env(safe-area-inset-bottom,0px)+1rem))] left-0 right-0 flex justify-center z-40 px-4 pointer-events-none">
-              <button
-                type="button"
-                onClick={() => {
-                  triggerHaptic();
-                  handleNavigate('calculator');
+          {/* INSTALL PROMPT */}
+          {isInstallable && (
+            <div className="pt-4 flex-none">
+              <InstallPrompt onInstall={promptInstall} />
+            </div>
+          )}
+
+          {/* 2. MAIN CONTENT (Full Height, Centered Rates) */}
+          <div className="flex-1 flex flex-col items-center justify-center p-6 pb-32 overflow-y-auto touch-pan-y">
+            {isLoadingRates && Object.keys(rates).length === 0 ? (
+              <div className="flex items-center justify-center h-full text-gray-400 font-bold animate-pulse">
+                Cargando precios...
+              </div>
+            ) : fetchError && Object.keys(rates).length === 0 ? (
+              <div className="flex items-center justify-center h-full text-red-500 font-bold px-8 text-center">
+                {fetchError}
+              </div>
+            ) : (
+              <RateView
+                rates={rates}
+                targetCurrency={targetCurrency}
+                onCurrencyChange={setTargetCurrency}
+                onViewHistory={(name) => {
+                  setHistoryRateName(name);
+                  handleNavigate('history');
                 }}
-                className="pointer-events-auto bg-[#1e1e1e]/80 hover:bg-[#2d2d2d]/90 text-white border border-white/10 font-bold py-4 px-8 rounded-full text-lg shadow-[0_0_30px_-5px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-transform duration-75 ease-out active:scale-95 will-change-transform flex items-center gap-3 active:shadow-none cursor-pointer"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-gray-300">
-                  <path fillRule="evenodd" d="M3 4.5A2.25 2.25 0 0 1 5.25 2.25h13.5A2.25 2.25 0 0 1 21 4.5v15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 19.5v-15ZM10.5 7.5a.75.75 0 0 0 .75.75h4.5a.75.75 0 0 0 0-1.5h-4.5a.75.75 0 0 0-.75.75Zm-3.75 3a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Zm0 3a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Zm0 3a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75ZM10.5 10.5a.75.75 0 0 0 .75.75h1.5a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 0-.75.75Zm.75 3.75a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Zm0 3a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Zm3.75-3.75a.75.75 0 0 0 .75.75h1.5a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 0-.75.75Zm.75 3.75a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
-                </svg>
-                <span className="tracking-wide">CALCULADORA</span>
-              </button>
-            </div>
+              />
+            )}
           </div>
 
-          {/* Screen 1: Calculator */}
-          <div className="w-1/2 h-full flex-shrink-0 relative overflow-hidden flex flex-col">
-            <CalculatorView
-              rates={rates}
-              isOffline={isOffline}
-              onOpenRates={() => handleNavigate('dashboard')}
-              onBack={() => handleNavigate('dashboard')}
-            />
+          {/* Floating button to jump to Calculator */}
+          <div className="absolute bottom-[max(2rem,calc(env(safe-area-inset-bottom,0px)+1rem))] left-0 right-0 flex justify-center z-40 px-4 pointer-events-none">
+            <button
+              type="button"
+              onPointerDown={(e) => {
+                e.preventDefault();
+                triggerHaptic();
+                handleNavigate('calculator');
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavigate('calculator');
+              }}
+              className="pointer-events-auto bg-[#1e1e1e]/80 hover:bg-[#2d2d2d]/90 text-white border border-white/10 font-bold py-4 px-8 rounded-full text-lg shadow-[0_0_30px_-5px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-transform duration-75 ease-out active:scale-95 will-change-transform flex items-center gap-3 active:shadow-none cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-gray-300 pointer-events-none">
+                <path fillRule="evenodd" d="M3 4.5A2.25 2.25 0 0 1 5.25 2.25h13.5A2.25 2.25 0 0 1 21 4.5v15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 19.5v-15ZM10.5 7.5a.75.75 0 0 0 .75.75h4.5a.75.75 0 0 0 0-1.5h-4.5a.75.75 0 0 0-.75.75Zm-3.75 3a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Zm0 3a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Zm0 3a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75ZM10.5 10.5a.75.75 0 0 0 .75.75h1.5a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 0-.75.75Zm.75 3.75a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Zm0 3a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Zm3.75-3.75a.75.75 0 0 0 .75.75h1.5a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 0-.75.75Zm.75 3.75a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
+              </svg>
+              <span className="tracking-wide pointer-events-none">CALCULADORA</span>
+            </button>
           </div>
+        </div>
+
+        {/* Screen 1: Calculator */}
+        <div
+          className={`absolute inset-0 w-full h-full flex flex-col pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] will-change-transform bg-[#121212] ${
+            view === 'calculator' ? 'pointer-events-auto' : 'pointer-events-none'
+          }`}
+          style={{
+            transform: view === 'calculator' ? 'translate3d(0%, 0, 0)' : 'translate3d(100%, 0, 0)',
+            transition: hasMounted ? 'transform 320ms cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
+          }}
+        >
+          <CalculatorView
+            rates={rates}
+            isOffline={isOffline}
+            onOpenRates={() => handleNavigate('dashboard')}
+            onBack={() => handleNavigate('dashboard')}
+          />
         </div>
 
         {/* History View (Modal/Overlay) */}
