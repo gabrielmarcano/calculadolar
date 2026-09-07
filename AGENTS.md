@@ -23,6 +23,11 @@ Todo cambio de código debe cumplir estrictamente con las reglas especializadas 
    - **Modularidad:** Componentes limitados a un máximo de **150–200 líneas**. Si crecen más allá, descomponerlos.
    - **TypeScript Estricto:** Prohibido el uso de `any` (explícito o implícito). Interfaces explícitas para props.
 
+3. [iconography-and-visual-integrity.md](file:///.agents/rules/iconography-and-visual-integrity.md):
+   - **Cero Emojis:** Prohibición estricta de emojis unicode o glifos del sistema en código, interfaces, botones o mensajes.
+   - **Iconografía Vectorial SVG:** Uso exclusivo de componentes SVG limpios, accesibles y estandarizados (estilo Lucide) con trazo y áreas táctiles de 48×48 px.
+   - **Prohibición de Glifos de Texto:** Prohibidos caracteres como `▼`, `▲`, `‹`, `›`, `&rsaquo;` para flechas o navegación.
+
 ---
 
 ## 2. Habilidades del Espacio de Trabajo (.agents/skills/)

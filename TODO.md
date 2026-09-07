@@ -188,10 +188,11 @@
     - Panel de configuracion con interruptores (opt-in / opt-out) para tipos de alertas y umbrales.
   - **Investigacion previa**: Investigar el soporte y limitaciones de Web Push en iOS Safari (requiere que la PWA este instalada en pantalla de inicio a partir de iOS 16.4), las politicas de retencion de suscripciones invalidas en Supabase, y el costo/latencia de ejecucion desde el cron de despacho.
 
-- [ ] **Auditoria y reemplazo de emojis por iconografia vectorial SVG**
-  - **Descripcion**: Identificar y sustituir cualquier uso de emojis unicode en la interfaz por iconos vectoriales SVG estandarizados y accesibles, asegurando una apariencia profesional y uniforme en cualquier plataforma movil.
+- [ ] **Auditoria de diseno de interfaz y rediseno integral del Dashboard con skeletons granulares**
+  - **Descripcion**: Ejecutar una auditoria de diseno visual en toda la aplicacion para subsanar inconsistencias esteticas, sustituir glifos de texto por iconografia vectorial SVG y redisenar el Dashboard transformandolo en un centro financiero de alta utilidad (con brecha cambiaria, vista simultanea de tasas y skeletons granulares sobre componentes estaticos).
   - **Alcance**:
-    - Auditar vistas y componentes en busqueda de caracteres emoji unicode (`app/`, `components/`).
-    - Sustituir glifos o emojis del sistema por componentes SVG vectoriales limpios y coherentes con Tailwind.
-    - Asegurar alineacion vertical, proporciones tactiles y compatibilidad estricta con lectores de pantalla (a11y).
-  - **Investigacion previa**: Mapear todas las ocurrencias de caracteres unicode dependientes de fuentes del sistema operativo (que en iOS y Android presentan representaciones heterogeneas) y consolidar una libreria interna de iconos SVG reutilizables.
+    - Auditoria de interfaz en Calculadora, Dashboard, Historial y Configuracion para erradicar patrones de escritorio (dropdowns emergentes), glifos unicode (`▼`, `›`, `‹`) y desajustes de alineacion.
+    - Sustitucion de glifos de navegacion y flechas por vectores SVG accesibles de trazo uniforme.
+    - Rediseno del Dashboard: presentacion simultanea de cotizaciones clave (Dolar Oficial BCV, Dolar Paralelo/Binance, Euro BCV), tarjeta principal de diferencial de mercado (brecha cambiaria % y en Bs), e indicadores de tendencia y fecha oficial.
+    - Arquitectura de skeletons granulares: renderizado permanente de la estructura de tarjetas, logotipos y etiquetas estaticas, restringiendo los estados de carga con pulso animado exclusivamente a los datos numericos del precio y fechas variables, eliminando pantallas en blanco y bloques de texto "Cargando precios...".
+  - **Investigacion previa**: Analizados los patrones de diseno de aplicaciones financieras de referencia (Bloomberg, Revolut, CoinMarketCap): la informacion critica para el mercado cambiario venezolano reside en la visibilidad inmediata del diferencial entre la tasa oficial y la paralela (brecha cambiaria). Asimismo, el patron de cascaron estatico (*static shell*) con esqueletos microscopicos sobre los valores numericos maximiza el First Meaningful Paint (FMP) y erradica el parpadeo de pantalla completa durante recargas o navegacion entre vistas.
