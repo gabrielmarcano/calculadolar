@@ -201,7 +201,7 @@ export default function Home() {
       <div className="w-full flex-1 flex flex-col h-[100dvh] max-w-md mx-auto pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] overflow-hidden relative select-none">
         {/* Screen 0: Dashboard (Tasas) */}
         {view === 'dashboard' && (
-          <div className={`flex flex-col h-full w-full relative bg-[#0a0a0a] ${navDirection === 'back' ? 'animate-slide-in-left' : ''}`}>
+          <div className={`flex flex-col h-full w-full relative bg-[#0a0a0a] will-change-transform ${navDirection === 'back' ? 'animate-slide-in-left' : ''}`}>
             {/* 1. TOP NAV BAR */}
             <header className="flex-none h-16 flex items-center justify-center border-b border-white/5 bg-[#0a0a0a]/80 backdrop-blur-md sticky top-0 z-40">
               <h1 className="text-xl font-black tracking-widest uppercase">
@@ -267,7 +267,7 @@ export default function Home() {
 
         {/* Screen 1: Calculator */}
         {view === 'calculator' && (
-          <div className={`flex flex-col h-full w-full relative bg-[#121212] ${navDirection === 'forward' ? 'animate-slide-in-right' : ''}`}>
+          <div className={`flex flex-col h-full w-full relative bg-[#121212] will-change-transform ${navDirection === 'forward' ? 'animate-slide-in-right' : ''}`}>
             <CalculatorView
               rates={rates}
               isOffline={isOffline}

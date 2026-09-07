@@ -34,7 +34,7 @@ export default function RateView({ rates, targetCurrency, onCurrencyChange, onVi
     };
 
     return (
-        <div className="flex flex-col items-center justify-center h-full text-white space-y-8 animate-fade-in relative">
+        <div className="flex flex-col items-center justify-center h-full text-white space-y-8 relative">
             
             {/* Title */}
             <h2 className="text-gray-400 text-sm font-bold uppercase tracking-widest">
