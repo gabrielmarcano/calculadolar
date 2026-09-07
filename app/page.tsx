@@ -9,7 +9,6 @@ import CalculatorView from '@/components/CalculatorView';
 import HistoryView from '@/components/HistoryView';
 import { triggerHaptic } from '@/lib/utils';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
-import { useSafeArea } from '@/hooks/useSafeArea';
 import InstallPrompt from '@/components/InstallPrompt';
 
 type Rate = Database['public']['Tables']['rates']['Row'];
@@ -31,9 +30,8 @@ export default function Home() {
   });
   const [historyRateName, setHistoryRateName] = useState('USD_BCV');
 
-  // --- PWA INSTALL & SAFE AREA ---
+  // --- PWA INSTALL ---
   const { isInstallable, promptInstall } = usePWAInstall();
-  useSafeArea();
 
   // --- RATES STATE ---
   type RateItem = { price: number; displayName: string; lastUpdated: string; imageUrl: string | null };
@@ -171,10 +169,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main
-      id="app-main"
-      className="w-full h-[100dvh] max-w-md mx-auto flex flex-col pt-[var(--safe-area-top)] pb-[var(--safe-area-bottom)] overflow-hidden relative select-none bg-[#0a0a0a] text-white p-0"
-    >
+    <main className="w-full h-[100dvh] max-w-md mx-auto flex flex-col pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] overflow-hidden relative select-none bg-[#0a0a0a] text-white p-0">
       {/* Screen 0: Dashboard (Tasas) */}
       <div
         id="view-dashboard"

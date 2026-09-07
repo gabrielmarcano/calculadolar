@@ -3,10 +3,6 @@
 :root {
   --background: #0a0a0a;
   --foreground: #ededed;
-  --sat: 0px;
-  --sab: 0px;
-  --safe-area-top: max(var(--sat, 0px), env(safe-area-inset-top, 0px));
-  --safe-area-bottom: max(var(--sab, 0px), env(safe-area-inset-bottom, 0px));
 }
 
 @theme inline {

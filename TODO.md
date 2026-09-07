@@ -131,15 +131,6 @@
     - Desacoplamiento de la regla conflictiva `flex-1 h-[100dvh]` en el contenedor intermedio de `app/page.tsx`, sustituyendola por `h-full` para delegar el control de altura a la raiz y prevenir el redimensionamiento del teclado en pull-to-refresh sin deshabilitar el gesto nativo.
   - **Investigacion previa**: Comprobado que el renderizado estatico inicial de Next.js SSR carece de acceso a `localStorage`, dejando la seccion de cotizaciones en blanco hasta la hidratacion del cliente. Al renderizar esqueletos identicos en dimension y fijar la altura de los componentes superiores, la altura asignada al teclado (`flex-1`) permanece invariable tanto en reposo como en eventos de recarga.
 
-- [x] **Inyeccion y persistencia de safe-area insets para erradicacion del micropestaneo y estiramiento en mobile**
-  - **Descripcion**: Erradicar el desfase de layout (~64px) y micropestaneo visual que se manifestaba exclusivamente en dispositivos moviles (Android WebAPK/PWA) durante el pull-to-refresh y el retorno de segundo plano, causado por la resolucion asincrona inicial de `env(safe-area-inset-*)` a 0px en el motor Blink.
-  - **Alcance**:
-    - Creacion del Custom Hook `hooks/useSafeArea.ts` con observador `ResizeObserver` sobre un elemento sonda inerte (`#safe-area-probe`), capturando y persistiendo los valores exactos en pixeles (`calculadolar_sat` y `calculadolar_sab`) en `localStorage`.
-    - Inyeccion sincrona render-blocking en `<head>` (`app/layout.tsx`) para evaluar y sembrar `--sat` y `--sab` en `document.documentElement` antes del primer cuadro de pintura (frame 0).
-    - Definicion de variables compuestas criticas `--safe-area-top: max(var(--sat, 0px), env(safe-area-inset-top, 0px))` y `--safe-area-bottom: max(var(--sab, 0px), env(safe-area-inset-bottom, 0px))` aplicadas inmediatamente sobre `#app-main`.
-    - Mantenimiento estricto del soporte de pull-to-refresh nativo sin recurrir a bloqueos de `overscroll-behavior`.
-  - **Investigacion previa**: Identificada la causa raiz en el motor Chromium sobre Android: las variables CSS `env(safe-area-inset-top)` y `env(safe-area-inset-bottom)` se evaluan a 0px en el cuadro inicial mientras el hilo del renderizador procesa el IPC asincrono de `WindowInsets` del sistema operativo (~50-100ms). Esto provocaba que el contenedor principal careciera temporalmente de espaciado, provocando una caida de ~40px en el encabezado y un estiramiento transitorio de ~64px en el teclado (`flex-1`), dimension coincidente con la altura del encabezado. La siembra sincrona de variables en el `<head>` anula la discrepancia entre el frame 0 y el frame 1, produciendo una renderizacion invariable.
-
 ## Tareas Pendientes
 
 - [ ] **Historial de operaciones de calculo**
