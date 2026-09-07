@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 'use client';
 
-import { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getSupabaseClient } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
 import RateView from '@/components/RateView';
@@ -17,15 +17,7 @@ type Rate = Database['public']['Tables']['rates']['Row'];
 const CACHE_KEY = 'calculadolar_rates_cache';
 const LAST_VIEW_KEY = 'calculadolar_last_view';
 
-const emptySubscribe = () => () => {};
-
 export default function Home() {
-  const isClient = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false
-  );
-
   // --- MOUNT & VIEW STATE ---
   const [view, setView] = useState<'dashboard' | 'calculator' | 'history'>(() => {
     if (typeof window !== 'undefined') {
@@ -171,57 +163,21 @@ export default function Home() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!isClient) {
-    return (
-      <main className="flex h-[100dvh] overflow-hidden flex-col items-center justify-center bg-[#0a0a0a] select-none text-white p-0">
-        <div className="w-32 h-32 flex items-center justify-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/web-app-manifest-192x192.png"
-            alt="CalculaDolar"
-            width={128}
-            height={128}
-            className="w-full h-full object-contain pointer-events-none"
-          />
-        </div>
-      </main>
-    );
-  }
+  // Clean up data-initial-view attribute on mount
+  useEffect(() => {
+    document.documentElement.removeAttribute('data-initial-view');
+  }, []);
 
   return (
     <main className="flex h-[100dvh] overflow-hidden flex-col items-center bg-[#0a0a0a] select-none text-white p-0">
-      <style>{`
-        @keyframes slide-in-left {
-          from {
-            transform: translate3d(-100%, 0, 0);
-          }
-          to {
-            transform: translate3d(0, 0, 0);
-          }
-        }
-        @keyframes slide-in-right {
-          from {
-            transform: translate3d(100%, 0, 0);
-          }
-          to {
-            transform: translate3d(0, 0, 0);
-          }
-        }
-        .animate-slide-in-left {
-          animation: slide-in-left 280ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
-        }
-        .animate-slide-in-right {
-          animation: slide-in-right 280ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
-        }
-      `}</style>
       <div className="w-full flex-1 flex flex-col h-[100dvh] max-w-md mx-auto pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] overflow-hidden relative select-none">
         {/* Screen 0: Dashboard (Tasas) */}
-        {view === 'dashboard' && (
-          <div
-            key="screen-dashboard"
-            style={navDirection === 'back' ? { animation: 'slide-in-left 280ms cubic-bezier(0.16, 1, 0.3, 1) both' } : undefined}
-            className={`flex flex-col h-full w-full relative bg-[#0a0a0a] will-change-transform ${navDirection === 'back' ? 'animate-slide-in-left' : ''}`}
-          >
+        <div
+          id="view-dashboard"
+          suppressHydrationWarning
+          style={navDirection === 'back' ? { animation: 'slide-in-left 280ms cubic-bezier(0.16, 1, 0.3, 1) both' } : undefined}
+          className={`${view === 'dashboard' ? 'flex' : 'hidden'} flex-col h-full w-full relative bg-[#0a0a0a] will-change-transform ${navDirection === 'back' ? 'animate-slide-in-left' : ''}`}
+        >
             {/* 1. TOP NAV BAR */}
             <header className="flex-none h-16 flex items-center justify-center border-b border-white/5 bg-[#0a0a0a]/80 backdrop-blur-md sticky top-0 z-40">
               <h1 className="text-xl font-black tracking-widest uppercase">
@@ -283,23 +239,21 @@ export default function Home() {
               </button>
             </div>
           </div>
-        )}
 
         {/* Screen 1: Calculator */}
-        {view === 'calculator' && (
-          <div
-            key="screen-calculator"
-            style={navDirection === 'forward' ? { animation: 'slide-in-right 280ms cubic-bezier(0.16, 1, 0.3, 1) both' } : undefined}
-            className={`flex flex-col h-full w-full relative bg-[#121212] will-change-transform ${navDirection === 'forward' ? 'animate-slide-in-right' : ''}`}
-          >
-            <CalculatorView
-              rates={rates}
-              isOffline={isOffline}
-              onOpenRates={() => handleNavigate('dashboard')}
-              onBack={() => handleNavigate('dashboard')}
-            />
-          </div>
-        )}
+        <div
+          id="view-calculator"
+          suppressHydrationWarning
+          style={navDirection === 'forward' ? { animation: 'slide-in-right 280ms cubic-bezier(0.16, 1, 0.3, 1) both' } : undefined}
+          className={`${view === 'calculator' ? 'flex' : 'hidden'} flex-col h-full w-full relative bg-[#121212] will-change-transform ${navDirection === 'forward' ? 'animate-slide-in-right' : ''}`}
+        >
+          <CalculatorView
+            rates={rates}
+            isOffline={isOffline}
+            onOpenRates={() => handleNavigate('dashboard')}
+            onBack={() => handleNavigate('dashboard')}
+          />
+        </div>
 
         {/* History View (Modal/Overlay) */}
         {view === 'history' && (

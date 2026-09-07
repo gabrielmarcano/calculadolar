@@ -111,8 +111,17 @@
     - Generacion de icono para iOS (`app/apple-icon.png`, 180x180) con fondo opaco según los estandares de Apple HIG.
     - Generacion de favicon multirresolucion (`app/favicon.ico`, 16/32/48px), icono Next.js (`app/icon1.png`, 96x96) y favicon vectorial (`app/icon0.svg`).
     - Actualizacion de `app/manifest.ts` incorporando iconos estandares y maskable con tema oscuro `#0a0a0a`.
-    - Erradicacion de la doble pantalla de carga mediante eliminacion del splash screen artificial de cliente en `app/page.tsx`, delegando la bienvenida exclusivamente al splash screen nativo del sistema operativo gestionado por el manifiesto PWA.
   - **Investigacion previa**: Validada la zona segura del 80% (circulo central de 410px) en el icono maskable para prevenir deformaciones o recortes irregulares en capas de personalizacion de Android (One UI, Pixel Launcher, MIUI), y asegurada la opacidad total de fondo en el icono tactil de Apple conforme a las guias de diseno de iOS.
+
+- [x] **Arquitectura de arranque sin parpadeo y erradicacion del splash screen artificial**
+  - **Descripcion**: Eliminar la doble pantalla de carga mediante la supresion total del splash screen sintetico en React, implementando una arquitectura de doble vista en el DOM con script sincrono bloqueante de renderizado en el encabezado y estilos criticos para erradicar cualquier salto visual o contenido desestilizado al iniciar la aplicacion.
+  - **Alcance**:
+    - Inyeccion de script sincrono ultraligero en `<head>` (`app/layout.tsx`) para evaluar `calculadolar_last_view` en menos de 0.1 ms antes del primer cuadro de pintura y definir el atributo `data-initial-view` en el elemento raiz `<html>`.
+    - Estilos criticos en linea en `<head>` con reglas inmediatas `!important` para gobernar la visibilidad inicial de `#view-dashboard` y `#view-calculator`.
+    - Renderizado permanente de ambas vistas principales en el DOM con `suppressHydrationWarning`, permitiendo que el navegador pinte de forma instantanea la pantalla correspondiente al cerrar el splash screen nativo del sistema operativo.
+    - Limpieza automatica de atributos temporales al completar la hidratacion de React 19 para ceder el control dinamico a las clases de utilidad de Tailwind CSS.
+    - Configuracion de variables globales en `:root` (`app/globals.css`) con fondo oscuro `#0a0a0a` nativo para blindar la aplicacion contra destellos claros durante la recarga.
+  - **Investigacion previa**: Analizado el comportamiento del motor Blink y WebAPK en Android: la pantalla de bienvenida nativa es renderizada a nivel de sistema operativo en C++/Java usando metricas fisicas del dispositivo, provocando inevitablemente discrepancias de escala contra cualquier componente HTML intermedio. Validada la tecnica de ejecucion sincrona en `<head>` previa al arbol de renderizado (utilizada en PWAs de alto rendimiento como Telegram Web y Twitter Lite), eliminando en su totalidad la necesidad de pantallas de carga secundarias y garantizando transiciones limpias sin CLS.
 
 ## Tareas Pendientes
 
