@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useSyncExternalStore } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { triggerHaptic } from '@/lib/utils';
 
@@ -12,6 +13,8 @@ interface SettingsModalProps {
   toggleRate: (currency: string) => void;
 }
 
+const emptySubscribe = () => () => {};
+
 export default function SettingsModal({
   isOpen,
   onClose,
@@ -19,6 +22,7 @@ export default function SettingsModal({
   selectedRates,
   toggleRate,
 }: SettingsModalProps) {
+  const isClient = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const [dragY, setDragY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const startYRef = useRef(0);
@@ -105,7 +109,9 @@ export default function SettingsModal({
     ? `translateY(${dragY}px)`
     : 'translateY(0)';
 
-  return (
+  if (!isClient) return null;
+
+  return createPortal(
     <div
       className={`fixed inset-0 z-50 flex items-end justify-center select-none transition-all duration-300 overscroll-none ${
         isOpen ? 'pointer-events-auto' : 'pointer-events-none'
@@ -262,6 +268,7 @@ export default function SettingsModal({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

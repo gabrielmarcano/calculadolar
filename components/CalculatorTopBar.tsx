@@ -17,18 +17,13 @@ export default function CalculatorTopBar({
   onOpenSettings,
 }: CalculatorTopBarProps) {
   return (
-    <div className="flex-none flex justify-between items-center px-4 py-3 border-b border-gray-800/40 relative z-10">
+    <div className="w-full flex-none flex justify-between items-center px-4 py-3 border-b border-gray-800/40 relative z-10">
       {/* Left: Tasas */}
       <div className="flex items-center min-w-[72px]">
         <button
           type="button"
-          onPointerDown={(e) => {
-            e.preventDefault();
+          onClick={() => {
             triggerHaptic();
-            onOpenRates();
-          }}
-          onClick={(e) => {
-            e.preventDefault();
             onOpenRates();
           }}
           className="flex items-center gap-1.5 bg-[#252525] hover:bg-[#333333] text-gray-200 text-xs font-semibold py-2 px-3.5 rounded-full transition-transform duration-75 ease-out active:scale-95 will-change-transform border border-white/5 shadow-sm min-h-[44px] cursor-pointer"
@@ -61,13 +56,8 @@ export default function CalculatorTopBar({
       <div className="flex items-center justify-center">
         <button
           type="button"
-          onPointerDown={(e) => {
-            e.preventDefault();
+          onClick={() => {
             triggerHaptic();
-            onToggleCurrency();
-          }}
-          onClick={(e) => {
-            e.preventDefault();
             onToggleCurrency();
           }}
           className="relative flex items-center bg-[#1e1e22] hover:bg-[#26262c] active:scale-95 transition-transform duration-75 ease-out will-change-transform p-1 rounded-full border border-white/10 shadow-inner cursor-pointer"
@@ -102,13 +92,8 @@ export default function CalculatorTopBar({
       <div className="flex items-center justify-end min-w-[72px]">
         <button
           type="button"
-          onPointerDown={(e) => {
-            e.preventDefault();
+          onClick={() => {
             triggerHaptic();
-            onOpenSettings();
-          }}
-          onClick={(e) => {
-            e.preventDefault();
             onOpenSettings();
           }}
           className="w-10 h-10 rounded-full bg-[#252525] hover:bg-[#333333] active:scale-95 text-zinc-300 hover:text-white flex items-center justify-center transition-transform duration-75 ease-out will-change-transform border border-white/5 shadow-sm cursor-pointer"
