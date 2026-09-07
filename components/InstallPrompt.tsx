@@ -13,7 +13,7 @@ export default function InstallPrompt({ onInstall }: InstallPromptProps) {
                 {/* Content */}
                 <div className="flex items-center gap-4 relative z-10">
                     <div className="flex flex-col">
-                        <span className="text-white font-bold text-sm">Instalar Calculadolar</span>
+                        <span className="text-white font-bold text-sm">Instalar CalculaDolar</span>
                         <span className="text-gray-400 text-xs">Acceso rápido y sin conexión</span>
                     </div>
                 </div>

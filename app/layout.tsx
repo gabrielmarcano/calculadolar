@@ -5,10 +5,10 @@ import { GeistMono } from 'geist/font/mono';
 import SerwistProvider from './SerwistProvider';
 
 export const metadata: Metadata = {
-  title: 'Calculadolar',
+  title: 'CalculaDolar',
   description: 'Calculadora de Dolar',
   appleWebApp: {
-    title: 'Calculadolar',
+    title: 'CalculaDolar',
     statusBarStyle: 'default',
   },
 };
