@@ -145,6 +145,15 @@
     - Actualizacion de reglas y directrices de diseno movil (`AGENTS.md`, `GEMINI.md`, `.agents/rules/mobile-first-ergonomics.md`).
   - **Investigacion previa**: Analizado el comportamiento del motor Chromium en Android al procesar pull-to-refresh y cold reload: durante la carga inicial del documento, la unidad `100dvh` es calculada transitoriamente como Large Viewport Height (`100lvh`), asumiendo barras del navegador contraidas cuando la barra de direcciones superior de Chrome (~56px) se encuentra visible. Esto incrementaba la altura de `<main>` en ~56px empujando el fondo de pantalla y estirando los botones flexibles del teclado (`flex-1`). Al adoptar `100svh` (Small Viewport Height), Chromium calcula la altura asumiendo las barras siempre desplegadas, garantizando una dimension invariable desde el primer fotograma sin saltos ni desbordamientos.
 
+- [x] **Auditoria de diseno de interfaz y rediseno integral del Dashboard con skeletons granulares**
+  - **Descripcion**: Ejecutar una auditoria de diseno visual en toda la aplicacion para subsanar inconsistencias esteticas, sustituir glifos de texto por iconografia vectorial SVG y redisenar el Dashboard transformandolo en un centro financiero de alta utilidad (con brecha cambiaria, vista simultanea de tasas y skeletons granulares sobre componentes estaticos).
+  - **Alcance**:
+    - Auditoria de interfaz en Calculadora, Dashboard, Historial y Configuracion para erradicar patrones de escritorio (dropdowns emergentes), glifos unicode (`▼`, `›`, `‹`) y desajustes de alineacion.
+    - Sustitucion de glifos de navegacion y flechas por vectores SVG accesibles de trazo uniforme en `CalculatorDisplay.tsx`.
+    - Rediseno modular del Dashboard en 3 capas desacopladas (`MarketSpreadCard.tsx`, `MarketRateCard.tsx`, `RateView.tsx` <150 lineas cada una) con presentacion simultanea de cotizaciones clave (Dolar Oficial BCV, Dolar Paralelo/Binance, Euro BCV) y tarjeta principal de diferencial de mercado (brecha cambiaria % y diferencial en Bs).
+    - Arquitectura de skeletons granulares: renderizado permanente de la estructura de tarjetas, logotipos oficiales y etiquetas estaticas, restringiendo los estados de carga con pulso animado exclusivamente a los datos numericos del precio y fechas variables, eliminando por completo pantallas en blanco y bloques de texto "Cargando precios...".
+  - **Investigacion previa**: Analizados los patrones de diseno de aplicaciones financieras de referencia (Bloomberg, Revolut, CoinMarketCap): la informacion critica para el mercado cambiario venezolano reside en la visibilidad inmediata del diferencial entre la tasa oficial y la paralela (brecha cambiaria). Asimismo, el patron de cascaron estatico (*static shell*) con esqueletos microscopicos sobre los valores numericos maximiza el First Meaningful Paint (FMP) y erradica el parpadeo de pantalla completa durante recargas o navegacion entre vistas.
+
 ## Tareas Pendientes
 
 - [ ] **Historial de operaciones de calculo**
@@ -187,12 +196,3 @@
     - Tabla de suscripciones en Supabase y endpoints de despacho.
     - Panel de configuracion con interruptores (opt-in / opt-out) para tipos de alertas y umbrales.
   - **Investigacion previa**: Investigar el soporte y limitaciones de Web Push en iOS Safari (requiere que la PWA este instalada en pantalla de inicio a partir de iOS 16.4), las politicas de retencion de suscripciones invalidas en Supabase, y el costo/latencia de ejecucion desde el cron de despacho.
-
-- [ ] **Auditoria de diseno de interfaz y rediseno integral del Dashboard con skeletons granulares**
-  - **Descripcion**: Ejecutar una auditoria de diseno visual en toda la aplicacion para subsanar inconsistencias esteticas, sustituir glifos de texto por iconografia vectorial SVG y redisenar el Dashboard transformandolo en un centro financiero de alta utilidad (con brecha cambiaria, vista simultanea de tasas y skeletons granulares sobre componentes estaticos).
-  - **Alcance**:
-    - Auditoria de interfaz en Calculadora, Dashboard, Historial y Configuracion para erradicar patrones de escritorio (dropdowns emergentes), glifos unicode (`▼`, `›`, `‹`) y desajustes de alineacion.
-    - Sustitucion de glifos de navegacion y flechas por vectores SVG accesibles de trazo uniforme.
-    - Rediseno del Dashboard: presentacion simultanea de cotizaciones clave (Dolar Oficial BCV, Dolar Paralelo/Binance, Euro BCV), tarjeta principal de diferencial de mercado (brecha cambiaria % y en Bs), e indicadores de tendencia y fecha oficial.
-    - Arquitectura de skeletons granulares: renderizado permanente de la estructura de tarjetas, logotipos y etiquetas estaticas, restringiendo los estados de carga con pulso animado exclusivamente a los datos numericos del precio y fechas variables, eliminando pantallas en blanco y bloques de texto "Cargando precios...".
-  - **Investigacion previa**: Analizados los patrones de diseno de aplicaciones financieras de referencia (Bloomberg, Revolut, CoinMarketCap): la informacion critica para el mercado cambiario venezolano reside en la visibilidad inmediata del diferencial entre la tasa oficial y la paralela (brecha cambiaria). Asimismo, el patron de cascaron estatico (*static shell*) con esqueletos microscopicos sobre los valores numericos maximiza el First Meaningful Paint (FMP) y erradica el parpadeo de pantalla completa durante recargas o navegacion entre vistas.

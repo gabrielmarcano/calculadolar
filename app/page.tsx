@@ -198,27 +198,21 @@ export default function Home() {
               </div>
             )}
 
-            {/* 2. MAIN CONTENT (Full Height, Centered Rates) */}
-            <div className="flex-1 flex flex-col items-center justify-center p-6 pb-32 overflow-y-auto touch-pan-y">
-              {isLoadingRates && Object.keys(rates).length === 0 ? (
-                <div className="flex items-center justify-center h-full text-gray-400 font-bold animate-pulse">
-                  Cargando precios...
-                </div>
-              ) : fetchError && Object.keys(rates).length === 0 ? (
-                <div className="flex items-center justify-center h-full text-red-500 font-bold px-8 text-center">
+            {/* 2. MAIN CONTENT (Scrollable Dashboard with Static Shell) */}
+            <div className="flex-1 overflow-y-auto touch-pan-y px-4 pt-3 pb-36">
+              {fetchError && Object.keys(rates).length === 0 && (
+                <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium text-center">
                   {fetchError}
                 </div>
-              ) : (
-                <RateView
-                  rates={rates}
-                  targetCurrency={targetCurrency}
-                  onCurrencyChange={setTargetCurrency}
-                  onViewHistory={(name) => {
-                    setHistoryRateName(name);
-                    handleNavigate('history');
-                  }}
-                />
               )}
+              <RateView
+                rates={rates}
+                isLoading={isLoadingRates && Object.keys(rates).length === 0}
+                onViewHistory={(name) => {
+                  setHistoryRateName(name);
+                  handleNavigate('history');
+                }}
+              />
             </div>
 
             {/* Floating button to jump to Calculator */}
