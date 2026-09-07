@@ -90,6 +90,7 @@
     - Manejadores de accion `onClick` estandar con pulso haptico en el boton "Tasas", selector USD/VES, boton de configuracion y boton flotante "CALCULADORA", erradicando bloqueos del hilo de eventos tactiles causados por `preventDefault` en `pointerdown`.
     - Extraccion atomica de `components/CalculatorTopBar.tsx` (122 lineas) y compactacion de `components/CalculatorView.tsx` (110 lineas) en estricto cumplimiento del estandar de arquitectura limpia (<200 lineas).
     - Persistencia sincronizada en `localStorage` (`calculadolar_last_view`) e inicializacion sincrona de estado para abrir directamente en la ultima pantalla utilizada sin parpadeos visuales.
+    - Resolucion de conflicto visual eliminando `animate-fade-in` de `components/RateView.tsx`, inyeccion directa de `@keyframes` en `app/page.tsx` y definicion de animaciones en linea (`style`) con claves de reconciliacion unicas (`key`) para blindar la ejecucion de `slide-in-left` ante anomalias de cache de empaquetador.
   - **Investigacion previa**: Evaluada la navegacion por gestos de swipe tactil en toda la pantalla; descartada tras comprobar el conflicto inevitable entre el barrido de pantalla y el teclado numerico de alta velocidad (donde el usuario requiere respuesta inmediata en `pointerdown`). Se adopto la arquitectura de vistas condicionales animadas por botones que preserva la estetica y fluidez visual, eliminando por completo cualquier riesgo de redondeo subpixel en pantallas moviles de alta densidad.
 
 - [x] **Sistema de microinteracciones y animaciones fluidas de alto rendimiento**
