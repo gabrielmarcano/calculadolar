@@ -26,24 +26,14 @@ export default function CalculatorDisplay({
   showToast,
 }: CalculatorDisplayProps) {
   const [showContextBubble, setShowContextBubble] = useState(false);
-  const [showResumeSuggestion, setShowResumeSuggestion] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
   const inputScrollRef = useRef<HTMLDivElement>(null);
   const caretRef = useRef<HTMLSpanElement>(null);
   const pointerStartRef = useRef<{ x: number; y: number; time: number; hasMoved: boolean } | null>(null);
-
-  // App resume detection (returns from background / another app)
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        setShowResumeSuggestion(true);
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, []);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wasLongPressRef = useRef(false);
 
   // Check scroll indicators
   const checkScroll = useCallback(() => {
@@ -66,9 +56,8 @@ export default function CalculatorDisplay({
     }
   }, [cursorIndex, input, checkScroll]);
 
-  const dismissContextMenus = useCallback(() => {
+  const dismissContextBubble = useCallback(() => {
     setShowContextBubble(false);
-    setShowResumeSuggestion(false);
   }, []);
 
   const calculateAndSetCursor = (clientX: number) => {
@@ -122,12 +111,20 @@ export default function CalculatorDisplay({
   };
 
   const handlePointerDown = (e: React.PointerEvent) => {
+    wasLongPressRef.current = false;
     pointerStartRef.current = {
       x: e.clientX,
       y: e.clientY,
       time: Date.now(),
       hasMoved: false,
     };
+
+    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+    longPressTimerRef.current = setTimeout(() => {
+      wasLongPressRef.current = true;
+      triggerHaptic();
+      setShowContextBubble(true);
+    }, 450);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
@@ -136,38 +133,51 @@ export default function CalculatorDisplay({
       const dy = Math.abs(e.clientY - pointerStartRef.current.y);
       if (dx > 8 || dy > 8) {
         pointerStartRef.current.hasMoved = true;
+        if (longPressTimerRef.current) {
+          clearTimeout(longPressTimerRef.current);
+          longPressTimerRef.current = null;
+        }
       }
     }
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+
     const start = pointerStartRef.current;
     pointerStartRef.current = null;
     if (!start) return;
 
     if (start.hasMoved) {
-      // Panned or scrolled: do not move cursor
       return;
     }
 
-    const duration = Date.now() - start.time;
-    if (duration >= 500) {
-      // Long press: show contextual action bubble
-      triggerHaptic();
-      setShowContextBubble(true);
-      setShowResumeSuggestion(false);
+    if (wasLongPressRef.current) {
+      wasLongPressRef.current = false;
       return;
     }
 
-    // Clean tap: reposition cursor
+    // Clean tap: dismiss bubble if open, reposition cursor
+    dismissContextBubble();
     triggerHaptic();
-    dismissContextMenus();
     calculateAndSetCursor(e.clientX);
+  };
+
+  const handlePointerCancel = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    pointerStartRef.current = null;
+    wasLongPressRef.current = false;
   };
 
   const handlePasteFromClipboard = async () => {
     triggerHaptic();
-    dismissContextMenus();
+    dismissContextBubble();
 
     try {
       if (typeof navigator === 'undefined' || !navigator.clipboard?.readText) {
@@ -201,7 +211,7 @@ export default function CalculatorDisplay({
 
   const handleCopyInput = () => {
     triggerHaptic();
-    dismissContextMenus();
+    dismissContextBubble();
     const toCopy = input || '0';
     copyToClipboard(toCopy).finally(() => {
       showToast('Cuenta copiada');
@@ -223,12 +233,10 @@ export default function CalculatorDisplay({
       {/* 1. Interactive Expression Panel with Blinking Caret */}
       <div className="w-full relative group">
         <CalculatorContextBubble
-          showResumeSuggestion={showResumeSuggestion}
-          showContextBubble={showContextBubble}
+          isOpen={showContextBubble}
           input={input}
           onPaste={handlePasteFromClipboard}
           onCopy={handleCopyInput}
-          onDismissResume={() => setShowResumeSuggestion(false)}
         />
 
         {/* Scroll Indicators */}
@@ -245,9 +253,7 @@ export default function CalculatorDisplay({
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          onPointerCancel={() => {
-            pointerStartRef.current = null;
-          }}
+          onPointerCancel={handlePointerCancel}
           className="w-full min-h-[58px] flex items-center justify-end overflow-x-auto whitespace-nowrap scrollbar-hide text-right text-3xl sm:text-4xl font-light tracking-wide text-gray-200 cursor-text select-none tabular-nums touch-pan-x py-1"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
