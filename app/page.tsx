@@ -10,7 +10,6 @@ import CalculatorView from '@/components/CalculatorView';
 import HistoryView from '@/components/HistoryView';
 import { triggerHaptic } from '@/lib/utils';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
-import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import InstallPrompt from '@/components/InstallPrompt';
 
 type Rate = Database['public']['Tables']['rates']['Row'];
@@ -18,10 +17,6 @@ type Rate = Database['public']['Tables']['rates']['Row'];
 // Rate Caching & Last View Persistence
 const CACHE_KEY = 'calculadolar_rates_cache';
 const LAST_VIEW_KEY = 'calculadolar_last_view';
-
-// Feature Flags
-// Activa o desactiva la navegación interactiva por swipe entre pantallas manteniendo la animación fluida de transición
-const SWIPE_NAVIGATION_ENABLED = true;
 
 export default function Home() {
   // --- MOUNT & VIEW STATE ---
@@ -91,11 +86,6 @@ export default function Home() {
     }
   }, []);
 
-  const { containerRef, trackRef, bindSwipe } = useSwipeNavigation({
-    currentView: view === 'dashboard' ? 'dashboard' : 'calculator',
-    onNavigate: handleNavigate,
-    enabled: SWIPE_NAVIGATION_ENABLED && view !== 'history',
-  });
 
   useEffect(() => {
     const goOffline = () => setIsOffline(true);
@@ -204,14 +194,9 @@ export default function Home() {
 
   return (
     <main className="flex h-[100dvh] overflow-hidden flex-col items-center bg-[#0a0a0a] select-none text-white p-0">
-      <div
-        ref={containerRef}
-        {...bindSwipe}
-        className="w-full flex-1 flex flex-col h-[100dvh] max-w-md mx-auto pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] overflow-hidden relative touch-pan-y select-none"
-      >
-        {/* Continuous 2-Screen Track for Dashboard & Calculator */}
+      <div className="w-full flex-1 flex flex-col h-[100dvh] max-w-md mx-auto pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] overflow-hidden relative select-none">
+        {/* Continuous 2-Screen Track for Dashboard & Calculator with animated slide transition */}
         <div
-          ref={trackRef}
           className="w-[200%] h-full flex will-change-transform"
           style={{
             transform: view === 'calculator' ? 'translate3d(-50%, 0, 0)' : 'translate3d(0%, 0, 0)',

@@ -81,16 +81,15 @@
     - Descomposicion modular de `CalculatorView.tsx` (>590 lineas) en Custom Hook (`useCalculatorLogic`) y subcomponentes presentacionales atómicos (`CalculatorDisplay`, `CalculatorRates`, `CalculatorKeypad`) bajo el estandar de <200 lineas.
   - **Investigacion previa**: Validado el mecanismo de deteccion geometrica de caracteres mediante coordenadas relativas `(clientX - span.left)` sobre elementos `[data-char-idx]`, permitiendo resolucion subpixel independientemente de la tipografia tabular. Verificado el filtro de umbral de movimiento (>8px) para aislar el evento nativo de arrastre `touch-pan-x` de la pulsacion corta, y calculada la reduccion de 26px sobrantes en el contenedor de cotizaciones para oxigenar verticalmente el visor de calculo.
 
-- [x] **Navegacion por deslizamiento horizontal (swipe) interactivo en tiempo real entre pantallas**
-  - **Descripcion**: Implementar transicion interactiva de pantalla completa entre la vista de Calculadora y la vista de Tasas (dashboard) mediante gestos tactiles horizontales (swipe/drag) con seguimiento continuo 1:1 del dedo del usuario, fisica de resorte (spring snap) y reconocimiento de ultima pantalla al iniciar la app.
+- [x] **Transicion animada continua entre pantallas con reconocimiento de ultima vista**
+  - **Descripcion**: Implementar transicion lateral fluida de pantalla completa entre Calculadora y Dashboard activada por botones ("Tasas" y "CALCULADORA") mediante un carril continuo contiguo con aceleracion por hardware en GPU a 60 fps, persistencia de pantalla inicial y maxima prioridad al rendimiento de escritura del teclado numerico.
   - **Alcance**:
-    - Contenedor interactivo de pantallas contiguas en `app/page.tsx` con seguimiento tactil continuo (`pointerdown`, `pointermove`, `pointerup`) y aceleracion por hardware (`transform: translate3d`).
-    - Deteccion direccional de intencion con bloqueo de eje (`Math.abs(dx) > Math.abs(dy)`), respetando el desplazamiento vertical nativo de la pantalla de cotizaciones.
-    - Exclusion rigurosa de zonas con scroll horizontal local o modales (el visor de expresion editable de `CalculatorDisplay`, selector desplegable y dialogos accesibles).
+    - Estructura de carril contiguo `w-[200%]` en `app/page.tsx` con animacion de transicion suave `translate3d` y curva `cubic-bezier(0.16, 1, 0.3, 1)`.
+    - Boton flotante "CALCULADORA" posicionado de forma absoluta dentro de la pantalla de Dashboard (`Screen 0`), manteniendolo centrado y deslizandose de forma natural sin solapamiento alguno sobre la Calculadora.
+    - Maxima prioridad al rendimiento de escritura: eliminados hacks de deteccion de arrastre en el teclado numerico (`CalculatorKeypad`), dejando accionamiento puro e instantaneo en `pointerdown` con latencia cero y soporte multi-touch.
+    - Persistencia sincronizada en `localStorage` (`calculadolar_last_view`) e inicializacion sincrona de estado para abrir directamente en la ultima pantalla utilizada sin parpadeos visuales.
     - Descarte inmediato de la burbuja contextual de copiar/pegar ante cualquier toque o tecleo fuera de su contenedor.
-    - Fisica de resorte (snap): umbral de avance (>25% del ancho de pantalla) o inercia de velocidad (>0.3 px/ms) para transicionar o rebotar a la vista actual con curva `cubic-bezier(0.16, 1, 0.3, 1)`.
-    - Persistencia sincronizada en `localStorage` (`calculadolar_last_view`) e inicializacion sincrona de estado para evitar parpadeos visuales al arrancar la PWA.
-  - **Investigacion previa**: Analizado el patron de arquitectura de doble carril (`[ Tasas (0%) | Calculadora (-50%) ]`) gestionando el arrastre continuo en tiempo real directamente sobre el `ref.style.transform` del DOM sin disparar re-renders de React durante el movimiento del puntero, reservando el `setView` exclusivamente para la finalizacion del gesto (pointerup).
+  - **Investigacion previa**: Evaluada la navegacion por gestos de swipe tactil en toda la pantalla; descartada tras comprobar el conflicto inevitable entre el barrido de pantalla y el teclado numerico de alta velocidad (donde el usuario requiere respuesta inmediata en `pointerdown`). Se adopto la arquitectura de carril animado por botones que preserva la estetica y fluidez visual sin comprometer la velocidad ni la precision de calculo.
 
 - [x] **Sistema de microinteracciones y animaciones fluidas de alto rendimiento**
   - **Descripcion**: Incorporar transiciones y animaciones interactivas ligeras que aporten dinamismo y elegancia a la interfaz sin degradar la respuesta tactil ni la tasa de cuadros por segundo (60 fps), auditando y sustituyendo clases CSS no operativas por animaciones aceleradas por hardware en GPU.

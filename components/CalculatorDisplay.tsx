@@ -271,7 +271,6 @@ export default function CalculatorDisplay({
         {/* Input Text / Interactive Visor */}
         <div
           ref={inputScrollRef}
-          data-no-swipe="true"
           onScroll={checkScroll}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
