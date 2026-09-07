@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { evaluate, format } from 'mathjs';
+import { prepareExpressionForEvaluation } from '@/lib/percentage';
 
 const SELECTED_RATES_KEY = 'calculadolar_selected_rates';
 
@@ -54,10 +55,10 @@ export function useCalculatorLogic({ rates }: UseCalculatorLogicOptions) {
     (expression: string): string => {
       if (!expression) return '';
 
-      const sanitized = expression.replace(/×/g, '*').replace(/÷/g, '/');
+      const prepared = prepareExpressionForEvaluation(expression);
 
       try {
-        const val = evaluate(sanitized);
+        const val = evaluate(prepared);
         if (val === undefined || isNaN(val)) return result;
 
         const formatted = format(val, { precision: 14 });
@@ -83,6 +84,19 @@ export function useCalculatorLogic({ rates }: UseCalculatorLogicOptions) {
     },
     [calculateLiveResult]
   );
+
+  const handlePercent = useCallback(() => {
+    const curInput = inputRef.current;
+    const curCursor = cursorIndexRef.current;
+    const before = curInput.slice(0, curCursor);
+    const after = curInput.slice(curCursor);
+    // Allow % only after a digit or closing parenthesis
+    if (/[\d)]$/.test(before)) {
+      const toInsert = '%';
+      const next = before + toInsert + after;
+      updateInput(next, curCursor + toInsert.length);
+    }
+  }, [updateInput]);
 
   const handleClick = useCallback(
     (value: string) => {
@@ -112,13 +126,25 @@ export function useCalculatorLogic({ rates }: UseCalculatorLogicOptions) {
         return;
       }
 
+      if (value === '%') {
+        handlePercent();
+        return;
+      }
+
       const before = curInput.slice(0, curCursor);
       const after = curInput.slice(curCursor);
-      const next = before + value + after;
-      const nextPos = curCursor + value.length;
+
+      let toInsert = value;
+      // If typing a digit or opening paren right after a percentage, auto-insert multiplication
+      if (/%$/.test(before) && (/^\d$/.test(value) || value === '(')) {
+        toInsert = '×' + value;
+      }
+
+      const next = before + toInsert + after;
+      const nextPos = curCursor + toInsert.length;
       updateInput(next, nextPos);
     },
-    [hasError, calculateLiveResult, updateInput]
+    [hasError, calculateLiveResult, updateInput, handlePercent]
   );
 
   const handleBackspace = useCallback(() => {
@@ -160,25 +186,13 @@ export function useCalculatorLogic({ rates }: UseCalculatorLogicOptions) {
 
     let toInsert = '(';
     if (openCount > closeCount) {
-      toInsert = /\d|\)/.test(lastChar) ? ')' : '(';
+      toInsert = /\d|\)|%/.test(lastChar) ? ')' : '(';
     } else {
-      toInsert = /\d|\)/.test(lastChar) ? '*(' : '(';
+      toInsert = /\d|\)|%/.test(lastChar) ? '×(' : '(';
     }
 
     const next = before + toInsert + after;
     updateInput(next, curCursor + toInsert.length);
-  }, [updateInput]);
-
-  const handlePercent = useCallback(() => {
-    const curInput = inputRef.current;
-    const curCursor = cursorIndexRef.current;
-    const before = curInput.slice(0, curCursor);
-    const after = curInput.slice(curCursor);
-    if (/\d$/.test(before)) {
-      const toInsert = '/100';
-      const next = before + toInsert + after;
-      updateInput(next, curCursor + toInsert.length);
-    }
   }, [updateInput]);
 
   const toggleRate = useCallback(

@@ -1,4 +1,5 @@
 import { evaluate } from 'mathjs';
+import { prepareExpressionForEvaluation } from '../percentage';
 import { CURRENCY_PATTERNS, LABEL_PATTERNS, OPERATOR_REPLACEMENTS } from './rules';
 import { SanitizeResult, SanitizerOptions } from './types';
 
@@ -142,7 +143,8 @@ export function validateAndParse(cleanText: string, original: string): SanitizeR
 
   // Validación y evaluación con mathjs
   try {
-    const evaluated = evaluate(sanitized);
+    const prepared = prepareExpressionForEvaluation(sanitized);
+    const evaluated = evaluate(prepared);
     const numeric = typeof evaluated === 'number' && !isNaN(evaluated) ? evaluated : null;
 
     // Generar formato de pantalla para la calculadora (× y ÷)
