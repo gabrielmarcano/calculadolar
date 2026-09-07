@@ -1,17 +1,85 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
-  <rect width="512" height="512" rx="128" fill="#0f111b"/>
-  <!-- Top Left: Minus -->
-  <rect x="78" y="78" width="168" height="168" rx="56" fill="#222a3d"/>
-  <rect x="130" y="154" width="64" height="16" rx="8" fill="#dde3fc"/>
-  <!-- Top Right: Dollar -->
-  <rect x="266" y="78" width="168" height="168" rx="56" fill="#a3f5c7"/>
-  <text x="350" y="196" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="106" font-weight="900" fill="#0d4d26" text-anchor="middle">$</text>
-  <!-- Bottom Left: Plus -->
-  <rect x="78" y="266" width="168" height="168" rx="56" fill="#222a3d"/>
-  <rect x="130" y="342" width="64" height="16" rx="8" fill="#dde3fc"/>
-  <rect x="154" y="318" width="16" height="64" rx="8" fill="#dde3fc"/>
-  <!-- Bottom Right: Equals -->
-  <rect x="266" y="266" width="168" height="168" rx="56" fill="#ffb2a2"/>
-  <rect x="318" y="330" width="64" height="14" rx="7" fill="#5a000d"/>
-  <rect x="318" y="356" width="64" height="14" rx="7" fill="#5a000d"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <clipPath id="icon-mask">
+      <path d="M 0,143.36 
+    C 0,64.08192000000001 64.08192000000001,0 143.36,0 
+    L 368.64,0 
+    C 447.91808,0 512,64.08192000000001 512,143.36 
+    L 512,368.64 
+    C 512,447.91808 447.91808,512 368.64,512 
+    L 143.36,512 
+    C 64.08192000000001,512 0,447.91808 0,368.64 
+    Z" />
+    </clipPath>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10121D" />
+      <stop offset="100%" stop-color="#0E1019" />
+    </linearGradient>
+    
+    <linearGradient id="fg-primary" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#FFB2A2" />
+    </linearGradient>
+    <linearGradient id="fg-secondary" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFB2A2" />
+      <stop offset="100%" stop-color="#A3F5C7" />
+    </linearGradient>
+    <linearGradient id="fg-tertiary" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#A3F5C7" />
+      <stop offset="100%" stop-color="#FFFFFF" />
+    </linearGradient>
+  
+    
+    <filter id="fg-shadow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
+  
+    
+    <filter id="ambient-blur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="20" />
+    </filter>
+  
+    <linearGradient id="specular-top" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.35" />
+      <stop offset="18%" stop-color="#FFFFFF" stop-opacity="0.04" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <g clip-path="url(#icon-mask)">
+    <rect width="512" height="512" fill="url(#bg-grad)" />
+    
+
+    <!-- Glyph Layer -->
+    <g transform="translate(256, 256) scale(1) rotate(0) translate(-256, -256)" filter="url(#fg-shadow)">
+      
+      <!-- Top-Left Key (−) -->
+      <rect x="78" y="78" width="168" height="168" rx="56" fill="#242C3C" />
+      <rect x="130" y="154.5" width="64" height="15" rx="7.5" fill="#DDE3FC" />
+      <!-- Top-Right Key ($) -->
+      <rect x="266" y="78" width="168" height="168" rx="56" fill="#A3F5C7" />
+      <rect x="344" y="120" width="12" height="84" rx="6" fill="#084D28" />
+      <path d="M 372,145 C 372,133 362,130 350,130 C 338,130 328,136 328,146 C 328,157 337,160 350,162 C 363,164 372,167 372,178 C 372,188 362,194 350,194 C 338,194 328,190 328,179" fill="none" stroke="#084D28" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+      <!-- Bottom-Left Key (+) -->
+      <rect x="78" y="266" width="168" height="168" rx="56" fill="#242C3C" />
+      <rect x="130" y="342.5" width="64" height="15" rx="7.5" fill="#DDE3FC" />
+      <rect x="154.5" y="318" width="15" height="64" rx="7.5" fill="#DDE3FC" />
+      <!-- Bottom-Right Key (=) -->
+      <rect x="266" y="266" width="168" height="168" rx="56" fill="#FFB2A2" />
+      <rect x="317" y="330" width="66" height="15" rx="7.5" fill="#5A040B" />
+      <rect x="317" y="355" width="66" height="15" rx="7.5" fill="#5A040B" />
+    
+    </g>
+
+    <rect width="512" height="256" fill="url(#specular-top)" />
+    <path d="M 0,143.36 
+    C 0,64.08192000000001 64.08192000000001,0 143.36,0 
+    L 368.64,0 
+    C 447.91808,0 512,64.08192000000001 512,143.36 
+    L 512,368.64 
+    C 512,447.91808 447.91808,512 368.64,512 
+    L 143.36,512 
+    C 64.08192000000001,512 0,447.91808 0,368.64 
+    Z" fill="none" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1.5" />
+  </g>
 </svg>
