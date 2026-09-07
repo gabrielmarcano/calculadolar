@@ -45,6 +45,13 @@
     - Elevacion del portal de `Toast.tsx` a `z-[9999]` sobre el cuerpo del documento.
     - Incremento del espaciado superior (`pt-3`) para prevenir solapamiento visual con la barra superior.
 
+- [x] **Mejora tipografica y estilizacion visual de interfaz**
+  - **Descripcion**: Sustituir las fuentes del sistema por una tipografia de interfaz profesional (Geist) e integrar escala tipografica calibrada en teclado y visores sin dependencias externas de red.
+  - **Alcance**:
+    - Incorporacion de `GeistSans` y `GeistMono` empaquetadas localmente para soporte offline estricto en PWA.
+    - Calibracion de jerarquia en botones del teclado emulando proporciones de Android Stock (~45-50% de altura de tecla con `text-[32px]`).
+    - Sustitucion del caracter unicode de borrado por icono vectorial SVG optimizado para pantallas tactiles.
+
 ## Tareas Pendientes
 
 - [ ] **Modal de configuracion con boton de engranaje en calculadora**
@@ -53,13 +60,6 @@
     - Crear componente de modal para ajustes de la aplicacion.
     - Trasladar el selector de precios activos como una opcion dentro del modal.
     - Preparar el modal para futuras configuraciones (notificaciones, preferencias visuales).
-
-- [ ] **Mejora tipografica y estilizacion visual de interfaz**
-  - **Descripcion**: Sustituir las fuentes por defecto del sistema por una tipografia de interfaz profesional adaptada a dispositivos moviles.
-  - **Alcance**:
-    - Incorporar fuentes modernas optimizadas para interfaces de usuario y visualizacion numerica.
-    - Ajustar jerarquia visual, espaciados y pesos tipograficos en pantallas y botones.
-  - **Investigacion previa**: Evaluar la integracion de tipografias mediante `next/font` frente a fuentes locales empaquetadas en Serwist para asegurar carga instantanea sin conexion (evitando FOUT/FOIT), evaluando alternativas como Geist Sans/Mono, Inter o Roboto Mono.
 
 - [ ] **Panel de calculo interactivo con cursor por toque y desplazamiento por arrastre**
   - **Descripcion**: Transformar el visor de la expresion matematica en un panel interactivo donde el usuario pueda tocar para posicionar el cursor y editar cualquier parte de la cuenta, sin perder el desplazamiento horizontal por arrastre (inspirado en HiPER Calc Pro).
@@ -109,3 +109,27 @@
     - Tabla de suscripciones en Supabase y endpoints de despacho.
     - Panel de configuracion con interruptores (opt-in / opt-out) para tipos de alertas y umbrales.
   - **Investigacion previa**: Investigar el soporte y limitaciones de Web Push en iOS Safari (requiere que la PWA este instalada en pantalla de inicio a partir de iOS 16.4), las politicas de retencion de suscripciones invalidas en Supabase, y el costo/latencia de ejecucion desde el cron de despacho.
+
+- [ ] **Sistema de microinteracciones y animaciones fluidas de alto rendimiento**
+  - **Descripcion**: Incorporar transiciones y animaciones interactivas ligeras que aporten dinamismo y elegancia a la interfaz sin degradar la respuesta tactil ni la tasa de cuadros por segundo (60 fps).
+  - **Alcance**:
+    - Transiciones aceleradas por hardware utilizando exclusivamente `transform` y `opacity` (`will-change: transform`).
+    - Animaciones de transicion suaves para cambios de vista, despliegue de modales y actualizacion de cifras.
+    - Preservacion estricta de estabilidad visual para evitar desajustes acumulados de layout (CLS).
+  - **Investigacion previa**: Comparar el rendimiento de animaciones CSS nativas frente a la View Transitions API en navegadores moviles WebKit y Chromium, definiendo una curva de aceleracion tipo cubic-bezier que replique la fisica de Material Design 3 sin retrasar la ejecucion de callbacks.
+
+- [ ] **Optimizacion de carga y persistencia en cache de imagenes locales**
+  - **Descripcion**: Erradicar el parpadeo visual (flicker) de los iconos de tasas y recursos graficos al abrir la aplicacion o alternar entre pantallas, garantizando disponibilidad y renderizado instantaneo sin refetch.
+  - **Alcance**:
+    - Politica de precache inmutable en Serwist para activos graficos locales en `/public/` (`BCV.png`, `BINANCE.png`, divisas).
+    - Optimizacion del ciclo de vida de carga en componentes `next/image` mediante precarga (`priority`), decodificacion asincrona (`decoding="async"`) y atributos de dimension fijos.
+    - Persistencia en cache de memoria para prevenir repintados o solicitudes redundantes entre montajes de componentes.
+  - **Investigacion previa**: Analizar las causas por las cuales `next/image` revalida imagenes estaticas locales entre navegaciones internas del App Router y evaluar si empaquetar los iconos de divisas como componentes SVG en linea o precargarlos en el documento HTML elimina por completo la latencia de renderizado.
+
+- [ ] **Rediseno de identidad visual, logotipo y activos de marca**
+  - **Descripcion**: Crear una identidad grafica renovada y profesional para CalculaDolar, integrando nuevo logotipo, isotipo, favicon y el paquete completo de iconos de instalacion PWA.
+  - **Alcance**:
+    - Diseno de nuevo logotipo e isotipo vectorial optimizado para pantallas moviles de alta densidad y tema oscuro.
+    - Generacion del conjunto completo de activos para instalacion: favicon (`favicon.ico`), icono tactil de Apple (`apple-icon.png`), e iconos adaptativos para Android (`web-app-manifest-192x192.png`, `web-app-manifest-512x512.png`, maskable).
+    - Actualizacion de la pantalla de carga inicial (Splash Screen) y elementos de marca en encabezados.
+  - **Investigacion previa**: Validar los requisitos de zona segura (safe zone del 80%) para iconos maskable de Android para evitar recortes irregulares en diferentes capas de personalizacion (One UI, MIUI, Pixel Launcher), y asegurar compatibilidad de contrastes WCAG AAA sobre fondos `#0a0a0a`.
