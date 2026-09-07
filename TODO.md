@@ -70,15 +70,18 @@
     - Blindaje de la fila de cotizaciones con `overflow-x-hidden`, truncado con puntos suspensivos (`...`) en cifras extensas y proteccion rigurosa de iconos.
     - Supresion de eventos tap durante gestos de arrastre/swipe en `hooks/useLongPressCopy.ts`, erradicando el cambio involuntario de divisa.
 
-## Tareas Pendientes
-
-- [ ] **Panel de calculo interactivo con cursor por toque y desplazamiento por arrastre**
-  - **Descripcion**: Transformar el visor de la expresion matematica en un panel interactivo donde el usuario pueda tocar para posicionar el cursor y editar cualquier parte de la cuenta, sin perder el desplazamiento horizontal por arrastre (inspirado en HiPER Calc Pro).
+- [x] **Panel de calculo interactivo con cursor por toque, barra parpadeante y optimizacion de espacio**
+  - **Descripcion**: Transformar el visor de la expresion matematica en un panel interactivo con barra parpadeante de escritura (estilo calculadora de Android), donde el usuario pueda tocar para posicionar el cursor con precision y editar cualquier parte de la cuenta sin perder el desplazamiento horizontal por arrastre (pan/drag), optimizando ademas la altura del visor al erradicar el espacio vacio sobrante del selector de cotizaciones.
   - **Alcance**:
-    - Gestion de posicion del cursor dentro de la cadena de entrada.
-    - Compatibilidad entre gestos de toque (posicionar cursor) y arrastre (desplazamiento horizontal en expresiones largas).
-    - Insercion y borrado de caracteres en la posicion activa del cursor.
-  - **Investigacion previa**: Investigar la implementacion tecnica para desacoplar el gesto de pulsacion simple (tap para posicionar cursor en el caracter exacto) del gesto de desplazamiento horizontal (pan/drag para recorrer expresiones extensas), evitando conflictos con el teclado virtual nativo del sistema operativo y garantizando precision tactil en pantallas reducidas.
+    - Gestion bidireccional de posicion del cursor dentro de la cadena de entrada (`cursorIndex`).
+    - Barra de cursor parpadeante (`animate-cursor-blink`) que acompana la insercion y auto-desplaza el visor para mantenerse visible.
+    - Desacoplamiento de gestos: pulsacion simple (*tap*) calcula la coordenada exacta del caracter entre spans y ubica el cursor; deslizamiento horizontal (*pan/drag*) permite inspeccionar expresiones extensas sin saltos involuntarios de cursor ni teclado virtual nativo.
+    - Insercion, borrado (backspace) y pegado en la posicion activa del cursor.
+    - Optimizacion espacial de la interfaz: compactar la seccion de cotizaciones a su altura util estricta (~116px) eliminando el vacio inferior y transfiriendo los pixeles ganados al panel de calculo y resultado sin estirar las filas de tasas.
+    - Descomposicion modular de `CalculatorView.tsx` (>590 lineas) en Custom Hook (`useCalculatorLogic`) y subcomponentes presentacionales atómicos (`CalculatorDisplay`, `CalculatorRates`, `CalculatorKeypad`) bajo el estandar de <200 lineas.
+  - **Investigacion previa**: Validado el mecanismo de deteccion geometrica de caracteres mediante coordenadas relativas `(clientX - span.left)` sobre elementos `[data-char-idx]`, permitiendo resolucion subpixel independientemente de la tipografia tabular. Verificado el filtro de umbral de movimiento (>8px) para aislar el evento nativo de arrastre `touch-pan-x` de la pulsacion corta, y calculada la reduccion de 26px sobrantes en el contenedor de cotizaciones para oxigenar verticalmente el visor de calculo.
+
+## Tareas Pendientes
 
 - [ ] **Historial de operaciones de calculo**
   - **Descripcion**: Registrar y almacenar localmente las operaciones realizadas por el usuario para su posterior consulta y reutilizacion (inspirado en la calculadora stock de Android).
