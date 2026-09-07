@@ -331,7 +331,7 @@ export default function CalculatorDisplay({
             e.preventDefault();
             handleCopyResult();
           }}
-          className="text-5xl sm:text-6xl font-normal tracking-tight text-white break-all line-clamp-1 cursor-pointer select-none tabular-nums active:opacity-80 transition-opacity"
+          className="text-5xl sm:text-6xl font-normal tracking-tight text-white break-all line-clamp-1 cursor-pointer select-none tabular-nums active:opacity-80 transition-opacity duration-75 ease-out"
           title="Toca para usar resultado, mantén presionado para copiar"
         >
           = {isReversed ? 'Bs' : '$'}{' '}

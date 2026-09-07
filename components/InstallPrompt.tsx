@@ -7,7 +7,7 @@ interface InstallPromptProps {
 
 export default function InstallPrompt({ onInstall }: InstallPromptProps) {
     return (
-        <div className="w-full px-4 mb-4 animate-in slide-in-from-top-4 fade-in duration-500">
+        <div className="w-full px-4 mb-4 animate-slide-in-top will-change-transform">
             <div className="bg-[#1e1e1e]/90 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex items-center justify-between shadow-xl relative overflow-hidden group">
                 
                 {/* Content */}
@@ -20,11 +20,12 @@ export default function InstallPrompt({ onInstall }: InstallPromptProps) {
 
                 {/* Actions */}
                 <button
+                    type="button"
                     onClick={() => {
                         triggerHaptic();
                         onInstall();
                     }}
-                    className="relative z-10 bg-white hover:bg-gray-200 text-black text-xs font-bold py-2 px-4 rounded-full transition-colors active:scale-95"
+                    className="relative z-10 bg-white hover:bg-gray-200 text-black text-xs font-bold py-2 px-4 rounded-full transition-transform duration-75 ease-out active:scale-95 cursor-pointer"
                 >
                     Instalar
                 </button>

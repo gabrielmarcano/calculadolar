@@ -66,7 +66,7 @@ export default function CalculatorRates({
                 },
                 touchAction: canScroll ? 'pan-y' : undefined,
               })}
-              className="w-full flex justify-between items-center text-sm text-gray-400 py-0.5 rounded-lg px-1 min-h-[34px] cursor-pointer hover:bg-[#1a1a1a] active:scale-[0.98] active:bg-[#1e1e1e] transition-all overflow-hidden"
+              className="w-full flex justify-between items-center text-sm text-gray-400 py-0.5 rounded-lg px-1 min-h-[34px] cursor-pointer hover:bg-[#1a1a1a] active:scale-[0.98] active:bg-[#1e1e1e] transition-[transform,background-color] duration-75 ease-out will-change-transform overflow-hidden"
             >
               <div className="flex items-center gap-2 min-w-0 shrink-0">
                 {imageUrl && (

@@ -22,7 +22,7 @@ export default function Toast({ toastMessage, toastTranslateY, setToastTranslate
       }}
     >
       <div
-        className="pointer-events-auto bg-[#2d2d2d] border border-white/10 text-white text-sm font-medium px-5 py-3 rounded-full shadow-lg animate-in slide-in-from-bottom-4 fade-in duration-200"
+        className="pointer-events-auto bg-[#2d2d2d] border border-white/10 text-white text-sm font-medium px-5 py-3 rounded-full shadow-lg animate-toast-in will-change-transform"
         onPointerDown={(e) => {
           toastSwipeStartRef.current = e.clientY;
         }}

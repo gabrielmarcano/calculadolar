@@ -175,7 +175,7 @@ export default function Home() {
   if (!isReady) {
     return (
       <main className="flex h-[100dvh] overflow-hidden flex-col items-center justify-center bg-[#0a0a0a] select-none text-white p-0">
-        <div className="flex flex-col items-center gap-5 animate-in fade-in duration-150">
+        <div className="flex flex-col items-center gap-5 animate-fade-in">
           <div className="w-20 h-20 rounded-3xl bg-[#1e1e1e] border border-white/10 flex items-center justify-center p-3 shadow-2xl animate-pulse">
             <Image
               src="/web-app-manifest-192x192.png"
@@ -267,7 +267,7 @@ export default function Home() {
                   triggerHaptic();
                   handleNavigate('calculator');
                 }}
-                className="pointer-events-auto bg-[#1e1e1e]/80 hover:bg-[#2d2d2d]/90 text-white border border-white/10 font-bold py-4 px-8 rounded-full text-lg shadow-[0_0_30px_-5px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-all active:scale-95 flex items-center gap-3 active:shadow-none cursor-pointer"
+                className="pointer-events-auto bg-[#1e1e1e]/80 hover:bg-[#2d2d2d]/90 text-white border border-white/10 font-bold py-4 px-8 rounded-full text-lg shadow-[0_0_30px_-5px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-transform duration-75 ease-out active:scale-95 will-change-transform flex items-center gap-3 active:shadow-none cursor-pointer"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 text-gray-300">
                   <path fillRule="evenodd" d="M3 4.5A2.25 2.25 0 0 1 5.25 2.25h13.5A2.25 2.25 0 0 1 21 4.5v15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 19.5v-15ZM10.5 7.5a.75.75 0 0 0 .75.75h4.5a.75.75 0 0 0 0-1.5h-4.5a.75.75 0 0 0-.75.75Zm-3.75 3a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Zm0 3a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Zm0 3a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75ZM10.5 10.5a.75.75 0 0 0 .75.75h1.5a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 0-.75.75Zm.75 3.75a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Zm0 3a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Zm3.75-3.75a.75.75 0 0 0 .75.75h1.5a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 0-.75.75Zm.75 3.75a.75.75 0 0 1 .75-.75h1.5a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1-.75-.75Z" clipRule="evenodd" />
@@ -290,7 +290,7 @@ export default function Home() {
 
         {/* History View (Modal/Overlay) */}
         {view === 'history' && (
-          <div className="absolute inset-0 z-50 bg-[#0a0a0a] animate-in fade-in duration-200">
+          <div className="absolute inset-0 z-50 bg-[#0a0a0a] animate-slide-in-right will-change-transform">
             <HistoryView
               rates={rates}
               initialRateName={historyRateName}

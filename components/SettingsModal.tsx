@@ -152,7 +152,7 @@ export default function SettingsModal({
             </div>
             <button
               onClick={handleClose}
-              className="w-9 h-9 rounded-full bg-[#2a2a2e] hover:bg-[#35353a] active:scale-95 text-gray-300 hover:text-white flex items-center justify-center transition-all border border-white/5 cursor-pointer"
+              className="w-9 h-9 rounded-full bg-[#2a2a2e] hover:bg-[#35353a] active:scale-95 text-gray-300 hover:text-white flex items-center justify-center transition-transform duration-75 ease-out will-change-transform border border-white/5 cursor-pointer"
               aria-label="Cerrar configuración"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 pointer-events-none">
@@ -224,7 +224,7 @@ export default function SettingsModal({
 
                       {/* Clean Monochromatic Toggle Switch */}
                       <div
-                        className={`w-11 h-6 rounded-full transition-all relative flex items-center p-0.5 shrink-0 ${
+                        className={`w-11 h-6 rounded-full transition-colors duration-150 relative flex items-center p-0.5 shrink-0 ${
                           isSelected
                             ? isLocked
                               ? 'bg-white/20 opacity-80 cursor-not-allowed'
@@ -234,7 +234,7 @@ export default function SettingsModal({
                         title={isLocked ? 'Al menos una cotización debe permanecer activa' : undefined}
                       >
                         <div
-                          className={`w-5 h-5 rounded-full shadow-md transform transition-transform duration-200 ${
+                          className={`w-5 h-5 rounded-full shadow-md transform transition-transform duration-200 will-change-transform ${
                             isSelected ? 'translate-x-5 bg-white' : 'translate-x-0 bg-gray-400'
                           }`}
                         />

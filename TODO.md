@@ -92,6 +92,16 @@
     - Persistencia sincronizada en `localStorage` (`calculadolar_last_view`) e inicializacion sincrona de estado para evitar parpadeos visuales al arrancar la PWA.
   - **Investigacion previa**: Analizado el patron de arquitectura de doble carril (`[ Tasas (0%) | Calculadora (-50%) ]`) gestionando el arrastre continuo en tiempo real directamente sobre el `ref.style.transform` del DOM sin disparar re-renders de React durante el movimiento del puntero, reservando el `setView` exclusivamente para la finalizacion del gesto (pointerup).
 
+- [x] **Sistema de microinteracciones y animaciones fluidas de alto rendimiento**
+  - **Descripcion**: Incorporar transiciones y animaciones interactivas ligeras que aporten dinamismo y elegancia a la interfaz sin degradar la respuesta tactil ni la tasa de cuadros por segundo (60 fps), auditando y sustituyendo clases CSS no operativas por animaciones aceleradas por hardware en GPU.
+  - **Alcance**:
+    - Declaracion de fotogramas clave y utilidades de animacion por GPU en `app/globals.css` (`fade-in`, `toast-in`, `bubble-pop`, `slide-in-right`, `slide-in-top`) con curva natural `cubic-bezier(0.16, 1, 0.3, 1)` y respeto de accesibilidad via `@media (prefers-reduced-motion: reduce)`.
+    - Microinteracciones de pulsacion inmediata (`transition-transform duration-75 ease-out active:scale-95 will-change-transform`) en teclado, botones superiores, filas de tasas y burbuja flotante, erradicando retardos por `transition-all`.
+    - Aceleracion por hardware del interruptor USD/VES mediante desplazamiento `translateX` en GPU en lugar de propiedades de reflujo de maquetacion (`left`).
+    - Transicion fluida tipo push movil nativo para la apertura de la vista de historial (`animate-slide-in-right`).
+    - Animaciones de entrada escalonada para toasts (`animate-toast-in`) y burbuja de portapapeles (`animate-bubble-pop`).
+  - **Investigacion previa**: Comprobado que Tailwind CSS v4 no emite por defecto las clases de transicion de plugins heredados (`tailwindcss-animate`), lo que provocaba renderizaciones instantaneas sin transicion. Definidas curvas de aceleracion cubica identicas a las especificaciones de movimiento de Material Design 3 y iOS, asegurando cero cambios acumulados de diseno (CLS = 0) al restringir las animaciones estrictamente a transformaciones y opacidad.
+
 ## Tareas Pendientes
 
 - [ ] **Historial de operaciones de calculo**
@@ -134,15 +144,6 @@
     - Tabla de suscripciones en Supabase y endpoints de despacho.
     - Panel de configuracion con interruptores (opt-in / opt-out) para tipos de alertas y umbrales.
   - **Investigacion previa**: Investigar el soporte y limitaciones de Web Push en iOS Safari (requiere que la PWA este instalada en pantalla de inicio a partir de iOS 16.4), las politicas de retencion de suscripciones invalidas en Supabase, y el costo/latencia de ejecucion desde el cron de despacho.
-
-- [ ] **Sistema de microinteracciones y animaciones fluidas de alto rendimiento**
-  - **Descripcion**: Incorporar transiciones y animaciones interactivas ligeras que aporten dinamismo y elegancia a la interfaz sin degradar la respuesta tactil ni la tasa de cuadros por segundo (60 fps).
-  - **Alcance**:
-    - Transiciones aceleradas por hardware utilizando exclusivamente `transform` y `opacity` (`will-change: transform`).
-    - Animaciones de transicion suaves para cambios de vista, despliegue de modales y actualizacion de cifras.
-    - Animacion de apertura y cierre con fisica de resorte (spring) y descarte por arrastre hacia abajo (drag-to-dismiss) en SettingsModal asegurando 60 fps y prevencion de pull-to-refresh en navegadores moviles.
-    - Preservacion estricta de estabilidad visual para evitar desajustes acumulados de layout (CLS).
-  - **Investigacion previa**: Comparar el rendimiento de animaciones CSS nativas frente a la View Transitions API en navegadores moviles WebKit y Chromium, definiendo una curva de aceleracion tipo cubic-bezier que replique la fisica de Material Design 3 sin retrasar la ejecucion de callbacks.
 
 - [ ] **Rediseno de identidad visual, logotipo y activos de marca**
   - **Descripcion**: Crear una identidad grafica renovada y profesional para CalculaDolar, integrando nuevo logotipo, isotipo, favicon y el paquete completo de iconos de instalacion PWA.

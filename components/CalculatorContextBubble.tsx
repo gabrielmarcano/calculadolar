@@ -20,13 +20,13 @@ export default function CalculatorContextBubble({
   return (
     <div
       data-context-bubble="true"
-      className="absolute -top-12 right-0 z-40 flex items-center bg-[#222228]/95 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl py-1 px-1.5 animate-in zoom-in-95 duration-150 select-none"
+      className="absolute -top-12 right-0 z-40 flex items-center bg-[#222228]/95 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl py-1 px-1.5 animate-bubble-pop will-change-transform select-none"
     >
       {canCopy && (
         <button
           type="button"
           onClick={onCopy}
-          className="flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium text-gray-200 hover:text-white hover:bg-white/10 active:bg-white/15 rounded-xl transition-all active:scale-95 cursor-pointer min-h-[40px]"
+          className="flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium text-gray-200 hover:text-white hover:bg-white/10 active:bg-white/15 rounded-xl transition-transform duration-75 active:scale-95 cursor-pointer min-h-[40px]"
           aria-label="Copiar cuenta"
         >
           <svg
@@ -51,7 +51,7 @@ export default function CalculatorContextBubble({
       <button
         type="button"
         onClick={onPaste}
-        className="flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium text-gray-200 hover:text-white hover:bg-white/10 active:bg-white/15 rounded-xl transition-all active:scale-95 cursor-pointer min-h-[40px]"
+        className="flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium text-gray-200 hover:text-white hover:bg-white/10 active:bg-white/15 rounded-xl transition-transform duration-75 active:scale-95 cursor-pointer min-h-[40px]"
         aria-label="Pegar cuenta"
       >
         <svg

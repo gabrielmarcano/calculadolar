@@ -61,7 +61,7 @@ export default function CalculatorView({
               triggerHaptic();
               handleOpenRates();
             }}
-            className="flex items-center gap-1.5 bg-[#252525] hover:bg-[#333333] text-gray-200 text-xs font-semibold py-2 px-3.5 rounded-full transition-all active:scale-95 border border-white/5 shadow-sm min-h-[40px]"
+            className="flex items-center gap-1.5 bg-[#252525] hover:bg-[#333333] text-gray-200 text-xs font-semibold py-2 px-3.5 rounded-full transition-transform duration-75 ease-out active:scale-95 will-change-transform border border-white/5 shadow-sm min-h-[40px]"
             title="Ver tasas de cambio"
             aria-label="Ver tasas de cambio"
           >
@@ -95,23 +95,26 @@ export default function CalculatorView({
               triggerHaptic();
               toggleReversed();
             }}
-            className="relative flex items-center bg-[#1e1e22] hover:bg-[#26262c] active:scale-95 transition-all p-1 rounded-full border border-white/10 shadow-inner cursor-pointer"
+            className="relative flex items-center bg-[#1e1e22] hover:bg-[#26262c] active:scale-95 transition-transform duration-75 ease-out will-change-transform p-1 rounded-full border border-white/10 shadow-inner cursor-pointer"
             aria-label={`Cambiar moneda activa. Actual: ${isReversed ? 'VES' : 'USD'}`}
             title="Toca para alternar moneda"
           >
             <div
-              className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-[#454555] rounded-full transition-all duration-300 ease-in-out shadow-sm pointer-events-none"
-              style={{ left: isReversed ? 'calc(50%)' : '4px' }}
+              className="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-[#454555] rounded-full shadow-sm pointer-events-none will-change-transform"
+              style={{
+                transform: isReversed ? 'translateX(100%)' : 'translateX(0%)',
+                transition: 'transform 240ms cubic-bezier(0.16, 1, 0.3, 1)',
+              }}
             />
             <span
-              className={`relative z-10 text-xs font-bold py-1.5 px-4 rounded-full transition-colors duration-200 min-h-[32px] min-w-[52px] flex items-center justify-center pointer-events-none ${
+              className={`relative z-10 text-xs font-bold py-1.5 px-4 rounded-full transition-colors duration-150 min-h-[32px] min-w-[52px] flex items-center justify-center pointer-events-none ${
                 !isReversed ? 'text-white' : 'text-zinc-400'
               }`}
             >
               USD
             </span>
             <span
-              className={`relative z-10 text-xs font-bold py-1.5 px-4 rounded-full transition-colors duration-200 min-h-[32px] min-w-[52px] flex items-center justify-center pointer-events-none ${
+              className={`relative z-10 text-xs font-bold py-1.5 px-4 rounded-full transition-colors duration-150 min-h-[32px] min-w-[52px] flex items-center justify-center pointer-events-none ${
                 isReversed ? 'text-white' : 'text-zinc-400'
               }`}
             >
@@ -127,7 +130,7 @@ export default function CalculatorView({
               triggerHaptic();
               setIsSettingsOpen(true);
             }}
-            className="w-10 h-10 rounded-full bg-[#252525] hover:bg-[#333333] active:scale-95 text-zinc-300 hover:text-white flex items-center justify-center transition-all border border-white/5 shadow-sm"
+            className="w-10 h-10 rounded-full bg-[#252525] hover:bg-[#333333] active:scale-95 text-zinc-300 hover:text-white flex items-center justify-center transition-transform duration-75 ease-out will-change-transform border border-white/5 shadow-sm"
             aria-label="Abrir configuración"
             title="Configuración"
           >

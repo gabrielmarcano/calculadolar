@@ -77,7 +77,7 @@ export default function CalculatorKeypad({
             onClick={(e) => e.preventDefault()}
             style={{ touchAction: 'none' }}
             className={`
-              h-full w-full rounded-[2rem] sm:rounded-[2.5rem] transition-all active:scale-95 flex items-center justify-center select-none touch-none cursor-pointer
+              h-full w-full rounded-[2rem] sm:rounded-[2.5rem] transition-transform duration-75 ease-out active:scale-95 will-change-transform flex items-center justify-center select-none touch-none cursor-pointer
               
               /* Typography scale: Numbers/Point/Back remain calibrated, outer buttons enlarged */
               ${btn.type === 'num' ? 'text-[38px] sm:text-[40px] font-normal leading-none' : ''}
