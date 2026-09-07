@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { evaluate, format } from 'mathjs';
 
 const SELECTED_RATES_KEY = 'calculadolar_selected_rates';
@@ -13,6 +13,10 @@ export function useCalculatorLogic({ rates }: UseCalculatorLogicOptions) {
   const [cursorIndex, setCursorIndexState] = useState(0);
   const [hasError, setHasError] = useState(false);
   const [isReversed, setIsReversed] = useState(false);
+
+  // Synchronous refs to prevent stale closure race conditions during ultra-fast multi-touch typing
+  const inputRef = useRef('');
+  const cursorIndexRef = useRef(0);
 
   // User-selected rates with localStorage persistence
   const [userSelectedRates, setUserSelectedRates] = useState<string[] | null>(() => {
@@ -39,9 +43,11 @@ export function useCalculatorLogic({ rates }: UseCalculatorLogicOptions) {
 
   const setCursorIndex = useCallback(
     (index: number) => {
-      setCursorIndexState(Math.max(0, Math.min(index, input.length)));
+      const clamped = Math.max(0, Math.min(index, inputRef.current.length));
+      cursorIndexRef.current = clamped;
+      setCursorIndexState(clamped);
     },
-    [input.length]
+    []
   );
 
   const calculateLiveResult = useCallback(
@@ -66,18 +72,26 @@ export function useCalculatorLogic({ rates }: UseCalculatorLogicOptions) {
 
   const updateInput = useCallback(
     (nextInput: string, nextCursor?: number) => {
+      inputRef.current = nextInput;
       setInput(nextInput);
       const newResult = calculateLiveResult(nextInput);
       setResult(newResult);
       const targetCursor = nextCursor !== undefined ? nextCursor : nextInput.length;
-      setCursorIndexState(Math.max(0, Math.min(targetCursor, nextInput.length)));
+      const clamped = Math.max(0, Math.min(targetCursor, nextInput.length));
+      cursorIndexRef.current = clamped;
+      setCursorIndexState(clamped);
     },
     [calculateLiveResult]
   );
 
   const handleClick = useCallback(
     (value: string) => {
+      const curInput = inputRef.current;
+      const curCursor = cursorIndexRef.current;
+
       if (hasError) {
+        inputRef.current = value;
+        cursorIndexRef.current = value.length;
         setInput(value);
         setCursorIndexState(value.length);
         setHasError(false);
@@ -87,36 +101,40 @@ export function useCalculatorLogic({ rates }: UseCalculatorLogicOptions) {
       }
 
       // If expression is '0' or '0.00' and digit is typed at the first position, replace it
-      if ((input === '0' || input === '0.00') && /^\d$/.test(value) && cursorIndex <= 1) {
+      if ((curInput === '0' || curInput === '0.00') && /^\d$/.test(value) && curCursor <= 1) {
         updateInput(value, value.length);
         return;
       }
 
       // If '0.00' and dot is pressed, set to '0.'
-      if (input === '0.00' && value === '.') {
+      if (curInput === '0.00' && value === '.') {
         updateInput('0.', 2);
         return;
       }
 
-      const before = input.slice(0, cursorIndex);
-      const after = input.slice(cursorIndex);
+      const before = curInput.slice(0, curCursor);
+      const after = curInput.slice(curCursor);
       const next = before + value + after;
-      const nextPos = cursorIndex + value.length;
+      const nextPos = curCursor + value.length;
       updateInput(next, nextPos);
     },
-    [hasError, input, cursorIndex, calculateLiveResult, updateInput]
+    [hasError, calculateLiveResult, updateInput]
   );
 
   const handleBackspace = useCallback(() => {
-    if (cursorIndex === 0) return;
-    const before = input.slice(0, cursorIndex - 1);
-    const after = input.slice(cursorIndex);
+    const curInput = inputRef.current;
+    const curCursor = cursorIndexRef.current;
+    if (curCursor === 0) return;
+    const before = curInput.slice(0, curCursor - 1);
+    const after = curInput.slice(curCursor);
     const next = before + after;
-    const nextPos = cursorIndex - 1;
+    const nextPos = curCursor - 1;
     updateInput(next, nextPos);
-  }, [input, cursorIndex, updateInput]);
+  }, [updateInput]);
 
   const handleClear = useCallback(() => {
+    inputRef.current = '';
+    cursorIndexRef.current = 0;
     setInput('');
     setResult('');
     setCursorIndexState(0);
@@ -125,15 +143,19 @@ export function useCalculatorLogic({ rates }: UseCalculatorLogicOptions) {
 
   const commitResult = useCallback(() => {
     if (!result) return;
+    inputRef.current = result;
+    cursorIndexRef.current = result.length;
     setInput(result);
     setCursorIndexState(result.length);
   }, [result]);
 
   const handleParentheses = useCallback(() => {
-    const before = input.slice(0, cursorIndex);
-    const after = input.slice(cursorIndex);
-    const openCount = (input.match(/\(/g) || []).length;
-    const closeCount = (input.match(/\)/g) || []).length;
+    const curInput = inputRef.current;
+    const curCursor = cursorIndexRef.current;
+    const before = curInput.slice(0, curCursor);
+    const after = curInput.slice(curCursor);
+    const openCount = (curInput.match(/\(/g) || []).length;
+    const closeCount = (curInput.match(/\)/g) || []).length;
     const lastChar = before.slice(-1);
 
     let toInsert = '(';
@@ -144,18 +166,20 @@ export function useCalculatorLogic({ rates }: UseCalculatorLogicOptions) {
     }
 
     const next = before + toInsert + after;
-    updateInput(next, cursorIndex + toInsert.length);
-  }, [input, cursorIndex, updateInput]);
+    updateInput(next, curCursor + toInsert.length);
+  }, [updateInput]);
 
   const handlePercent = useCallback(() => {
-    const before = input.slice(0, cursorIndex);
-    const after = input.slice(cursorIndex);
+    const curInput = inputRef.current;
+    const curCursor = cursorIndexRef.current;
+    const before = curInput.slice(0, curCursor);
+    const after = curInput.slice(curCursor);
     if (/\d$/.test(before)) {
       const toInsert = '/100';
       const next = before + toInsert + after;
-      updateInput(next, cursorIndex + toInsert.length);
+      updateInput(next, curCursor + toInsert.length);
     }
-  }, [input, cursorIndex, updateInput]);
+  }, [updateInput]);
 
   const toggleRate = useCallback(
     (currency: string) => {

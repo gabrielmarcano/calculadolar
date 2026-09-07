@@ -61,15 +61,23 @@ export default function CalculatorKeypad({
     else onClick(btn.value);
   };
 
+  const handlePointerDown = (e: React.PointerEvent, btn: KeypadButton) => {
+    // Prevent synthetic click latency and multi-touch gesture suppression
+    e.preventDefault();
+    handleButtonPress(btn);
+  };
+
   return (
-    <div className="flex-1 min-h-0 px-4 pt-3 pb-4 bg-[#0a0a0a]">
-      <div className="h-full w-full grid grid-cols-4 grid-rows-5 gap-2 sm:gap-2.5">
+    <div className="flex-1 min-h-0 px-4 pt-3 pb-4 bg-[#0a0a0a] select-none touch-none">
+      <div className="h-full w-full grid grid-cols-4 grid-rows-5 gap-2 sm:gap-2.5 touch-none">
         {BUTTONS.map((btn) => (
           <button
             key={btn.label}
-            onClick={() => handleButtonPress(btn)}
+            onPointerDown={(e) => handlePointerDown(e, btn)}
+            onClick={(e) => e.preventDefault()}
+            style={{ touchAction: 'none' }}
             className={`
-              h-full w-full rounded-[2rem] sm:rounded-[2.5rem] transition-all active:scale-95 flex items-center justify-center select-none
+              h-full w-full rounded-[2rem] sm:rounded-[2.5rem] transition-all active:scale-95 flex items-center justify-center select-none touch-none cursor-pointer
               
               /* Typography scale: Numbers/Point/Back remain calibrated, outer buttons enlarged */
               ${btn.type === 'num' ? 'text-[38px] sm:text-[40px] font-normal leading-none' : ''}
