@@ -80,7 +80,10 @@ export default function RateView({ rates, targetCurrency, onCurrencyChange, onVi
                 {isSelectorOpen && (
                     <>
                         <div className="fixed inset-0 z-10" onClick={() => setIsSelectorOpen(false)} />
-                        <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-64 bg-[#1e1e1e] border border-gray-800 rounded-2xl shadow-2xl p-2 z-20 max-h-60 overflow-y-auto">
+                        <div
+                            data-no-swipe="true"
+                            className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-64 bg-[#1e1e1e] border border-gray-800 rounded-2xl shadow-2xl p-2 z-20 max-h-60 overflow-y-auto"
+                        >
                             {Object.keys(rates).map((currency) => {
                                 const rate = rates[currency];
                                 return (

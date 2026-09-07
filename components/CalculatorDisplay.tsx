@@ -74,9 +74,13 @@ export default function CalculatorDisplay({
   }, [showContextBubble]);
 
   // Auto-dismiss context bubble when input changes (typing any digit or function)
-  useEffect(() => {
-    setShowContextBubble(false);
-  }, [input]);
+  const [prevInput, setPrevInput] = useState(input);
+  if (prevInput !== input) {
+    setPrevInput(input);
+    if (showContextBubble) {
+      setShowContextBubble(false);
+    }
+  }
 
   const calculateAndSetCursor = (clientX: number) => {
     const container = inputScrollRef.current;
@@ -267,6 +271,7 @@ export default function CalculatorDisplay({
         {/* Input Text / Interactive Visor */}
         <div
           ref={inputScrollRef}
+          data-no-swipe="true"
           onScroll={checkScroll}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
