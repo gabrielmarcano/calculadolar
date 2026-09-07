@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useSyncExternalStore } from 'react';
+import React, { useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
-import Image from 'next/image';
 import { triggerHaptic } from '@/lib/utils';
+import { useDragToDismiss } from '@/hooks/useDragToDismiss';
+import SettingsDebugSection from '@/components/SettingsDebugSection';
+import SettingsRateItem from '@/components/SettingsRateItem';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -23,10 +25,10 @@ export default function SettingsModal({
   toggleRate,
 }: SettingsModalProps) {
   const isClient = useSyncExternalStore(emptySubscribe, () => true, () => false);
-  const [dragY, setDragY] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const startYRef = useRef(0);
-  const currentDragYRef = useRef(0);
+  const { translateYStyle, resetDrag, isDragging, dragProps } = useDragToDismiss({
+    isOpen,
+    onDismiss: onClose,
+  });
 
   // Lock body scroll and overscroll ONLY while modal is open
   useEffect(() => {
@@ -48,7 +50,7 @@ export default function SettingsModal({
 
   const handleClose = () => {
     triggerHaptic();
-    setDragY(0);
+    resetDrag();
     onClose();
   };
 
@@ -62,52 +64,6 @@ export default function SettingsModal({
     triggerHaptic();
     toggleRate(currency);
   };
-
-  // --- DRAG-TO-DISMISS GESTURES ---
-  const handlePointerDown = (e: React.PointerEvent) => {
-    // Ignore clicks on buttons inside header (like close button)
-    if ((e.target as HTMLElement).closest('button')) return;
-    try {
-      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    } catch {}
-    startYRef.current = e.clientY;
-    currentDragYRef.current = 0;
-    setIsDragging(true);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging) return;
-    const deltaY = e.clientY - startYRef.current;
-    if (deltaY > 0) {
-      currentDragYRef.current = deltaY;
-      setDragY(deltaY);
-    } else {
-      // Elastic resistance when pulling up
-      currentDragYRef.current = deltaY * 0.15;
-      setDragY(deltaY * 0.15);
-    }
-  };
-
-  const handlePointerUp = (e: React.PointerEvent) => {
-    try {
-      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-    } catch {}
-    setIsDragging(false);
-
-    // If dragged down past 60px, dismiss
-    if (currentDragYRef.current > 60) {
-      triggerHaptic();
-      onClose();
-    }
-    setDragY(0);
-  };
-
-  // Calculate transform for smooth slide-up from bottom
-  const translateYStyle = !isOpen
-    ? 'translateY(100%)'
-    : dragY !== 0
-    ? `translateY(${dragY}px)`
-    : 'translateY(0)';
 
   if (!isClient) return null;
 
@@ -141,10 +97,7 @@ export default function SettingsModal({
       >
         {/* Full Header Drag Zone: handle + title + subtitle (touch-none eliminates pull-to-refresh completely) */}
         <div
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
+          {...dragProps}
           className="w-full touch-none cursor-grab active:cursor-grabbing select-none"
         >
           {/* Drag Handle Indicator */}
@@ -154,7 +107,7 @@ export default function SettingsModal({
           <div className="flex items-center justify-between pb-3.5 border-b border-white/5">
             <div>
               <h2 className="text-base font-bold text-white tracking-tight">Configuración</h2>
-              <p className="text-xs text-gray-400">Personaliza la calculadora y cotizaciones</p>
+              <p className="text-xs text-gray-400">Personaliza las cotizaciones visibles</p>
             </div>
             <button
               onClick={handleClose}
@@ -187,85 +140,26 @@ export default function SettingsModal({
                   const isSelected = selectedRates.includes(currency);
                   const isLocked = isSelected && selectedRates.length === 1;
                   const rate = rates[currency];
-                  const displayName = rate?.displayName || currency;
-                  const imageUrl = rate?.imageUrl;
-                  const price = rate?.price || 0;
 
                   return (
-                    <button
+                    <SettingsRateItem
                       key={currency}
-                      onClick={() => handleToggle(currency)}
-                      className={`w-full flex items-center justify-between p-3 rounded-xl transition-all min-h-[48px] active:scale-[0.98] border ${
-                        isSelected
-                          ? 'bg-white/10 text-white border-white/15 shadow-sm'
-                          : 'bg-transparent text-gray-400 border-transparent hover:bg-white/5'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        {imageUrl && (
-                          <Image
-                            src={imageUrl}
-                            alt={displayName}
-                            width={56}
-                            height={56}
-                            className="w-7 h-7 rounded-full object-contain shrink-0"
-                            unoptimized
-                            priority
-                          />
-                        )}
-                        <div className="text-left truncate">
-                          <div className="flex items-center gap-1.5 truncate">
-                            <span className="text-sm font-semibold text-white truncate">{displayName}</span>
-                            {isLocked && (
-                              <span className="text-[10px] text-zinc-400 bg-white/10 px-1.5 py-0.5 rounded-full font-medium">
-                                Fija
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-xs text-gray-400 font-mono tabular-nums">
-                            {price > 0 ? `${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs` : 'Sin cotización'}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Clean Monochromatic Toggle Switch */}
-                      <div
-                        className={`w-11 h-6 rounded-full transition-colors duration-150 relative flex items-center p-0.5 shrink-0 ${
-                          isSelected
-                            ? isLocked
-                              ? 'bg-white/20 opacity-80 cursor-not-allowed'
-                              : 'bg-white/30'
-                            : 'bg-[#2d2d30]'
-                        }`}
-                        title={isLocked ? 'Al menos una cotización debe permanecer activa' : undefined}
-                      >
-                        <div
-                          className={`w-5 h-5 rounded-full shadow-md transform transition-transform duration-200 will-change-transform ${
-                            isSelected ? 'translate-x-5 bg-white' : 'translate-x-0 bg-gray-400'
-                          }`}
-                        />
-                      </div>
-                    </button>
+                      currency={currency}
+                      displayName={rate?.displayName || currency}
+                      imageUrl={rate?.imageUrl || null}
+                      price={rate?.price || 0}
+                      isSelected={isSelected}
+                      isLocked={isLocked}
+                      onToggle={handleToggle}
+                    />
                   );
                 })
               )}
             </div>
           </div>
 
-          {/* Section: System info */}
-          <div className="pt-2 border-t border-white/5">
-            <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-2">Preferencias</span>
-            <div className="bg-[#121214] rounded-2xl p-3 border border-white/5 space-y-2.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-300 font-medium">Respuesta háptica</span>
-                <span className="text-gray-200 font-semibold">Activada</span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-300 font-medium">Modo sin conexión (PWA)</span>
-                <span className="text-gray-200 font-semibold">Operativo</span>
-              </div>
-            </div>
-          </div>
+          {/* Debug Menu (Dev only) */}
+          <SettingsDebugSection />
         </div>
       </div>
     </div>,
