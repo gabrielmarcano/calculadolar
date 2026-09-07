@@ -51,6 +51,8 @@ export default function CalculatorKeypad({
   onParentheses,
   onPercent,
 }: CalculatorKeypadProps) {
+  const activePointersRef = React.useRef<Map<number, { x: number; y: number; moved: boolean }>>(new Map());
+
   const handleButtonPress = (btn: KeypadButton) => {
     triggerHaptic();
     if (btn.value === 'AC') onClear();
@@ -61,10 +63,37 @@ export default function CalculatorKeypad({
     else onClick(btn.value);
   };
 
-  const handlePointerDown = (e: React.PointerEvent, btn: KeypadButton) => {
-    // Prevent synthetic click latency and multi-touch gesture suppression
+  const handlePointerDown = (e: React.PointerEvent) => {
     e.preventDefault();
-    handleButtonPress(btn);
+    activePointersRef.current.set(e.pointerId, {
+      x: e.clientX,
+      y: e.clientY,
+      moved: false,
+    });
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    const pt = activePointersRef.current.get(e.pointerId);
+    if (pt && !pt.moved) {
+      if (Math.hypot(e.clientX - pt.x, e.clientY - pt.y) > 10) {
+        pt.moved = true;
+      }
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent, btn: KeypadButton) => {
+    e.preventDefault();
+    const pt = activePointersRef.current.get(e.pointerId);
+    activePointersRef.current.delete(e.pointerId);
+
+    // Only commit button press if this was an intentional tap, not a swipe drag
+    if (pt && !pt.moved) {
+      handleButtonPress(btn);
+    }
+  };
+
+  const handlePointerCancel = (e: React.PointerEvent) => {
+    activePointersRef.current.delete(e.pointerId);
   };
 
   return (
@@ -73,7 +102,10 @@ export default function CalculatorKeypad({
         {BUTTONS.map((btn) => (
           <button
             key={btn.label}
-            onPointerDown={(e) => handlePointerDown(e, btn)}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={(e) => handlePointerUp(e, btn)}
+            onPointerCancel={handlePointerCancel}
             onClick={(e) => e.preventDefault()}
             style={{ touchAction: 'none' }}
             className={`

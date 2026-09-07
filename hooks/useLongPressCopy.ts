@@ -25,7 +25,6 @@ export function useLongPressCopy() {
   const pointerOrigin = useRef<{ x: number; y: number } | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const toastSwipeStartRef = useRef<number | null>(null);
-  const capturedElement = useRef<HTMLElement | null>(null);
 
   const showToast = useCallback((message: string) => {
     if (toastTimer.current) clearTimeout(toastTimer.current);
@@ -46,7 +45,6 @@ export function useLongPressCopy() {
       longPressTimer.current = null;
     }
     pointerOrigin.current = null;
-    capturedElement.current = null;
   }, []);
 
   const didMoveRef = useRef(false);
@@ -70,11 +68,6 @@ export function useLongPressCopy() {
     touchAction?: string
   ) => ({
     onPointerDown: (e: React.PointerEvent) => {
-      const el = e.currentTarget as HTMLElement;
-      try {
-        el.setPointerCapture(e.pointerId);
-      } catch {}
-      capturedElement.current = el;
       cancelLongPress();
       didLongPress.current = false;
       wasLongPressRef.current = false;
@@ -87,14 +80,7 @@ export function useLongPressCopy() {
         onLongPressAction();
       }, LONG_PRESS_MS);
     },
-    onPointerUp: (e: React.PointerEvent) => {
-      if (capturedElement.current) {
-        try {
-          capturedElement.current.releasePointerCapture(e.pointerId);
-        } catch {}
-        capturedElement.current = null;
-      }
-
+    onPointerUp: () => {
       const wasLong = didLongPress.current;
       const didMove = didMoveRef.current;
       cancelLongPress();
@@ -109,13 +95,7 @@ export function useLongPressCopy() {
       }
     },
     onPointerMove: handlePointerMove,
-    onPointerCancel: (e: React.PointerEvent) => {
-      if (capturedElement.current) {
-        try {
-          capturedElement.current.releasePointerCapture(e.pointerId);
-        } catch {}
-        capturedElement.current = null;
-      }
+    onPointerCancel: () => {
       didMoveRef.current = true;
       cancelLongPress();
     },

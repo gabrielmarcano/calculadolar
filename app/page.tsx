@@ -19,6 +19,10 @@ type Rate = Database['public']['Tables']['rates']['Row'];
 const CACHE_KEY = 'calculadolar_rates_cache';
 const LAST_VIEW_KEY = 'calculadolar_last_view';
 
+// Feature Flags
+// Activa o desactiva la navegación interactiva por swipe entre pantallas manteniendo la animación fluida de transición
+const SWIPE_NAVIGATION_ENABLED = true;
+
 export default function Home() {
   // --- MOUNT & VIEW STATE ---
   const [isReady, setIsReady] = useState(false);
@@ -90,7 +94,7 @@ export default function Home() {
   const { containerRef, trackRef, bindSwipe } = useSwipeNavigation({
     currentView: view === 'dashboard' ? 'dashboard' : 'calculator',
     onNavigate: handleNavigate,
-    enabled: view !== 'history',
+    enabled: SWIPE_NAVIGATION_ENABLED && view !== 'history',
   });
 
   useEffect(() => {
@@ -211,6 +215,7 @@ export default function Home() {
           className="w-[200%] h-full flex will-change-transform"
           style={{
             transform: view === 'calculator' ? 'translate3d(-50%, 0, 0)' : 'translate3d(0%, 0, 0)',
+            transition: 'transform 320ms cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         >
           {/* Screen 0: Dashboard (Tasas) */}
@@ -237,7 +242,7 @@ export default function Home() {
             )}
 
             {/* 2. MAIN CONTENT (Full Height, Centered Rates) */}
-            <div className="flex-1 flex flex-col items-center justify-center p-6 pb-32 overflow-y-auto">
+            <div className="flex-1 flex flex-col items-center justify-center p-6 pb-32 overflow-y-auto touch-pan-y">
               {isLoadingRates && Object.keys(rates).length === 0 ? (
                 <div className="flex items-center justify-center h-full text-gray-400 font-bold animate-pulse">
                   Cargando precios...
@@ -260,7 +265,7 @@ export default function Home() {
             </div>
 
             {/* Floating button to jump to Calculator */}
-            <div className="fixed bottom-[max(2rem,calc(env(safe-area-inset-bottom,0px)+1rem))] left-0 right-0 flex justify-center z-50 px-4 pointer-events-none max-w-md mx-auto">
+            <div className="absolute bottom-[max(2rem,calc(env(safe-area-inset-bottom,0px)+1rem))] left-0 right-0 flex justify-center z-40 px-4 pointer-events-none">
               <button
                 type="button"
                 onClick={() => {

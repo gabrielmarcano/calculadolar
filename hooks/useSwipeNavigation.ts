@@ -18,6 +18,7 @@ export function useSwipeNavigation({
   const pointerStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
   const directionRef = useRef<'horizontal' | 'vertical' | null>(null);
   const isDraggingRef = useRef(false);
+  const cleanupsRef = useRef<(() => void) | null>(null);
 
   // Sync track position to currentView when not dragging
   const updateTrackTransform = useCallback((view: 'dashboard' | 'calculator', animate = true) => {
@@ -41,6 +42,16 @@ export function useSwipeNavigation({
     }
   }, [currentView, updateTrackTransform]);
 
+  // Clean up any global window listeners on unmount
+  useEffect(() => {
+    return () => {
+      if (cleanupsRef.current) {
+        cleanupsRef.current();
+        cleanupsRef.current = null;
+      }
+    };
+  }, []);
+
   const handlePointerDown = (e: React.PointerEvent) => {
     if (!enabled) return;
 
@@ -50,118 +61,133 @@ export function useSwipeNavigation({
       return;
     }
 
-    const track = trackRef.current;
-    if (track) {
-      track.style.transition = 'none';
+    // Clean up any stale listeners if existing
+    if (cleanupsRef.current) {
+      cleanupsRef.current();
+      cleanupsRef.current = null;
     }
 
-    pointerStartRef.current = {
-      x: e.clientX,
-      y: e.clientY,
-      time: Date.now(),
-    };
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startTime = Date.now();
+
+    pointerStartRef.current = { x: startX, y: startY, time: startTime };
     directionRef.current = null;
     isDraggingRef.current = false;
-  };
 
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!pointerStartRef.current || !enabled) return;
+    const onWindowMove = (moveEvent: PointerEvent) => {
+      if (!pointerStartRef.current) return;
 
-    const dx = e.clientX - pointerStartRef.current.x;
-    const dy = e.clientY - pointerStartRef.current.y;
+      const dx = moveEvent.clientX - pointerStartRef.current.x;
+      const dy = moveEvent.clientY - pointerStartRef.current.y;
 
-    // Lock direction on initial movement
-    if (!directionRef.current) {
-      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
-        if (Math.abs(dx) > Math.abs(dy)) {
-          directionRef.current = 'horizontal';
-          isDraggingRef.current = true;
-          try {
-            (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-          } catch {}
+      // Lock direction on initial displacement
+      if (!directionRef.current) {
+        if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+          if (Math.abs(dx) > Math.abs(dy)) {
+            directionRef.current = 'horizontal';
+            isDraggingRef.current = true;
+            const track = trackRef.current;
+            if (track) {
+              track.style.transition = 'none';
+            }
+          } else {
+            directionRef.current = 'vertical';
+            // Vertical scroll: detach swipe listeners immediately
+            detachListeners();
+            return;
+          }
         } else {
-          directionRef.current = 'vertical';
           return;
         }
-      } else {
-        return;
       }
-    }
 
-    if (directionRef.current === 'horizontal') {
+      if (directionRef.current === 'horizontal') {
+        if (moveEvent.cancelable) {
+          moveEvent.preventDefault();
+        }
+
+        const container = containerRef.current;
+        const track = trackRef.current;
+        if (!container || !track) return;
+
+        const width = container.clientWidth;
+        const basePx = currentView === 'calculator' ? -width : 0;
+        let newPx = basePx + dx;
+
+        // Elastic rubber-band resistance beyond screen boundaries
+        if (newPx > 0) {
+          newPx = dx * 0.25;
+        } else if (newPx < -width) {
+          newPx = -width + (newPx - (-width)) * 0.25;
+        }
+
+        track.style.transform = `translate3d(${newPx}px, 0, 0)`;
+      }
+    };
+
+    const onWindowUp = (upEvent: PointerEvent) => {
+      detachListeners();
+
+      const isHorizontal = directionRef.current === 'horizontal';
+      const start = pointerStartRef.current;
+      pointerStartRef.current = null;
+      directionRef.current = null;
+      isDraggingRef.current = false;
+
+      if (!isHorizontal || !start) return;
+
       const container = containerRef.current;
       const track = trackRef.current;
       if (!container || !track) return;
 
       const width = container.clientWidth;
-      const basePx = currentView === 'calculator' ? -width : 0;
-      let newPx = basePx + dx;
+      const dx = upEvent.clientX - start.x;
+      const duration = Math.max(1, Date.now() - start.time);
+      const velocity = dx / duration; // px/ms
 
-      // Rubber-band resistance at outer bounds
-      if (newPx > 0) {
-        newPx = dx * 0.25;
-      } else if (newPx < -width) {
-        newPx = -width + (newPx - (-width)) * 0.25;
+      let nextView = currentView;
+
+      if (currentView === 'dashboard') {
+        // Dragging left (negative dx) moves toward Calculator
+        if (dx < -width * 0.20 || velocity < -0.25) {
+          nextView = 'calculator';
+        }
+      } else {
+        // Dragging right (positive dx) moves toward Dashboard
+        if (dx > width * 0.20 || velocity > 0.25) {
+          nextView = 'dashboard';
+        }
       }
 
-      track.style.transform = `translate3d(${newPx}px, 0, 0)`;
-    }
-  };
+      updateTrackTransform(nextView, true);
 
-  const handlePointerUp = (e: React.PointerEvent) => {
-    if (!pointerStartRef.current) return;
-
-    try {
-      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-    } catch {}
-
-    const isHorizontal = directionRef.current === 'horizontal';
-    const start = pointerStartRef.current;
-    pointerStartRef.current = null;
-    directionRef.current = null;
-    isDraggingRef.current = false;
-
-    if (!isHorizontal) return;
-
-    const container = containerRef.current;
-    const track = trackRef.current;
-    if (!container || !track) return;
-
-    const width = container.clientWidth;
-    const dx = e.clientX - start.x;
-    const duration = Math.max(1, Date.now() - start.time);
-    const velocity = dx / duration; // px/ms
-
-    let nextView = currentView;
-
-    if (currentView === 'dashboard') {
-      // Dragging left (negative dx) moves toward Calculator
-      if (dx < -width * 0.25 || velocity < -0.3) {
-        nextView = 'calculator';
+      if (nextView !== currentView) {
+        triggerHaptic();
+        onNavigate(nextView);
       }
-    } else {
-      // Dragging right (positive dx) moves toward Dashboard
-      if (dx > width * 0.25 || velocity > 0.3) {
-        nextView = 'dashboard';
-      }
-    }
+    };
 
-    updateTrackTransform(nextView, true);
+    const onWindowCancel = () => {
+      detachListeners();
+      pointerStartRef.current = null;
+      directionRef.current = null;
+      isDraggingRef.current = false;
+      updateTrackTransform(currentView, true);
+    };
 
-    if (nextView !== currentView) {
-      triggerHaptic();
-      onNavigate(nextView);
-    }
-  };
+    const detachListeners = () => {
+      window.removeEventListener('pointermove', onWindowMove);
+      window.removeEventListener('pointerup', onWindowUp);
+      window.removeEventListener('pointercancel', onWindowCancel);
+      cleanupsRef.current = null;
+    };
 
-  const handlePointerCancel = (e: React.PointerEvent) => {
-    try {
-      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-    } catch {}
-    pointerStartRef.current = null;
-    directionRef.current = null;
-    isDraggingRef.current = false;
-    updateTrackTransform(currentView, true);
+    window.addEventListener('pointermove', onWindowMove, { passive: false });
+    window.addEventListener('pointerup', onWindowUp);
+    window.addEventListener('pointercancel', onWindowCancel);
+
+    cleanupsRef.current = detachListeners;
   };
 
   return {
@@ -169,9 +195,6 @@ export function useSwipeNavigation({
     trackRef,
     bindSwipe: {
       onPointerDown: handlePointerDown,
-      onPointerMove: handlePointerMove,
-      onPointerUp: handlePointerUp,
-      onPointerCancel: handlePointerCancel,
     },
     updateTrackTransform,
   };
