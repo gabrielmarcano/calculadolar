@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
 import { getSupabaseClient } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
 import RateView from '@/components/RateView';
@@ -17,7 +17,15 @@ type Rate = Database['public']['Tables']['rates']['Row'];
 const CACHE_KEY = 'calculadolar_rates_cache';
 const LAST_VIEW_KEY = 'calculadolar_last_view';
 
+const emptySubscribe = () => () => {};
+
 export default function Home() {
+  const isClient = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+
   // --- MOUNT & VIEW STATE ---
   const [view, setView] = useState<'dashboard' | 'calculator' | 'history'>(() => {
     if (typeof window !== 'undefined') {
@@ -163,6 +171,22 @@ export default function Home() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  if (!isClient) {
+    return (
+      <main className="flex h-[100dvh] overflow-hidden flex-col items-center justify-center bg-[#0a0a0a] select-none text-white p-0">
+        <div className="w-32 h-32 flex items-center justify-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/web-app-manifest-192x192.png"
+            alt="CalculaDolar"
+            width={128}
+            height={128}
+            className="w-full h-full object-contain pointer-events-none"
+          />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="flex h-[100dvh] overflow-hidden flex-col items-center bg-[#0a0a0a] select-none text-white p-0">
