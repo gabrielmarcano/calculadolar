@@ -45,7 +45,7 @@ export default function RateView({ rates, targetCurrency, onCurrencyChange, onVi
             <div className="text-center">
                 <div
                     {...bindDirectCopy(currentRate.toFixed(2), currentRate.toFixed(2))}
-                    className="text-7xl font-bold tracking-tighter"
+                    className="text-7xl font-bold tracking-tighter tabular-nums"
                 >
                     {currentRate.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>

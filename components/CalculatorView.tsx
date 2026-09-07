@@ -398,15 +398,17 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
                            <path fillRule="evenodd" d="M13.887 3.182c.396.037.79.08 1.183.128C16.194 3.45 17 4.414 17 5.517V16.5A2.5 2.5 0 0 1 14.5 19h-9A2.5 2.5 0 0 1 3 16.5V5.517c0-1.103.806-2.068 1.93-2.207.393-.048.787-.09 1.183-.128A3.001 3.001 0 0 1 9 1h2c1.373 0 2.531.923 2.887 2.182ZM7.5 4A1.5 1.5 0 0 1 9 2.5h2A1.5 1.5 0 0 1 12.5 4v.5h-5V4Z" clipRule="evenodd" />
                          </svg>
                          <span>Pegar portapapeles</span>
-                         <span
+                         <button
+                             type="button"
                              onClick={(e) => {
                                  e.stopPropagation();
                                  setShowResumeSuggestion(false);
                              }}
-                             className="text-gray-500 hover:text-gray-300 ml-1 p-0.5"
+                             className="text-gray-400 hover:text-gray-200 ml-1.5 p-1 -mr-1 rounded-full hover:bg-white/10 active:scale-90 transition-transform flex items-center justify-center min-w-[28px] min-h-[28px]"
+                             aria-label="Cerrar sugerencia"
                          >
                              ✕
-                         </span>
+                         </button>
                      </button>
                  </div>
              )}
@@ -455,7 +457,7 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
                     dismissContextMenus();
                   },
                 })}
-                className="w-full overflow-x-auto whitespace-nowrap scrollbar-hide text-right text-3xl font-light tracking-wide text-gray-300 cursor-pointer active:opacity-80 transition-opacity"
+                className="w-full overflow-x-auto whitespace-nowrap scrollbar-hide text-right text-3xl font-light tracking-wide text-gray-300 cursor-pointer active:opacity-80 transition-opacity tabular-nums"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
              >
                 {input || '0'}
@@ -478,14 +480,14 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
                     onTap: commitResult,
                   }
                 )}
-                className="text-5xl sm:text-6xl font-normal tracking-tight text-white break-all line-clamp-1 cursor-pointer"
+                className="text-5xl sm:text-6xl font-normal tracking-tight text-white break-all line-clamp-1 cursor-pointer tabular-nums"
              >
                 = {isReversed ? 'Bs' : '$'} {result && parseFloat(result) !== 0 ? parseFloat(result).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0'}
              </div>
         </div>
         
         {/* Rate Results - Fixed Height to prevent keypad jumps */}
-        <div className="w-full h-32 space-y-2 overflow-y-auto flex-shrink-0 pt-2 border-t border-gray-800/50">
+        <div className="w-full h-[142px] space-y-1.5 overflow-y-auto flex-shrink-0 pt-2 border-t border-gray-800/50 scrollbar-hide">
                 {selectedRates.length > 0 && Object.keys(rates).filter(k => selectedRates.includes(k)).map(currency => {
                 const rate = rates[currency]?.price || 0;
                 const displayName = rates[currency]?.displayName || currency;
@@ -516,7 +518,7 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
                             },
                             touchAction: 'pan-y',
                         })}
-                        className="flex justify-between items-end text-sm text-gray-400 pb-1 rounded-lg px-1 -mx-1 cursor-pointer hover:bg-[#1a1a1a] active:scale-[0.98] active:bg-[#1e1e1e] transition-all"
+                        className="flex justify-between items-center text-sm text-gray-400 py-1 rounded-lg px-2 -mx-2 min-h-[34px] cursor-pointer hover:bg-[#1a1a1a] active:scale-[0.98] active:bg-[#1e1e1e] transition-all"
                     >
                         <div className="flex items-center gap-2">
                             {imageUrl && (
@@ -524,7 +526,7 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
                             )}
                             <span className="font-medium">{displayName}</span>
                         </div>
-                        <span className="text-white font-mono text-lg">{formattedValue}{suffix}</span>
+                        <span className="text-white font-mono tabular-nums text-lg">{formattedValue}{suffix}</span>
                     </div>
                 )
                 })}
@@ -532,9 +534,9 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
       </div>
 
       {/* Keypad */}
-      {/* Keypad (Flexible - Fills remaining space) */}
-      <div className="flex-1 min-h-0 p-4 bg-[#0a0a0a] mb-5">
-        <div className="h-full w-full grid grid-cols-4 grid-rows-5 gap-2 sm:gap-3">
+      {/* Keypad (Flexible - Fills remaining space with subtle top breathing room) */}
+      <div className="flex-1 min-h-0 px-4 pt-3 pb-4 bg-[#0a0a0a]">
+        <div className="h-full w-full grid grid-cols-4 grid-rows-5 gap-2 sm:gap-2.5">
             {buttons.map((btn) => (
             <button
                 key={btn.label}

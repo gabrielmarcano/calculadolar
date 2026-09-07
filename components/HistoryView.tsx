@@ -106,14 +106,15 @@ export default function HistoryView({ rates, initialRateName, onBack }: HistoryV
             <div className="flex-none flex items-center justify-between p-4">
                 <button
                     onClick={() => { triggerHaptic(); onBack(); }}
-                    className="w-10 h-10 flex items-center justify-center rounded-full bg-[#2d2d2d] hover:bg-[#3d3d3d] text-gray-300 transition-colors active:scale-95"
+                    className="w-12 h-12 flex items-center justify-center rounded-full bg-[#2d2d2d] hover:bg-[#3d3d3d] text-gray-300 transition-colors active:scale-95"
+                    aria-label="Volver"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                     </svg>
                 </button>
                 <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400">Historial</h2>
-                <div className="w-10" />
+                <div className="w-12" />
             </div>
 
             {/* Offline Indicator */}
@@ -149,7 +150,7 @@ export default function HistoryView({ rates, initialRateName, onBack }: HistoryV
 
             {/* Current Price + Change */}
             <div className="flex-none px-6 pb-4">
-                <div className="text-4xl font-bold tracking-tight">
+                <div className="text-4xl font-bold tracking-tight tabular-nums">
                     Bs {currentRate?.price.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
                 </div>
                 {priceChange !== null && priceChangePercent !== null && (
