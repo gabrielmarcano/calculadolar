@@ -563,15 +563,15 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
                 /* Default Num Style */
                 bg-[#2D2E36] text-white hover:bg-[#3D3E4A]
 
-                /* Func Style (AC, (), %) - Muted/Dark or Purple for AC */
-                ${btn.type === 'func' ? 'bg-[#3F4050] text-white hover:bg-[#4F5060]' : ''}
-                ${btn.value === 'AC' ? '!bg-[#5B5D85] text-white hover:!bg-[#6B6D95]' : ''}
+                /* Func Style (AC, (), %) - Muted/Dark with harmonic slate text or luminous lilac for AC */
+                ${btn.type === 'func' ? 'bg-[#3F4050] text-[#D2D4E5] hover:bg-[#4F5060]' : ''}
+                ${btn.value === 'AC' ? '!bg-[#5B5D85] !text-[#E0E2FF] hover:!bg-[#6B6D95]' : ''}
 
-                /* Op Style (+, -, *, /) */
-                ${btn.type === 'op' ? 'bg-[#3F4050] text-white hover:bg-[#4F5060]' : ''}
+                /* Op Style (+, -, *, /) - Harmonic slate-lavender text */
+                ${btn.type === 'op' ? 'bg-[#3F4050] text-[#D2D4E5] hover:bg-[#4F5060]' : ''}
 
                 /* Equal Style */
-                ${btn.type === 'equal' ? '!bg-[#FFD1E8] !text-black hover:!bg-[#FFE1F0]' : ''}
+                ${btn.type === 'equal' ? '!bg-[#FFD1E8] !text-[#2D001F] hover:!bg-[#FFE1F0]' : ''}
                 
                 /* Backspace Icon */
                 ${btn.value === 'BACK' ? 'text-white' : ''}
