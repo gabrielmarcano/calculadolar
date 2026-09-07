@@ -24,14 +24,19 @@ export default function SettingsModal({
   const startYRef = useRef(0);
   const currentDragYRef = useRef(0);
 
-  if (!isOpen) return null;
-
   const handleClose = () => {
     triggerHaptic();
+    setDragY(0);
     onClose();
   };
 
   const handleToggle = (currency: string) => {
+    const isSelected = selectedRates.includes(currency);
+    // Lock: if only 1 rate is active and it's this one, do not deactivate
+    if (isSelected && selectedRates.length === 1) {
+      triggerHaptic();
+      return;
+    }
     triggerHaptic();
     toggleRate(currency);
   };
@@ -53,7 +58,7 @@ export default function SettingsModal({
       currentDragYRef.current = deltaY;
       setDragY(deltaY);
     } else {
-      // Elastic resistance when dragging upwards
+      // Elastic resistance when pulling up
       currentDragYRef.current = deltaY * 0.15;
       setDragY(deltaY * 0.15);
     }
@@ -73,24 +78,42 @@ export default function SettingsModal({
     setDragY(0);
   };
 
+  // Calculate transform for smooth slide-up from bottom
+  const translateYStyle = !isOpen
+    ? 'translateY(100%)'
+    : dragY !== 0
+    ? `translateY(${dragY}px)`
+    : 'translateY(0)';
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center select-none" role="dialog" aria-modal="true">
-      {/* Backdrop */}
+    <div
+      className={`fixed inset-0 z-50 flex items-end justify-center select-none transition-all duration-300 ${
+        isOpen ? 'pointer-events-auto' : 'pointer-events-none'
+      }`}
+      role="dialog"
+      aria-modal={isOpen}
+      aria-hidden={!isOpen}
+    >
+      {/* Backdrop with fade animation */}
       <div
-        className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        className={`fixed inset-0 bg-black/75 backdrop-blur-xs transition-opacity duration-280 ease-out ${
+          isOpen ? 'opacity-100' : 'opacity-0'
+        }`}
         onClick={handleClose}
         aria-hidden="true"
       />
 
-      {/* Bottom Sheet Drawer */}
+      {/* Bottom Sheet Drawer with slide-up animation */}
       <div
         style={{
-          transform: `translateY(${dragY}px)`,
-          transition: isDragging ? 'none' : 'transform 200ms ease-out',
+          transform: translateYStyle,
+          transition: isDragging
+            ? 'none'
+            : 'transform 300ms cubic-bezier(0.16, 1, 0.3, 1)',
         }}
-        className="relative w-full max-w-md bg-[#1a1a1c] border-t border-white/10 rounded-t-[2rem] shadow-2xl z-10 px-5 pt-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] animate-in slide-in-from-bottom duration-250 ease-out overscroll-contain"
+        className="relative w-full max-w-md bg-[#1a1a1c] border-t border-white/10 rounded-t-[2rem] shadow-2xl z-10 px-5 pt-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] overscroll-contain will-change-transform"
       >
-        {/* Drag Handle Zone (touch-none to prevent mobile pull-to-refresh) */}
+        {/* Drag Handle Zone (touch-none prevents mobile pull-to-refresh) */}
         <div
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
@@ -135,6 +158,7 @@ export default function SettingsModal({
               ) : (
                 Object.keys(rates).map((currency) => {
                   const isSelected = selectedRates.includes(currency);
+                  const isLocked = isSelected && selectedRates.length === 1;
                   const rate = rates[currency];
                   const displayName = rate?.displayName || currency;
                   const imageUrl = rate?.imageUrl;
@@ -163,7 +187,14 @@ export default function SettingsModal({
                           />
                         )}
                         <div className="text-left truncate">
-                          <div className="text-sm font-semibold text-white truncate">{displayName}</div>
+                          <div className="flex items-center gap-1.5 truncate">
+                            <span className="text-sm font-semibold text-white truncate">{displayName}</span>
+                            {isLocked && (
+                              <span className="text-[10px] text-zinc-400 bg-white/10 px-1.5 py-0.5 rounded-full font-medium">
+                                Fija
+                              </span>
+                            )}
+                          </div>
                           <div className="text-xs text-gray-400 font-mono tabular-nums">
                             {price > 0 ? `${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Bs` : 'Sin cotización'}
                           </div>
@@ -172,9 +203,14 @@ export default function SettingsModal({
 
                       {/* Clean Monochromatic Toggle Switch */}
                       <div
-                        className={`w-11 h-6 rounded-full transition-colors relative flex items-center p-0.5 shrink-0 ${
-                          isSelected ? 'bg-white/30' : 'bg-[#2d2d30]'
+                        className={`w-11 h-6 rounded-full transition-all relative flex items-center p-0.5 shrink-0 ${
+                          isSelected
+                            ? isLocked
+                              ? 'bg-white/20 opacity-80 cursor-not-allowed'
+                              : 'bg-white/30'
+                            : 'bg-[#2d2d30]'
                         }`}
+                        title={isLocked ? 'Al menos una cotización debe permanecer activa' : undefined}
                       >
                         <div
                           className={`w-5 h-5 rounded-full shadow-md transform transition-transform duration-200 ${

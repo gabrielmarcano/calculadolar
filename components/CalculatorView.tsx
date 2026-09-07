@@ -211,6 +211,10 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
   
   const toggleRate = (currency: string) => {
     const current = selectedRates;
+    if (current.includes(currency) && current.length <= 1) {
+      // Cannot deactivate the only active rate
+      return;
+    }
     const next = current.includes(currency) 
       ? current.filter(c => c !== currency) 
       : [...current, currency];
