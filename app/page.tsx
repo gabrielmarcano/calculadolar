@@ -101,7 +101,7 @@ export default function Home() {
 
   const getRateIcon = (name: string) => {
       if (name.includes('BCV')) return '/bcv.svg';
-      if (name.includes('BINANCE')) return '/BINANCE.png';
+      if (name.includes('BINANCE')) return '/binance.svg';
       return null;
   };
 

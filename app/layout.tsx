@@ -32,8 +32,7 @@ export default function RootLayout({
     <html lang="es" dir="ltr" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <head>
         <link rel="preload" as="image" href="/bcv.svg" />
-        <link rel="preload" as="image" href="/BCV.png" />
-        <link rel="preload" as="image" href="/BINANCE.png" />
+        <link rel="preload" as="image" href="/binance.svg" />
         <link rel="preload" as="image" href="/web-app-manifest-192x192.png" />
       </head>
       <body className="font-sans antialiased">
