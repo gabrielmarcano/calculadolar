@@ -25,21 +25,9 @@ interface KnownRateConfig {
 }
 
 const KNOWN_RATES: KnownRateConfig[] = [
-  {
-    key: 'USD_BCV',
-    defaultName: 'Dólar BCV',
-    defaultImage: '/bcv.svg',
-  },
-  {
-    key: 'USDT_BINANCE',
-    defaultName: 'Dólar Paralelo',
-    defaultImage: '/binance.svg',
-  },
-  {
-    key: 'EUR_BCV',
-    defaultName: 'Euro BCV',
-    defaultImage: '/bcv.svg',
-  },
+  { key: 'USD_BCV', defaultName: 'Dólar BCV', defaultImage: '/bcv.svg' },
+  { key: 'USDT_BINANCE', defaultName: 'Dólar Paralelo', defaultImage: '/binance.svg' },
+  { key: 'EUR_BCV', defaultName: 'Euro BCV', defaultImage: '/bcv.svg' },
 ];
 
 export default function RateView({
@@ -92,11 +80,18 @@ export default function RateView({
         <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white capitalize">
           {formattedDate}
         </h2>
-        {formattedTime && (
-          <p className="text-xs font-mono text-gray-400 tabular-nums mt-1.5">
-            Actualizado {formattedTime}
-          </p>
-        )}
+        <div className="h-5 mt-1.5 flex items-center">
+          {formattedTime && !isLoading ? (
+            <p className="text-xs font-mono text-gray-400 tabular-nums">
+              Actualizado {formattedTime}
+            </p>
+          ) : (
+            <div className="flex items-center gap-1.5 text-xs font-mono text-gray-400">
+              <span>Actualizado</span>
+              <span className="inline-block w-16 h-3.5 rounded bg-white/10 animate-pulse" />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Clean Edge-to-Edge List */}
