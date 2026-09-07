@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <circle cx="256" cy="256" r="248" fill="#FFFFFF" />
+  <circle cx="256" cy="256" r="240" fill="none" stroke="#000000" stroke-width="16" />
+  <line x1="431.00" y1="256.00" x2="486.00" y2="256.00" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="434.70" y1="303.88" x2="478.16" y2="315.53" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="407.55" y1="343.50" x2="455.19" y2="371.00" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="386.81" y1="386.81" x2="418.63" y2="418.63" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="343.50" y1="407.55" x2="371.00" y2="455.19" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="303.88" y1="434.70" x2="315.53" y2="478.16" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="256.00" y1="431.00" x2="256.00" y2="486.00" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="208.12" y1="434.70" x2="196.47" y2="478.16" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="168.50" y1="407.55" x2="141.00" y2="455.19" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="125.19" y1="386.81" x2="93.37" y2="418.63" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="104.45" y1="343.50" x2="56.81" y2="371.00" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="77.30" y1="303.88" x2="33.84" y2="315.53" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="81.00" y1="256.00" x2="26.00" y2="256.00" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="77.30" y1="208.12" x2="33.84" y2="196.47" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="104.45" y1="168.50" x2="56.81" y2="141.00" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="125.19" y1="125.19" x2="93.37" y2="93.37" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="168.50" y1="104.45" x2="141.00" y2="56.81" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="208.12" y1="77.30" x2="196.47" y2="33.84" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="256.00" y1="81.00" x2="256.00" y2="26.00" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="303.88" y1="77.30" x2="315.53" y2="33.84" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="343.50" y1="104.45" x2="371.00" y2="56.81" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="386.81" y1="125.19" x2="418.63" y2="93.37" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="407.55" y1="168.50" x2="455.19" y2="141.00" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <line x1="434.70" y1="208.12" x2="478.16" y2="196.47" stroke="#000000" stroke-width="12" stroke-linecap="round" />
+  <circle cx="256" cy="256" r="160" fill="#FFFFFF" stroke="#000000" stroke-width="14" />
+  <text x="256" y="256" text-anchor="middle" dominant-baseline="central" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="120" letter-spacing="4" fill="#000000">BCV</text>
+</svg>
