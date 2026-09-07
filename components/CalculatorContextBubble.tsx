@@ -18,7 +18,10 @@ export default function CalculatorContextBubble({
   const canCopy = input && input !== '0' && input.trim().length > 0;
 
   return (
-    <div className="absolute -top-12 right-0 z-40 flex items-center bg-[#222228]/95 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl py-1 px-1.5 animate-in zoom-in-95 duration-150 select-none">
+    <div
+      data-context-bubble="true"
+      className="absolute -top-12 right-0 z-40 flex items-center bg-[#222228]/95 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl py-1 px-1.5 animate-in zoom-in-95 duration-150 select-none"
+    >
       {canCopy && (
         <button
           type="button"

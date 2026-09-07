@@ -60,6 +60,24 @@ export default function CalculatorDisplay({
     setShowContextBubble(false);
   }, []);
 
+  // Auto-dismiss context bubble on any outside tap/touch anywhere on screen
+  useEffect(() => {
+    if (!showContextBubble) return;
+    const handleGlobalPointerDown = (e: PointerEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target?.closest('[data-context-bubble]')) {
+        setShowContextBubble(false);
+      }
+    };
+    window.addEventListener('pointerdown', handleGlobalPointerDown, true);
+    return () => window.removeEventListener('pointerdown', handleGlobalPointerDown, true);
+  }, [showContextBubble]);
+
+  // Auto-dismiss context bubble when input changes (typing any digit or function)
+  useEffect(() => {
+    setShowContextBubble(false);
+  }, [input]);
+
   const calculateAndSetCursor = (clientX: number) => {
     const container = inputScrollRef.current;
     if (!container || input.length === 0) {
