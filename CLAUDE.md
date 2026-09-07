@@ -26,10 +26,7 @@ CalculaDolar is a **Next.js 16 (App Router)** PWA for Venezuelan currency exchan
 - Both endpoints are protected by `Authorization: Bearer CRON_SECRET` header.
 - Both endpoints also INSERT into `rate_history` table for historic tracking (best-effort, non-fatal).
 - **History API**: `app/api/history/route.ts` — public GET endpoint returning downsampled price history. Params: `rate_name`, `range` (7d/30d/90d/1y).
-- **Cron**: 3 GitHub Actions workflows in `.github/workflows/`:
-  - `update-rates.yml` — hourly at :00, calls both endpoints
-  - `update-bcv-rates.yml` — hourly at :00, calls BCV only (redundant with update-rates.yml)
-  - `update-binance-rates.yml` — hourly at :10, calls Binance only
+- **Cron**: Triggered externally via [cron-job.org](https://cron-job.org/) calling the update endpoints with `Authorization: Bearer CRON_SECRET` header.
 - **DB tables**: `rates` (live prices, upserted on `name` column), `rate_history` (append-only, indexed on `rate_name, recorded_at DESC`)
 
 ### PWA / Service Worker
@@ -63,3 +60,37 @@ CalculaDolar is a **Next.js 16 (App Router)** PWA for Venezuelan currency exchan
 - `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` — client-side Supabase
 - `SUPABASE_SERVICE_ROLE_KEY` — server-side only, for rate upserts (never expose client-side)
 - `CRON_SECRET` — authorizes rate update API calls
+
+## Principios de Ingeniería
+
+- **Robustez y calidad antes que rapidez**: Queda estrictamente prohibido realizar implementaciones apresuradas, adivinando requerimientos o asumiendo comportamientos sin contexto suficiente.
+- **Investigación previa obligatoria**: Si una tarea presenta incógnitas técnicas, dependencias complejas o carece de un plan de ejecución validado, debe investigarse a fondo antes de escribir código. Si no se cuenta con la certeza y contexto necesario, la tarea no se ejecuta hasta completar dicha investigación.
+
+## Guía de Estilo para TODO.md
+
+El archivo `TODO.md` mantiene el backlog del proyecto de forma plana y objetiva. Toda modificación o nueva tarea debe seguir estas reglas:
+
+1. **Sin emojis**: Queda estrictamente prohibido el uso de emojis en cualquier sección de `TODO.md`.
+2. **Estructura basada en checkboxes**:
+   - Tareas pendientes: `- [ ]`
+   - Tareas finalizadas: `- [x]`
+3. **División de secciones**:
+   - `## Tareas Completadas`
+   - `## Tareas Pendientes`
+4. **Plantilla estándar obligatoria por tarea**:
+   ```markdown
+   - [ ] **Título conciso y formal de la tarea**
+     - **Descripcion**: Explicación objetiva del propósito y justificación del cambio.
+     - **Alcance**:
+       - Entregable técnico o criterio de aceptación verificable 1.
+       - Entregable técnico o criterio de aceptación verificable 2.
+     - **Investigacion previa**: (Incluir siempre que existan incógnitas técnicas, limitaciones de plataforma o riesgos) Detalle explícito de lo que se debe investigar y validar antes de iniciar la codificación.
+   ```
+5. **Tono y redacción**: Redacción homogénea, técnica, concisa y en tercera persona.
+
+## Reglas y Habilidades (.agents/)
+
+El proyecto cuenta con reglas y habilidades estandarizadas en `.agents/`:
+- **Reglas**: `.agents/rules/mobile-first-ergonomics.md` (Apple HIG / Material Design 3) y `.agents/rules/clean-architecture.md` (React 19 / Next.js 16 Clean Architecture).
+- **Habilidades**: `.agents/skills/mobile-ux-audit/` (Auditoría UX móvil), `.agents/skills/component-decomposition/` (Descomposición de monolitos) y `.agents/skills/pwa-offline-audit/` (Resiliencia PWA offline).
+- Ver detalle completo en `AGENTS.md`.
