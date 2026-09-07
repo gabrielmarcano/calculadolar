@@ -24,17 +24,21 @@ export default function SettingsModal({
   const startYRef = useRef(0);
   const currentDragYRef = useRef(0);
 
-  // Lock body scroll and overscroll while modal is open
+  // Lock body scroll and overscroll ONLY while modal is open
   useEffect(() => {
     if (!isOpen) return;
     const originalOverflow = document.body.style.overflow;
-    const originalOverscroll = document.body.style.overscrollBehavior;
+    const originalBodyOverscroll = document.body.style.overscrollBehavior;
+    const originalHtmlOverscroll = document.documentElement.style.overscrollBehavior;
+
     document.body.style.overflow = 'hidden';
     document.body.style.overscrollBehavior = 'none';
     document.documentElement.style.overscrollBehavior = 'none';
+
     return () => {
       document.body.style.overflow = originalOverflow;
-      document.body.style.overscrollBehavior = originalOverscroll;
+      document.body.style.overscrollBehavior = originalBodyOverscroll;
+      document.documentElement.style.overscrollBehavior = originalHtmlOverscroll;
     };
   }, [isOpen]);
 
