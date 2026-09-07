@@ -60,7 +60,7 @@
     - Estrategia `CacheFirst` en Serwist (`app/sw.ts`) con expiracion a 30 dias para imagenes locales.
     - Enlaces de precarga `<link rel="preload" as="image">` en el `<head>` de `app/layout.tsx`.
     - Cabeceras `Cache-Control: public, max-age=31536000, immutable` en `next.config.ts`.
-    - Compresion y optimizacion de `BCV.png` reduciendo su tamano en un 81% (de 154 KB a 29 KB).
+    - Unificacion de iconos de cotizaciones a vectores SVG limpios (`public/bcv.svg` y `public/binance.svg`), eliminando bordes blancos artificiales y artefactos de ruido visual.
 
 ## Tareas Pendientes
 
