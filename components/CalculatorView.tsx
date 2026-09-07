@@ -151,7 +151,7 @@ export default function CalculatorView({
       </div>
 
       {/* Screen / Calculation Display Area & Rates */}
-      <div className="flex-none flex flex-col justify-end px-6 pt-1 pb-2">
+      <div className="flex-none flex flex-col justify-end pt-3 px-6 pb-4 space-y-4 relative z-20">
         <CalculatorDisplay
           input={input}
           result={result}

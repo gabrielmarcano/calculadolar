@@ -219,7 +219,7 @@ export default function CalculatorDisplay({
   const characters = input.split('');
 
   return (
-    <div className="w-full flex flex-col justify-end pt-2 pb-1 space-y-2 relative z-20">
+    <div className="w-full flex flex-col justify-end space-y-4">
       {/* 1. Interactive Expression Panel with Blinking Caret */}
       <div className="w-full relative group">
         <CalculatorContextBubble
