@@ -37,7 +37,7 @@ export default function RootLayout({
         />
         <style
           dangerouslySetInnerHTML={{
-            __html: `html,body{background-color:#0a0a0a!important;color:#fff!important;margin:0;padding:0}html[data-initial-view="dashboard"] #view-dashboard{display:flex!important}html[data-initial-view="dashboard"] #view-calculator{display:none!important}html[data-initial-view="calculator"] #view-dashboard{display:none!important}html[data-initial-view="calculator"] #view-calculator{display:flex!important}`,
+            __html: `html,body{background-color:#0a0a0a!important;color:#fff!important;margin:0;padding:0;height:100%!important}html[data-initial-view="dashboard"] #view-dashboard{display:flex!important;flex:1 1 0%!important;min-height:0!important}html[data-initial-view="dashboard"] #view-calculator{display:none!important}html[data-initial-view="calculator"] #view-dashboard{display:none!important}html[data-initial-view="calculator"] #view-calculator{display:flex!important;flex:1 1 0%!important;min-height:0!important}`,
           }}
         />
         <link rel="preload" as="image" href="/bcv.svg" />
