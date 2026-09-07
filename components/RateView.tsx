@@ -26,7 +26,7 @@ interface KnownRateConfig {
 
 const KNOWN_RATES: KnownRateConfig[] = [
   { key: 'USD_BCV', defaultName: 'Dólar BCV', defaultImage: '/bcv.svg' },
-  { key: 'USDT_BINANCE', defaultName: 'Dólar Paralelo', defaultImage: '/binance.svg' },
+  { key: 'USDT_BINANCE', defaultName: 'USDT Binance', defaultImage: '/binance.svg' },
   { key: 'EUR_BCV', defaultName: 'Euro BCV', defaultImage: '/bcv.svg' },
 ];
 

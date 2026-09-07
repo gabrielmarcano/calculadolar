@@ -150,7 +150,7 @@
   - **Alcance**:
     - Auditoria de interfaz en Calculadora, Dashboard, Historial y Configuracion para erradicar patrones de escritorio (dropdowns emergentes), glifos unicode (`▼`, `›`, `‹`) y desajustes de alineacion.
     - Sustitucion de glifos de navegacion y flechas por vectores SVG accesibles de trazo uniforme en `CalculatorDisplay.tsx`.
-    - Rediseno modular del Dashboard en capas desacopladas (`RateRow.tsx` y `RateView.tsx` <150 lineas) con presentacion limpia de cotizaciones clave (Dolar BCV, Dolar Paralelo, Euro BCV) y eliminacion de tarjetas pesadas y brechas cambiarias redundantes.
+    - Rediseno modular del Dashboard en capas desacopladas (`RateRow.tsx` y `RateView.tsx` <150 lineas) con presentacion limpia de cotizaciones clave (Dolar BCV, USDT Binance, Euro BCV) y eliminacion de tarjetas pesadas y brechas cambiarias redundantes.
     - Seccion de fecha oficial del dia en tamano prominente con marca de tiempo unificada para erradicar repeticion de fechas y horas en cada fila.
     - Interaccion de copiado al toque simple sobre la fila con vibracion haptica y notificacion toast, junto a un boton dedicado independiente para navegar al grafico historico de cada tasa.
     - Arquitectura de skeletons granulares: renderizado permanente de la estructura de filas, logotipos oficiales y nombres estaticos, restringiendo los estados de carga con pulso animado exclusivamente a los valores numericos del precio.
