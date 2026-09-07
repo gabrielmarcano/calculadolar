@@ -7,7 +7,6 @@ import SerwistProvider from './SerwistProvider';
 export const metadata: Metadata = {
   title: 'Calculadolar',
   description: 'Calculadora de Dolar',
-  manifest: '/manifest.json',
   appleWebApp: {
     title: 'Calculadolar',
     statusBarStyle: 'default',

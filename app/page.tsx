@@ -174,13 +174,13 @@ export default function Home() {
     return (
       <main className="flex h-[100dvh] overflow-hidden flex-col items-center justify-center bg-[#0a0a0a] select-none text-white p-0">
         <div className="flex flex-col items-center gap-5 animate-fade-in">
-          <div className="w-20 h-20 rounded-3xl bg-[#1e1e1e] border border-white/10 flex items-center justify-center p-3 shadow-2xl animate-pulse">
+          <div className="w-20 h-20 rounded-3xl overflow-hidden shadow-2xl border border-white/10 animate-pulse">
             <Image
               src="/web-app-manifest-192x192.png"
               alt="CalculaDolar"
-              width={56}
-              height={56}
-              className="rounded-2xl object-contain"
+              width={80}
+              height={80}
+              className="w-full h-full object-cover"
               priority
               unoptimized
             />
@@ -189,7 +189,7 @@ export default function Home() {
             <h1 className="text-xl font-black tracking-widest uppercase">
               Calcula<span className="text-gray-400">dolar</span>
             </h1>
-            <div className="w-6 h-1 rounded-full bg-blue-500/60 animate-pulse" />
+            <div className="w-6 h-1 rounded-full bg-emerald-400/80 animate-pulse" />
           </div>
         </div>
       </main>

@@ -103,6 +103,17 @@
     - Animaciones de entrada escalonada para toasts (`animate-toast-in`) y burbuja de portapapeles (`animate-bubble-pop`).
   - **Investigacion previa**: Comprobado que Tailwind CSS v4 no emite por defecto las clases de transicion de plugins heredados (`tailwindcss-animate`), lo que provocaba renderizaciones instantaneas sin transicion. Definidas curvas de aceleracion cubica identicas a las especificaciones de movimiento de Material Design 3 y iOS, asegurando cero cambios acumulados de diseno (CLS = 0) al restringir las animaciones estrictamente a transformaciones y opacidad.
 
+- [x] **Rediseno de identidad visual, logotipo y activos de marca**
+  - **Descripcion**: Renovar la identidad grafica de CalculaDolar integrando el nuevo icono vectorial de calculadora financiera en todos los formatos de instalacion PWA, pantallas de bienvenida y metadatos del navegador.
+  - **Alcance**:
+    - Generacion del paquete de iconos estandar en alta resolucion (`public/web-app-manifest-512x512.png` y `public/web-app-manifest-192x192.png`).
+    - Generacion de icono adaptativo Android (`public/icon-maskable-512.png`) con fondo solido `#0f111b` y zona segura del 80% para evitar esquinas transparentes recortadas.
+    - Generacion de icono para iOS (`app/apple-icon.png`, 180x180) con fondo opaco según los estandares de Apple HIG.
+    - Generacion de favicon multirresolucion (`app/favicon.ico`, 16/32/48px), icono Next.js (`app/icon1.png`, 96x96) y favicon vectorial (`app/icon0.svg`).
+    - Actualizacion de `app/manifest.ts` incorporando iconos estandares y maskable con tema oscuro `#0a0a0a`.
+    - Modernizacion de la pantalla de carga inicial (*Splash Screen*) en `app/page.tsx` con el nuevo isotipo y barra de carga verde esmeralda coherente con la identidad visual.
+  - **Investigacion previa**: Validada la zona segura del 80% (circulo central de 410px) en el icono maskable para prevenir deformaciones o recortes irregulares en capas de personalizacion de Android (One UI, Pixel Launcher, MIUI), y asegurada la opacidad total de fondo en el icono tactil de Apple conforme a las guias de diseno de iOS.
+
 ## Tareas Pendientes
 
 - [ ] **Historial de operaciones de calculo**
@@ -145,14 +156,6 @@
     - Tabla de suscripciones en Supabase y endpoints de despacho.
     - Panel de configuracion con interruptores (opt-in / opt-out) para tipos de alertas y umbrales.
   - **Investigacion previa**: Investigar el soporte y limitaciones de Web Push en iOS Safari (requiere que la PWA este instalada en pantalla de inicio a partir de iOS 16.4), las politicas de retencion de suscripciones invalidas en Supabase, y el costo/latencia de ejecucion desde el cron de despacho.
-
-- [ ] **Rediseno de identidad visual, logotipo y activos de marca**
-  - **Descripcion**: Crear una identidad grafica renovada y profesional para CalculaDolar, integrando nuevo logotipo, isotipo, favicon y el paquete completo de iconos de instalacion PWA.
-  - **Alcance**:
-    - Diseno de nuevo logotipo e isotipo vectorial optimizado para pantallas moviles de alta densidad y tema oscuro.
-    - Generacion del conjunto completo de activos para instalacion: favicon (`favicon.ico`), icono tactil de Apple (`apple-icon.png`), e iconos adaptativos para Android (`web-app-manifest-192x192.png`, `web-app-manifest-512x512.png`, maskable).
-    - Actualizacion de la pantalla de carga inicial (Splash Screen) y elementos de marca en encabezados.
-  - **Investigacion previa**: Validar los requisitos de zona segura (safe zone del 80%) para iconos maskable de Android para evitar recortes irregulares en diferentes capas de personalizacion (One UI, MIUI, Pixel Launcher), y asegurar compatibilidad de contrastes WCAG AAA sobre fondos `#0a0a0a`.
 
 - [ ] **Auditoria y reemplazo de emojis por iconografia vectorial SVG**
   - **Descripcion**: Identificar y sustituir cualquier uso de emojis unicode en la interfaz por iconos vectoriales SVG estandarizados y accesibles, asegurando una apariencia profesional y uniforme en cualquier plataforma movil.
