@@ -165,7 +165,16 @@
     - Grafica de area vectorial moderna (`AreaChart` de Recharts) con gradiente vertical adaptativo (verde esmeralda para tendencia positiva, rosa carmesi para negativa), tipografia mono tabular y ejes sutiles.
     - Cascaron estatico con skeletons granulares que preservan las dimensiones y erradican el parpadeo de pantalla completa al alternar divisas o rangos.
     - Descomposicion modular en componentes desacoplados de menos de 150 lineas (`useHistoryData`, `HistoryHero`, `HistoryStats`, `HistoryChart`, `HistoryView`) cumpliendo los principios de arquitectura limpia.
-  - **Investigacion previa**: Analizados los patrones de diseno de graficas financieras en aplicaciones moviles de referencia (Revolut, Apple Stocks, Bloomberg): los graficos de area con gradiente suave proporcionan mayor claridad volumetrica que una linea desnuda. Asimismo, la presentacion de valores de rango (minimo y maximo) aporta contexto indispensable para entender la volatilidad cambiaria sin sobrecargar la pantalla.
+- [x] **Comportamiento nativo de porcentaje y evaluacion contextual**
+  - **Descripcion**: Corregir el operador de porcentaje (`%`) para emular el funcionamiento de la calculadora nativa de Android, mostrando el caracter literal `%` en pantalla y evaluando expresiones aditivas, sustractivas y multiplicativas de forma contextual sin sustituciones forzadas por `/100`.
+  - **Alcance**:
+    - Insercion visual directa del caracter `%` en lugar de `/100`, condicionada a ubicarse tras un digito o parentesis de cierre para evitar sintaxis invalidas continuas.
+    - Multiplicacion implicita automatica (`×`) al introducir digitos o abrir parentesis inmediatamente tras un `%`.
+    - Modulo modular `lib/percentage.ts` con la funcion `prepareExpressionForEvaluation`, resolviendo la ambigüedad sintactica de MathJS donde `%` seguido de `+` o `-` se analizaba como modulo binario.
+    - Soporte completo para calculo de porcentajes aditivos (`80 + 2% = 81.6`), sustractivos (`80 - 2% = 78.4`), multiplicativos (`80 * 2% = 1.6`) y encadenados (`100 + 10% + 5% = 115.5`).
+    - Integracion de la evaluacion contextual de porcentaje en el sanitizador de portapapeles (`lib/sanitizer/pipeline.ts`) para expresiones pegadas desde fuentes externas.
+    - Suite de verificacion automatizada con 23 casos de prueba matematicos y de sanitizacion con 100% de aprobacion.
+  - **Investigacion previa**: Analizada la gramatica y precedencia de operadores en la biblioteca MathJS: el simbolo `%` esta definido con doble funcion (operador unificado postfix de porcentaje y operador binario infijo modulo). Cuando una expresion como `80 + 2% + 5` era procesada, el parser descendente asociaba `%` al siguiente termino aditivo (`2 % (+5)`). Envolver defensivamente las subexpresiones aditivas precedentes en parentesis garantiza que MathJS evalue el `%` exclusivamente como operador unario postfix de porcentaje contextual en estricta conformidad con el comportamiento de las calculadoras moviles nativas de Android e iOS.
 
 ## Tareas Pendientes
 
