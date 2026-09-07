@@ -174,7 +174,14 @@
     - Soporte completo para calculo de porcentajes aditivos (`80 + 2% = 81.6`), sustractivos (`80 - 2% = 78.4`), multiplicativos (`80 * 2% = 1.6`) y encadenados (`100 + 10% + 5% = 115.5`).
     - Integracion de la evaluacion contextual de porcentaje en el sanitizador de portapapeles (`lib/sanitizer/pipeline.ts`) para expresiones pegadas desde fuentes externas.
     - Suite de verificacion automatizada con 23 casos de prueba matematicos y de sanitizacion con 100% de aprobacion.
-  - **Investigacion previa**: Analizada la gramatica y precedencia de operadores en la biblioteca MathJS: el simbolo `%` esta definido con doble funcion (operador unificado postfix de porcentaje y operador binario infijo modulo). Cuando una expresion como `80 + 2% + 5` era procesada, el parser descendente asociaba `%` al siguiente termino aditivo (`2 % (+5)`). Envolver defensivamente las subexpresiones aditivas precedentes en parentesis garantiza que MathJS evalue el `%` exclusivamente como operador unario postfix de porcentaje contextual en estricta conformidad con el comportamiento de las calculadoras moviles nativas de Android e iOS.
+- [x] **Aislamiento de menu de depuracion en configuracion y descomposicion modular**
+  - **Descripcion**: Ocultar la seccion de preferencias en el entorno de produccion para mantener unicamente la seleccion de cotizaciones visibles en el menu del engranaje, reconvirtiendola en un panel de depuracion exclusivo de desarrollo (DEV ONLY) con herramientas de diagnostico y limpieza de cache.
+  - **Alcance**:
+    - Supresion absoluta de la seccion de preferencias en produccion (`process.env.NODE_ENV !== 'development'`).
+    - Creacion del componente `components/SettingsDebugSection.tsx` con utilidades de inspeccion de entorno, estado de sensores y accion rapida para purgar el almacenamiento local (`localStorage`).
+    - Descomposicion ergonomica de `components/SettingsModal.tsx` extrayendo el hook de gestos de arrastre `hooks/useDragToDismiss.ts` y el elemento de fila `components/SettingsRateItem.tsx`.
+    - Cumplimiento riguroso del estandar de modularidad con todos los archivos resultantes por debajo de 170 lineas.
+  - **Investigacion previa**: Verificada la sustitucion estatica en tiempo de compilacion que Next.js y Turbopack aplican sobre `process.env.NODE_ENV`: al evaluar la condicion en tiempo de empaquetado para produccion, el codigo del panel de depuracion es eliminado del bundle final mediante tree-shaking, asegurando cero sobrecoste de kilobytes y una vista limpia en dispositivos de usuarios finales.
 
 ## Tareas Pendientes
 
