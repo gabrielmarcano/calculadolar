@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { triggerHaptic } from '@/lib/utils';
 import { useLongPressCopy } from '@/hooks/useLongPressCopy';
 import Toast from '@/components/Toast';
+import SettingsModal from '@/components/SettingsModal';
 import { sanitizeClipboardExpression } from '@/lib/sanitizer';
 import { copyToClipboard } from '@/lib/clipboard';
 
@@ -36,7 +37,7 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
     }
     return null;
   });
-  const [isSelectorOpen, setIsSelectorOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Pure derivation: automatically adapts as soon as rates arrive from cache/network
   const rateKeys = Object.keys(rates);
@@ -282,38 +283,43 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
   return (
     <div className="flex flex-col h-full bg-[#121212] text-white font-sans">
       
-      {/* Top Bar / Rate Selector */}
-      <div className={`flex-none flex justify-between items-center p-4 relative ${isSelectorOpen ? 'z-40' : 'z-10'}`}>
-        <div className="flex items-center gap-2">
+      {/* Top Bar: Tasas (Left), Currency Switcher (Center), Settings Gear (Right) */}
+      <div className="flex-none flex justify-between items-center px-4 py-3 border-b border-gray-800/40 relative z-10 select-none">
+        {/* Left: Tasas */}
+        <div className="flex items-center min-w-[72px]">
             <button
                 onClick={() => {
                     triggerHaptic();
                     handleOpenRates();
                 }}
-                className="flex items-center gap-1.5 bg-[#2d2d2d] hover:bg-[#3d3d3d] text-gray-200 text-xs font-bold py-2 px-3 rounded-full transition-all active:scale-95 border border-white/5 shadow-sm"
+                className="flex items-center gap-1.5 bg-[#252525] hover:bg-[#333333] text-gray-200 text-xs font-semibold py-2 px-3.5 rounded-full transition-all active:scale-95 border border-white/5 shadow-sm min-h-[40px]"
                 title="Ver tasas de cambio"
                 aria-label="Ver tasas de cambio"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-emerald-400">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-emerald-400 shrink-0">
                   <path fillRule="evenodd" d="M1 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4Zm12 4a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-5 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0Zm-5 5a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm14-1a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM4 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm13-1a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" clipRule="evenodd" />
                 </svg>
                 <span>Tasas</span>
                 {isOffline && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse ml-0.5" title="Modo sin conexión" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse ml-0.5 shrink-0" title="Modo sin conexión" />
                 )}
             </button>
-            <div className="relative flex bg-[#2d2d2d] rounded-full p-[3px]">
+        </div>
+
+        {/* Center: Currency Switcher (VES / USD) enlarged */}
+        <div className="flex items-center justify-center">
+            <div className="relative flex bg-[#202022] rounded-full p-1 border border-white/5 shadow-inner">
                 <div
-                    className="absolute top-[3px] bottom-[3px] w-[calc(50%-3px)] bg-[#4a4a5a] rounded-full transition-all duration-300 ease-in-out"
-                    style={{ left: isReversed ? 'calc(50%)' : '3px' }}
+                    className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-[#454555] rounded-full transition-all duration-300 ease-in-out shadow-sm"
+                    style={{ left: isReversed ? 'calc(50%)' : '4px' }}
                 />
                 <button
                     onClick={() => {
                         triggerHaptic();
                         setIsReversed(false);
                     }}
-                    className={`relative z-10 text-xs font-bold py-1.5 px-3.5 rounded-full transition-colors duration-300 ${
-                        !isReversed ? 'text-white' : 'text-gray-500'
+                    className={`relative z-10 text-xs font-bold py-1.5 px-4 rounded-full transition-colors duration-200 min-h-[34px] min-w-[54px] ${
+                        !isReversed ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
                     }`}
                 >
                     USD
@@ -323,62 +329,30 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
                         triggerHaptic();
                         setIsReversed(true);
                     }}
-                    className={`relative z-10 text-xs font-bold py-1.5 px-3.5 rounded-full transition-colors duration-300 ${
-                        isReversed ? 'text-white' : 'text-gray-500'
+                    className={`relative z-10 text-xs font-bold py-1.5 px-4 rounded-full transition-colors duration-200 min-h-[34px] min-w-[54px] ${
+                        isReversed ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
                     }`}
                 >
                     VES
                 </button>
             </div>
         </div>
-        <div className="relative">
-            <button 
-                onClick={() => setIsSelectorOpen(!isSelectorOpen)}
-                className="flex items-center gap-2 bg-[#2d2d2d] hover:bg-[#3d3d3d] text-white text-xs font-bold py-2 px-4 rounded-full transition-all"
-            >
-                <span>{`${selectedRates.length} Precio${selectedRates.length === 1 ? '' : 's'} Activo${selectedRates.length === 1 ? '' : 's'}`}</span>
-                <span className={`transform transition-transform ${isSelectorOpen ? 'rotate-180' : ''}`}>▼</span>
-            </button>
 
-            {/* Dropdown Menu */}
-            {isSelectorOpen && (
-                <>
-                    <div 
-                        className="fixed inset-0 z-40 bg-black/50" 
-                        onClick={() => setIsSelectorOpen(false)}
-                    />
-                    <div className="absolute right-0 top-full mt-2 w-64 bg-[#1e1e1e] rounded-xl shadow-2xl border border-gray-800 p-2 z-50 max-h-60 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-                        {Object.keys(rates).length === 0 ? (
-                            <div className="text-gray-500 text-xs text-center py-2">No rates available</div>
-                        ) : (
-                            Object.keys(rates).map(currency => {
-                                const isSelected = selectedRates.includes(currency);
-                                const rate = rates[currency];
-                                return (
-                                    <button
-                                        key={currency}
-                                        onClick={() => {
-                                            triggerHaptic();
-                                            toggleRate(currency);
-                                        }}
-                                        className={`w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium mb-1 transition-colors ${
-                                            isSelected 
-                                            ? 'bg-blue-600/20 text-blue-400' 
-                                             : 'text-gray-300 hover:bg-[#2d2d2d]'
-                                        }`}
-                                    >
-                                        {rate.imageUrl && (
-                                            <Image src={rate.imageUrl} alt={rate.displayName} width={56} height={56} className="w-7 h-7 rounded-full object-contain shrink-0" unoptimized priority />
-                                        )}
-                                        <span className="flex-1">{rate.displayName}</span>
-                                        {isSelected && <span>✓</span>}
-                                    </button>
-                                );
-                            })
-                        )}
-                    </div>
-                </>
-            )}
+        {/* Right: Settings Button */}
+        <div className="flex items-center justify-end min-w-[72px]">
+            <button 
+                onClick={() => {
+                    triggerHaptic();
+                    setIsSettingsOpen(true);
+                }}
+                className="w-10 h-10 rounded-full bg-[#252525] hover:bg-[#333333] active:scale-95 text-zinc-300 hover:text-white flex items-center justify-center transition-all border border-white/5 shadow-sm"
+                aria-label="Abrir configuración"
+                title="Configuración"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                  <path fillRule="evenodd" d="M11.078 2.25c-.917 0-1.699.663-1.85 1.567L8.93 5.62a9.043 9.043 0 0 0-1.516.877L5.59 5.37a1.875 1.875 0 0 0-2.455.514L1.758 7.82a1.875 1.875 0 0 0 .34 2.486l1.527 1.25c-.07.499-.107 1.008-.107 1.524s.037 1.025.107 1.524l-1.527 1.25a1.875 1.875 0 0 0-.34 2.486l1.377 1.936a1.875 1.875 0 0 0 2.455.514l1.824-1.127c.47.33.978.627 1.516.877l.298 1.803c.151.904.933 1.567 1.85 1.567h2.844c.917 0 1.699-.663 1.85-1.567l.298-1.803a9.043 9.043 0 0 0 1.516-.877l1.824 1.127a1.875 1.875 0 0 0 2.455-.514l1.377-1.936a1.875 1.875 0 0 0-.34-2.486l-1.527-1.25c.07-.499.107-1.008.107-1.524s-.037-1.025-.107-1.524l1.527-1.25a1.875 1.875 0 0 0 .34-2.486l-1.377-1.936a1.875 1.875 0 0 0-2.455-.514l-1.824 1.127a9.043 9.043 0 0 0-1.516-.877l-.298-1.803A1.875 1.875 0 0 0 13.922 2.25h-2.844Zm-1.5 9.75a2.422 2.422 0 1 1 4.844 0 2.422 2.422 0 0 1-4.844 0Z" clipRule="evenodd" />
+                </svg>
+            </button>
         </div>
       </div>
 
@@ -487,7 +461,7 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
         </div>
         
         {/* Rate Results - Fixed Height to prevent keypad jumps */}
-        <div className="w-full h-[142px] space-y-1.5 overflow-y-auto flex-shrink-0 pt-2 border-t border-gray-800/50 scrollbar-hide">
+        <div className="w-full h-[142px] space-y-1.5 overflow-y-auto overflow-x-hidden flex-shrink-0 pt-2 border-t border-gray-800/50 scrollbar-hide touch-pan-y select-none">
                 {selectedRates.length > 0 && Object.keys(rates).filter(k => selectedRates.includes(k)).map(currency => {
                 const rate = rates[currency]?.price || 0;
                 const displayName = rates[currency]?.displayName || currency;
@@ -518,15 +492,17 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
                             },
                             touchAction: 'pan-y',
                         })}
-                        className="flex justify-between items-center text-sm text-gray-400 py-1 rounded-lg px-2 -mx-2 min-h-[34px] cursor-pointer hover:bg-[#1a1a1a] active:scale-[0.98] active:bg-[#1e1e1e] transition-all"
+                        className="w-full max-w-full flex justify-between items-center text-sm text-gray-400 py-1 rounded-lg px-2 -mx-2 min-h-[34px] cursor-pointer hover:bg-[#1a1a1a] active:scale-[0.98] active:bg-[#1e1e1e] transition-all overflow-hidden"
                     >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 min-w-0 shrink-0">
                             {imageUrl && (
                                 <Image src={imageUrl} alt={displayName} width={48} height={48} className="w-6 h-6 rounded-full object-contain shrink-0" unoptimized priority />
                             )}
-                            <span className="font-medium">{displayName}</span>
+                            <span className="font-medium truncate max-w-[130px] sm:max-w-[150px]">{displayName}</span>
                         </div>
-                        <span className="text-white font-mono tabular-nums text-lg">{formattedValue}{suffix}</span>
+                        <span className="text-white font-mono tabular-nums text-lg truncate min-w-0 text-right ml-2" title={`${formattedValue}${suffix}`}>
+                            {formattedValue}{suffix}
+                        </span>
                     </div>
                 )
                 })}
@@ -597,6 +573,14 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
             ))}
         </div>
       </div>
+
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        rates={rates}
+        selectedRates={selectedRates}
+        toggleRate={toggleRate}
+      />
 
       <Toast {...toastProps} />
     </div>

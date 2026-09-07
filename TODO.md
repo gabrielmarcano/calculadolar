@@ -62,14 +62,15 @@
     - Cabeceras `Cache-Control: public, max-age=31536000, immutable` en `next.config.ts`.
     - Unificacion de iconos de cotizaciones a vectores SVG limpios (`public/bcv.svg` y `public/binance.svg`), eliminando bordes blancos artificiales y artefactos de ruido visual.
 
-## Tareas Pendientes
-
-- [ ] **Modal de configuracion con boton de engranaje en calculadora**
-  - **Descripcion**: Reemplazar el boton "n precios activos" de la barra superior por un icono de engranaje que despliegue un modal de configuracion general.
+- [x] **Modal de configuracion con boton de engranaje y reorganizacion de barra superior**
+  - **Descripcion**: Sustituir el selector flotante superior por un icono tactil de engranaje con gaveta inferior (bottom sheet) ergonómica, centrar y calibrar el interruptor USD/VES, y blindar la seccion de cotizaciones contra desplazamientos horizontales y toques accidentales.
   - **Alcance**:
-    - Crear componente de modal para ajustes de la aplicacion.
-    - Trasladar el selector de precios activos como una opcion dentro del modal.
-    - Preparar el modal para futuras configuraciones (notificaciones, preferencias visuales).
+    - Creacion de `components/SettingsModal.tsx` con arquitectura de bottom sheet en zona del pulgar (thumb-zone) para gestionar cotizaciones visibles y preferencias.
+    - Barra superior reestructurada en 3 columnas equilibradas: boton "Tasas" (izquierda), interruptor de divisas ampliado y centrado (centro), y acceso a configuracion (derecha).
+    - Blindaje de la fila de cotizaciones con `overflow-x-hidden`, truncado con puntos suspensivos (`...`) en cifras extensas y proteccion rigurosa de iconos.
+    - Supresion de eventos tap durante gestos de arrastre/swipe en `hooks/useLongPressCopy.ts`, erradicando el cambio involuntario de divisa.
+
+## Tareas Pendientes
 
 - [ ] **Panel de calculo interactivo con cursor por toque y desplazamiento por arrastre**
   - **Descripcion**: Transformar el visor de la expresion matematica en un panel interactivo donde el usuario pueda tocar para posicionar el cursor y editar cualquier parte de la cuenta, sin perder el desplazamiento horizontal por arrastre (inspirado en HiPER Calc Pro).
