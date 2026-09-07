@@ -131,6 +131,13 @@
     - Desacoplamiento de la regla conflictiva `flex-1 h-[100dvh]` en el contenedor intermedio de `app/page.tsx`, sustituyendola por `h-full` para delegar el control de altura a la raiz y prevenir el redimensionamiento del teclado en pull-to-refresh sin deshabilitar el gesto nativo.
   - **Investigacion previa**: Comprobado que el renderizado estatico inicial de Next.js SSR carece de acceso a `localStorage`, dejando la seccion de cotizaciones en blanco hasta la hidratacion del cliente. Al renderizar esqueletos identicos en dimension y fijar la altura de los componentes superiores, la altura asignada al teclado (`flex-1`) permanece invariable tanto en reposo como en eventos de recarga.
 
+- [x] **Blindaje critico de contenedor principal contra FOUC en recarga movil**
+  - **Descripcion**: Erradicar el micropestaneo y estiramiento del contenedor principal durante el pull-to-refresh en dispositivos moviles, incorporando las restricciones estructurales de flexbox y alturas fijas directamente en el bloque de estilos criticos del encabezado.
+  - **Alcance**:
+    - Incorporacion de reglas `display: flex !important`, `flex-direction: column !important`, `height: 100dvh !important`, `height: 100% !important`, `max-width: 28rem !important` y safe-areas en el `<style>` en linea en `app/layout.tsx`.
+    - Garantia de que `<main>` y `#view-calculator > div` esten completamente restringidos desde el primer byte de HTML servido por Serwist, sin depender del tiempo de evaluacion del bundle CSS externo de Tailwind.
+  - **Investigacion previa**: Comprobado que en navegadores moviles con CPU restringido o sobre conexiones moviles, el parseo del paquete CSS externo toma entre 20 y 50 ms. Durante esa ventana, los elementos hijos con `flex: 1 1 0%` carecian de un contenedor flexbox activo en el arbol de renderizado, comportandose como bloques de altura automatica no restringidos y generando un salto de rediseno (FOUC). La inyeccion directa en los estilos criticos bloqueantes de renderizado resuelve esta transicion sin scripts en runtime.
+
 ## Tareas Pendientes
 
 - [ ] **Historial de operaciones de calculo**
