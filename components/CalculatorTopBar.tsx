@@ -17,7 +17,7 @@ export default function CalculatorTopBar({
   onOpenSettings,
 }: CalculatorTopBarProps) {
   return (
-    <div className="w-full flex-none flex justify-between items-center px-4 py-3 border-b border-gray-800/40 relative z-10">
+    <div className="w-full h-[64px] min-h-[64px] max-h-[64px] flex-shrink-0 flex justify-between items-center px-4 py-2.5 border-b border-gray-800/40 relative z-10">
       {/* Left: Tasas */}
       <div className="flex items-center min-w-[72px]">
         <button

@@ -123,6 +123,14 @@
     - Configuracion de variables globales en `:root` (`app/globals.css`) con fondo oscuro `#0a0a0a` nativo para blindar la aplicacion contra destellos claros durante la recarga.
   - **Investigacion previa**: Analizado el comportamiento del motor Blink y WebAPK en Android: la pantalla de bienvenida nativa es renderizada a nivel de sistema operativo en C++/Java usando metricas fisicas del dispositivo, provocando inevitablemente discrepancias de escala contra cualquier componente HTML intermedio. Validada la tecnica de ejecucion sincrona en `<head>` previa al arbol de renderizado (utilizada en PWAs de alto rendimiento como Telegram Web y Twitter Lite), eliminando en su totalidad la necesidad de pantallas de carga secundarias y garantizando transiciones limpias sin CLS.
 
+- [x] **Estabilizacion de cotizaciones con esqueletos de carga y blindaje dimensional de layout**
+  - **Descripcion**: Erradicar el parpadeo de la seccion negra de cotizaciones y el estiramiento vertical del teclado durante el pull-to-refresh y el retorno de segundo plano mediante filas esqueleto de carga y fijacion estricta de alturas en la franja superior de la calculadora.
+  - **Alcance**:
+    - Incorporacion de placeholders esqueleto animados con pulso sutil (`animate-pulse`) en `CalculatorRates` cuando las cotizaciones no estan disponibles en el render inicial de HTML, preservando la geometria de filas (`min-h-[34px]`) y eliminando el vacio negro.
+    - Fijacion estricta e inmutable de dimensiones en la franja superior (`CalculatorTopBar` a 64px, visores de entrada a 58px y resultado a 72px, contenedor de tasas a 116px con `flex-shrink-0`), garantizando que la altura total superior sea estrictamente invariable (358px).
+    - Desacoplamiento de la regla conflictiva `flex-1 h-[100dvh]` en el contenedor intermedio de `app/page.tsx`, sustituyendola por `h-full` para delegar el control de altura a la raiz y prevenir el redimensionamiento del teclado en pull-to-refresh sin deshabilitar el gesto nativo.
+  - **Investigacion previa**: Comprobado que el renderizado estatico inicial de Next.js SSR carece de acceso a `localStorage`, dejando la seccion de cotizaciones en blanco hasta la hidratacion del cliente. Al renderizar esqueletos identicos en dimension y fijar la altura de los componentes superiores, la altura asignada al teclado (`flex-1`) permanece invariable tanto en reposo como en eventos de recarga.
+
 ## Tareas Pendientes
 
 - [ ] **Historial de operaciones de calculo**

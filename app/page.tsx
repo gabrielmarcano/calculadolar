@@ -170,7 +170,7 @@ export default function Home() {
 
   return (
     <main className="flex h-[100dvh] overflow-hidden flex-col items-center bg-[#0a0a0a] select-none text-white p-0">
-      <div className="w-full flex-1 flex flex-col h-[100dvh] max-w-md mx-auto pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] overflow-hidden relative select-none">
+      <div className="w-full h-full max-w-md mx-auto flex flex-col pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] overflow-hidden relative select-none">
         {/* Screen 0: Dashboard (Tasas) */}
         <div
           id="view-dashboard"

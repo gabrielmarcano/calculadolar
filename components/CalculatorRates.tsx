@@ -30,11 +30,11 @@ export default function CalculatorRates({
 
   return (
     <div
-      className={`w-full h-[116px] space-y-1 overflow-x-hidden flex-shrink-0 pt-1.5 border-t border-gray-800/50 scrollbar-hide select-none ${
+      className={`w-full h-[116px] min-h-[116px] max-h-[116px] space-y-1 overflow-x-hidden flex-shrink-0 pt-1.5 border-t border-gray-800/50 scrollbar-hide select-none ${
         canScroll ? 'overflow-y-auto touch-pan-y' : 'overflow-y-hidden'
       }`}
     >
-      {selectedRates.length > 0 &&
+      {selectedRates.length > 0 && activeCurrencyKeys.length > 0 ? (
         activeCurrencyKeys.map((currency) => {
           const rate = rates[currency]?.price || 0;
           const displayName = rates[currency]?.displayName || currency;
@@ -93,7 +93,21 @@ export default function CalculatorRates({
               </span>
             </div>
           );
-        })}
+        })
+      ) : (
+        [0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className="w-full flex justify-between items-center py-0.5 rounded-lg px-1 min-h-[34px] overflow-hidden select-none"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-5 h-5 rounded-full bg-white/10 animate-pulse flex-shrink-0" />
+              <div className="w-20 h-3.5 bg-white/10 rounded-full animate-pulse" />
+            </div>
+            <div className="w-24 h-4 bg-white/10 rounded-full animate-pulse" />
+          </div>
+        ))
+      )}
     </div>
   );
 }
