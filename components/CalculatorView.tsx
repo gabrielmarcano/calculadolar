@@ -264,7 +264,7 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
     { label: '4', value: '4', type: 'num' },
     { label: '5', value: '5', type: 'num' },
     { label: '6', value: '6', type: 'num' },
-    { label: '-', value: '-', type: 'op' },
+    { label: '−', value: '-', type: 'op' },
     
     { label: '1', value: '1', type: 'num' },
     { label: '2', value: '2', type: 'num' },
@@ -552,12 +552,12 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
                 className={`
                 h-full w-full rounded-[2rem] sm:rounded-[2.5rem] transition-all active:scale-95 flex items-center justify-center
                 
-                /* Typography Scale (Android Stock Proportion ~45-50% of button height) */
-                ${btn.type === 'num' ? 'text-[32px] font-normal' : ''}
-                ${btn.type === 'op' ? 'text-[32px] font-normal' : ''}
-                ${btn.type === 'func' ? 'text-2xl font-medium' : ''}
-                ${btn.value === 'AC' ? '!text-xl !font-bold' : ''}
-                ${btn.type === 'equal' ? 'text-[34px] font-semibold' : ''}
+                /* Typography Scale (Android Stock Proportion ~55-60% of button height) */
+                ${btn.type === 'num' ? 'text-[38px] sm:text-[40px] font-normal leading-none' : ''}
+                ${btn.value === '.' ? '!font-bold' : ''}
+                ${btn.type === 'op' ? 'text-[38px] sm:text-[40px] font-light leading-none' : ''}
+                ${btn.type === 'func' ? 'text-[26px] sm:text-[28px] font-normal leading-none' : ''}
+                ${btn.type === 'equal' ? 'text-[38px] sm:text-[40px] font-normal leading-none' : ''}
 
                 /* Default Num Style */
                 bg-[#2D2E36] text-white hover:bg-[#3D3E4A]
@@ -577,8 +577,19 @@ export default function CalculatorView({ rates, isOffline = false, onOpenRates, 
                 `}
             >
                 {btn.value === 'BACK' ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7">
-                        <path fillRule="evenodd" d="M2.515 10.674a1.875 1.875 0 0 1 0-2.648L8.03 2.51A2.625 2.625 0 0 1 9.885 1.75h10.365A2.625 2.625 0 0 1 22.875 4.375v15.25a2.625 2.625 0 0 1-2.625 2.625H9.885a2.625 2.625 0 0 1-1.855-.76l-5.515-5.516Zm13.015-3.204a.75.75 0 0 0-1.06 0L12 9.94l-2.47-2.47a.75.75 0 0 0-1.06 1.06L10.94 11l-2.47 2.47a.75.75 0 1 0 1.06 1.06L12 12.06l2.47 2.47a.75.75 0 0 0 1.06-1.06L13.06 11l2.47-2.47a.75.75 0 0 0 0-1.06Z" clipRule="evenodd" />
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="w-[34px] h-[34px]"
+                    >
+                        <path d="M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z" />
+                        <line x1="17.5" y1="9" x2="11.5" y2="15" />
+                        <line x1="11.5" y1="9" x2="17.5" y2="15" />
                     </svg>
                 ) : btn.label}
             </button>
