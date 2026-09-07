@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { triggerHaptic } from '@/lib/utils';
 
@@ -24,6 +24,20 @@ export default function SettingsModal({
   const startYRef = useRef(0);
   const currentDragYRef = useRef(0);
 
+  // Lock body scroll and overscroll while modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    const originalOverscroll = document.body.style.overscrollBehavior;
+    document.body.style.overflow = 'hidden';
+    document.body.style.overscrollBehavior = 'none';
+    document.documentElement.style.overscrollBehavior = 'none';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.overscrollBehavior = originalOverscroll;
+    };
+  }, [isOpen]);
+
   const handleClose = () => {
     triggerHaptic();
     setDragY(0);
@@ -43,6 +57,8 @@ export default function SettingsModal({
 
   // --- DRAG-TO-DISMISS GESTURES ---
   const handlePointerDown = (e: React.PointerEvent) => {
+    // Ignore clicks on buttons inside header (like close button)
+    if ((e.target as HTMLElement).closest('button')) return;
     try {
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     } catch {}
@@ -70,8 +86,8 @@ export default function SettingsModal({
     } catch {}
     setIsDragging(false);
 
-    // If dragged down past 70px, dismiss
-    if (currentDragYRef.current > 70) {
+    // If dragged down past 60px, dismiss
+    if (currentDragYRef.current > 60) {
       triggerHaptic();
       onClose();
     }
@@ -87,16 +103,16 @@ export default function SettingsModal({
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-end justify-center select-none transition-all duration-300 ${
+      className={`fixed inset-0 z-50 flex items-end justify-center select-none transition-all duration-300 overscroll-none ${
         isOpen ? 'pointer-events-auto' : 'pointer-events-none'
       }`}
       role="dialog"
       aria-modal={isOpen}
       aria-hidden={!isOpen}
     >
-      {/* Backdrop with fade animation */}
+      {/* Backdrop with fade animation and touch-none to kill pull-to-refresh */}
       <div
-        className={`fixed inset-0 bg-black/75 backdrop-blur-xs transition-opacity duration-280 ease-out ${
+        className={`fixed inset-0 bg-black/75 backdrop-blur-xs transition-opacity duration-280 ease-out touch-none overscroll-none ${
           isOpen ? 'opacity-100' : 'opacity-0'
         }`}
         onClick={handleClose}
@@ -111,38 +127,39 @@ export default function SettingsModal({
             ? 'none'
             : 'transform 300ms cubic-bezier(0.16, 1, 0.3, 1)',
         }}
-        className="relative w-full max-w-md bg-[#1a1a1c] border-t border-white/10 rounded-t-[2rem] shadow-2xl z-10 px-5 pt-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] overscroll-contain will-change-transform"
+        className="relative w-full max-w-md bg-[#1a1a1c] border-t border-white/10 rounded-t-[2rem] shadow-2xl z-10 px-5 pt-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] overscroll-none will-change-transform"
       >
-        {/* Drag Handle Zone (touch-none prevents mobile pull-to-refresh) */}
+        {/* Full Header Drag Zone: handle + title + subtitle (touch-none eliminates pull-to-refresh completely) */}
         <div
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
-          className="w-full py-2 cursor-grab active:cursor-grabbing touch-none flex flex-col items-center"
+          className="w-full touch-none cursor-grab active:cursor-grabbing select-none"
         >
-          <div className="w-12 h-1.5 bg-white/20 rounded-full" />
-        </div>
+          {/* Drag Handle Indicator */}
+          <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-3" />
 
-        {/* Header */}
-        <div className="flex items-center justify-between pb-3.5 border-b border-white/5">
-          <div>
-            <h2 className="text-base font-bold text-white tracking-tight">Configuración</h2>
-            <p className="text-xs text-gray-400">Personaliza la calculadora y cotizaciones</p>
+          {/* Header Bar */}
+          <div className="flex items-center justify-between pb-3.5 border-b border-white/5">
+            <div>
+              <h2 className="text-base font-bold text-white tracking-tight">Configuración</h2>
+              <p className="text-xs text-gray-400">Personaliza la calculadora y cotizaciones</p>
+            </div>
+            <button
+              onClick={handleClose}
+              className="w-9 h-9 rounded-full bg-[#2a2a2e] hover:bg-[#35353a] active:scale-95 text-gray-300 hover:text-white flex items-center justify-center transition-all border border-white/5 cursor-pointer"
+              aria-label="Cerrar configuración"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 pointer-events-none">
+                <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+              </svg>
+            </button>
           </div>
-          <button
-            onClick={handleClose}
-            className="w-9 h-9 rounded-full bg-[#2a2a2e] hover:bg-[#35353a] active:scale-95 text-gray-300 hover:text-white flex items-center justify-center transition-all border border-white/5"
-            aria-label="Cerrar configuración"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-              <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
-            </svg>
-          </button>
         </div>
 
         {/* Content */}
-        <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto scrollbar-hide">
+        <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto overscroll-contain touch-pan-y scrollbar-hide">
           {/* Section: Active Rates */}
           <div>
             <div className="flex items-center justify-between mb-2">
