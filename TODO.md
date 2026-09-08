@@ -185,6 +185,15 @@
 
 ## Tareas Pendientes
 
+- [ ] **Investigacion y propuesta de diseno adaptativo para Tablet y Desktop**
+  - **Descripcion**: Investigar, comparar y formular propuestas de arquitectura visual y disposicion espacial para las tres vistas principales (Calculadora, Cotizaciones y Graficas) en tabletas y pantallas de escritorio, analizando diferentes patrones de composicion para seleccionar la distribucion que ofrezca mayor ergonomia y claridad.
+  - **Alcance**:
+    - Benchmarking de aplicaciones financieras y de calculo de referencia en tablets y navegadores de escritorio (ej. Google Calculator, Apple Stocks, Revolut, TradingView).
+    - Diseno conceptual y evaluacion de alternativas de layout (ej. paneles laterales con barra persistente, rejillas modulares, vistas acopladas o estaciones de trabajo multipanel).
+    - Validacion ergonomica: soporte optimo para interaccion tactil en tablets y productividad con raton y teclado fisico en escritorio.
+    - Salvaguarda estricta de la experiencia mobile-first preexistente en smartphones.
+  - **Investigacion previa**: Analizar las resoluciones y relaciones de aspecto de dispositivos intermedios (768px a 1024px) y escritorios (>1024px), comprobando la adaptabilidad de componentes visuales criticos (botones del keypad, visores y graficos Recharts) para evitar deformaciones dimensionales.
+
 - [ ] **Historial de operaciones de calculo**
   - **Descripcion**: Registrar y almacenar localmente las operaciones realizadas por el usuario para su posterior consulta y reutilizacion (inspirado en la calculadora stock de Android).
   - **Alcance**:
