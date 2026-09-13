@@ -200,6 +200,15 @@
     - Inyeccion del componente `<Analytics />` importado desde `@vercel/analytics/next` en `app/layout.tsx`.
     - Verificacion de compilacion limpia en Turbopack y Next.js 16 con precarga de Serwist y cero advertencias de linter.
 
+- [x] **Garantia y auditoria del modo offline**
+  - **Descripcion**: Asegurar la operatividad total de la aplicacion y de sus funciones de calculo en condiciones de red nula o intermitente mediante precache exhaustivo y blindaje de Service Worker.
+  - **Alcance**:
+    - Auditoria integral de activos de precache en Serwist confirmando la inclusion automatica de los 29 recursos de App Shell (iconos SVG/PNG, manifest, fuentes Geist locales y paquetes JS/CSS generados).
+    - Inclusion de reglas explicitas `NetworkOnly` en `app/sw.ts` para rutas de cron (`/api/cron/*`) y endpoints de Supabase, evitando la polucion del almacenamiento de cache en el navegador y retrasos de 10 segundos por timeouts en peticiones cross-origin.
+    - Validacion de la persistencia de cotizaciones en `localStorage` con lectura y derivacion sincrona antes del render en `app/page.tsx`, suprimiendo estados de carga vacios al abrir la PWA en modo avion.
+    - Verificacion de indicadores de desconexion en UI: banner no intrusivo en el dashboard y punto pulsante amarillo en la barra superior de `CalculatorView`.
+  - **Investigacion previa**: La inspeccion del bundle generado en `.next/server/app/serwist/sw.js.body` confirmo que la totalidad de los 12 archivos de `public/` y los chunks compilados de Next.js estan integrados en `__SW_MANIFEST`. Se comprobo que `defaultCache` interceptaba llamadas de API de forma generica con `NetworkFirst` (10s de espera), por lo que se anadieron filtros directos de bypass en `app/sw.ts` para agilizar la ejecucion cliente.
+
 ## Tareas Pendientes
 
 - [ ] **Investigacion y propuesta de diseno adaptativo para Tablet y Desktop**
@@ -227,14 +236,6 @@
     - Prevencion de saltos de layout durante la introduccion de datos.
   - **Investigacion previa**: Investigar la variacion de altura de viewport con unidades `dvh` en Chrome y Safari movil para prevenir solapamiento con barras de navegacion del sistema, y documentar los fallbacks tactiles para entornos donde `navigator.vibrate` no esta disponible (ej. iOS).
 
-- [ ] **Garantia y auditoria del modo offline**
-  - **Descripcion**: Asegurar la operatividad total de la aplicacion y de sus funciones de calculo en condiciones de red nula o intermitente.
-  - **Alcance**:
-    - Auditoria de cache en Serwist para todos los recursos estaticos y logica cliente.
-    - Persistencia garantizada de la ultima cotizacion de tasas en `localStorage`.
-    - Indicador de estado sin conexion claro y no intrusivo.
-  - **Investigacion previa**: Auditar las estrategias de cache en runtime de `app/sw.ts` simulando desconexion total para validar que ningun script, hoja de estilos o asset bloquee la renderizacion inicial de la PWA en modo avion.
-
 - [ ] **Suite de pruebas unitarias automatizadas**
   - **Descripcion**: Implementar un conjunto de pruebas unitarias para blindar la logica de calculo, conversion de monedas y flujos principales ante futuras refactorizaciones.
   - **Alcance**:
@@ -261,4 +262,36 @@
     - Ajuste de deteccion de plataforma (`Capacitor.isNativePlatform()`) para desacoplar el service worker de Serwist en entornos nativos y evitar conflictos de interceptacion de cache en WebViews nativos.
     - Automatizacion de scripts de sincronizacion (`npx cap sync`) y configuracion de perfiles de compilacion para Android Studio y Xcode.
   - **Investigacion previa**: Analizar la compatibilidad de Next.js App Router con la exportacion estatica requerida por Capacitor, asegurando que las llamadas a endpoints de Supabase y de cron en Vercel manejen correctamente los origenes locales del WebView (`capacitor://localhost` en iOS y `http://localhost` en Android) a nivel de CORS y configuraciones de seguridad (App Transport Security en iOS y Network Security Config en Android).
+
+- [ ] **Conversion de precios en tiempo real mediante camara y OCR (AR)**
+  - **Descripcion**: Implementar una funcionalidad de realidad aumentada y reconocimiento optico de caracteres (OCR) en vivo a traves de la camara del dispositivo para detectar precios en etiquetas o carteles fisicos y sobreponer instantaneamente su conversion a la moneda de destino seleccionada (inspirado en la traduccion instantanea con camara de Google Translate). Tarea condicionada a la disponibilidad previa del contenedor nativo con Capacitor.
+  - **Alcance**:
+    - Integracion de plugin de vision o camara en Capacitor (`@capacitor-community/camera-preview` o modulo nativo de ML Kit).
+    - Procesamiento de fotogramas en el dispositivo (*on-device ML*) para garantizar baja latencia y funcionamiento sin conexion de red.
+    - Capa de superposicion visual (*AR overlay*) con proyeccion de coordenadas sobre el precio original detectado.
+    - Selector rapido de moneda base y destino directamente en la vista del visor de camara.
+  - **Investigacion previa**: Evaluar bibliotecas de OCR en dispositivo compatibles con Capacitor (Google ML Kit Text Recognition para iOS/Android frente a Tesseract.js / WebAssembly), analizando consumo de bateria, tasa de cuadros por segundo (FPS) y precision al detectar cifras con distintos formatos de miles y decimales.
+
+- [ ] **Incorporacion de tasa calculada promedio BCV**
+  - **Descripcion**: Evaluar e incorporar una cotizacion derivada correspondiente al promedio aritmetico simple entre el Dolar BCV y el Euro BCV `(USD_BCV + EUR_BCV) / 2` como opcion seleccionable en el dashboard y en la calculadora.
+  - **Alcance**:
+    - Evaluacion del caso de uso financiero y necesidad del usuario para liquidaciones o transacciones comerciales mixtas.
+    - Derivacion pura en el render de la tasa promedio a partir de las tasas existentes en memoria sin requerir consultas de red adicionales ni campos redundantes en base de datos.
+    - Opcion de visualizacion y seleccion en el modal de configuracion de tasas activas (`SettingsModal.tsx`).
+    - Soporte para conversion directa en `CalculatorView.tsx` y visualizacion de tarjeta en `RateView.tsx`.
+  - **Investigacion previa**: Determinar si la tasa debe calcularse de forma computada en tiempo de ejecucion en el cliente para mantener sincronizada su actualizacion en tiempo real con las cotizaciones oficiales sin consumo adicional de almacenamiento en Supabase.
+
+- [ ] **Auditoria de metricas y diseno conceptual del nuevo Dashboard (Tarea individual)**
+  - **Descripcion**: Realizar un analisis profundo y medicion manual de la jerarquia visual, densidad de informacion y distribucion espacial del dashboard de cotizaciones, planificando una reestructuracion estetica orientada a maxima claridad financiera antes de delegar cambios de codigo a agentes de IA.
+  - **Alcance**:
+    - Evaluacion manual y benchmark de densidades visuales y patrones de diseno en aplicaciones financieras de referencia.
+    - Definicion de requerimientos de informacion para tarjetas de cotizacion (diferencial porcentual, rango diario, fecha de actualizacion).
+    - Prototipado conceptual y esquema de componentes para someter a implementacion en fases posteriores.
+
+- [ ] **Rediseno de identidad visual y logotipo de la aplicacion (Tarea individual)**
+  - **Descripcion**: Crear una nueva identidad visual y diseno del logotipo principal de CalculaDolar de manera manual, actualizando los recursos graficos vectoriales para iconos PWA, splash screens y favicon.
+  - **Alcance**:
+    - Diseno del isotipo y logotipo optimizado para escalas reducidas (iconos de 48px y 192px).
+    - Generacion y actualizacion de los activos graficos en `public/` (`icon0.svg`, `icon1.png`, `apple-icon.png`, `web-app-manifest-*.png`).
+    - Actualizacion de `manifest.webmanifest` y metadatos en `app/layout.tsx`.
 

@@ -3,7 +3,7 @@
 /// <reference lib="webworker" />
 import { defaultCache } from '@serwist/turbopack/worker';
 import type { PrecacheEntry, SerwistGlobalConfig } from 'serwist';
-import { CacheFirst, ExpirationPlugin, StaleWhileRevalidate, Serwist } from 'serwist';
+import { CacheFirst, ExpirationPlugin, StaleWhileRevalidate, NetworkOnly, Serwist } from 'serwist';
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -19,6 +19,14 @@ const serwist = new Serwist({
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching: [
+    {
+      matcher: ({ url: { pathname } }) => pathname.startsWith('/api/cron/'),
+      handler: new NetworkOnly(),
+    },
+    {
+      matcher: ({ url }) => url.hostname.endsWith('supabase.co'),
+      handler: new NetworkOnly(),
+    },
     {
       matcher: ({ request, url }) =>
         request.destination === 'image' ||
