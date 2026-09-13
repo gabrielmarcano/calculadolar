@@ -193,6 +193,13 @@
     - Creacion del endpoint unificado `/api/cron/update-rates` para permitir la ejecucion orquestada y secuencial de ambas fuentes en un unico trabajo cron de cron-job.org, evitando colisiones por concurrencia.
   - **Investigacion previa**: El analisis de los registros de Vercel revelo que el error `Gateway Timeout` era producido por el cliente PostgREST de Supabase al recibir un codigo de estado 504 desde Cloudflare/Envoy cuando dos ejecuciones concurrentes alcanzaban la base de datos simultaneamente en el segundo cero de cada hora, sin ninguna logica de reintento ante desconexiones transitorias.
 
+- [x] **Integracion de Vercel Web Analytics**
+  - **Descripcion**: Incorporar la medicion de trafico, visitantes y vistas de pagina mediante el paquete oficial de Vercel Analytics en el layout raiz de la aplicacion.
+  - **Alcance**:
+    - Instalacion del paquete `@vercel/analytics`.
+    - Inyeccion del componente `<Analytics />` importado desde `@vercel/analytics/next` en `app/layout.tsx`.
+    - Verificacion de compilacion limpia en Turbopack y Next.js 16 con precarga de Serwist y cero advertencias de linter.
+
 ## Tareas Pendientes
 
 - [ ] **Investigacion y propuesta de diseno adaptativo para Tablet y Desktop**
