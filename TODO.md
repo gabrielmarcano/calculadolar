@@ -251,3 +251,14 @@
     - Tabla de suscripciones en Supabase y endpoints de despacho.
     - Panel de configuracion con interruptores (opt-in / opt-out) para tipos de alertas y umbrales.
   - **Investigacion previa**: Investigar el soporte y limitaciones de Web Push en iOS Safari (requiere que la PWA este instalada en pantalla de inicio a partir de iOS 16.4), las politicas de retencion de suscripciones invalidas en Supabase, y el costo/latencia de ejecucion desde el cron de despacho.
+
+- [ ] **Empaquetado y distribucion como aplicacion nativa con Capacitor**
+  - **Descripcion**: Configurar la arquitectura de empaquetado para convertir la Progressive Web App (PWA) en una aplicacion nativa para Android e iOS mediante Capacitor, integrando plugins de plataforma para retroalimentacion sensorial, barra de estado y persistencia sin bifurcar la base de codigo web.
+  - **Alcance**:
+    - Incorporacion y configuracion de `@capacitor/core`, `@capacitor/cli`, `@capacitor/android` y `@capacitor/ios`.
+    - Definicion del flujo de compilacion estatica (`next export` / `output: 'export'`) apuntando el directorio web de Capacitor a los activos generados, manteniendo la conexion remota hacia las rutas de backend (`/api/*`) alojadas en Vercel.
+    - Sustitucion y enriquecimiento de APIs de navegador con plugins oficiales de Capacitor: `@capacitor/haptics` (garantizando soporte haptico de baja latencia en iOS y Android), `@capacitor/status-bar` (control de color y superposicion con Safe Areas), `@capacitor/clipboard` y `@capacitor/splash-screen`.
+    - Ajuste de deteccion de plataforma (`Capacitor.isNativePlatform()`) para desacoplar el service worker de Serwist en entornos nativos y evitar conflictos de interceptacion de cache en WebViews nativos.
+    - Automatizacion de scripts de sincronizacion (`npx cap sync`) y configuracion de perfiles de compilacion para Android Studio y Xcode.
+  - **Investigacion previa**: Analizar la compatibilidad de Next.js App Router con la exportacion estatica requerida por Capacitor, asegurando que las llamadas a endpoints de Supabase y de cron en Vercel manejen correctamente los origenes locales del WebView (`capacitor://localhost` en iOS y `http://localhost` en Android) a nivel de CORS y configuraciones de seguridad (App Transport Security en iOS y Network Security Config en Android).
+
