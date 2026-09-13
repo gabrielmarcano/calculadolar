@@ -183,6 +183,16 @@
     - Cumplimiento riguroso del estandar de modularidad con todos los archivos resultantes por debajo de 170 lineas.
   - **Investigacion previa**: Verificada la sustitucion estatica en tiempo de compilacion que Next.js y Turbopack aplican sobre `process.env.NODE_ENV`: al evaluar la condicion en tiempo de empaquetado para produccion, el codigo del panel de depuracion es eliminado del bundle final mediante tree-shaking, asegurando cero sobrecoste de kilobytes y una vista limpia en dispositivos de usuarios finales.
 
+- [x] **Blindaje y resiliencia de endpoints cron de actualizacion de tasas ante errores 500 y timeouts**
+  - **Descripcion**: Resolver los errores HTTP 500 originados por timeouts de pasarela (Gateway Timeout 504) entre la API de Supabase y las funciones serverless de Vercel durante la ejecucion de los cron jobs de actualizacion de tasas de cambio (BCV y Binance P2P).
+  - **Alcance**:
+    - Creacion de la utilidad `lib/retry.ts` con reintentos automaticos (`withRetry`), retroceso exponencial y variacion aleatoria (jitter) para mitigar fallas transitorias de red y demoras por arranque en frio (cold starts) de Supabase.
+    - Descomposicion y modularizacion de la logica de scraping y persistencia en `lib/rate-updaters.ts`, manteniendo las rutas de la API por debajo de 35 lineas de codigo de acuerdo con los principios de arquitectura limpia.
+    - Configuracion explicita de `export const maxDuration = 60;` y timeouts en solicitudes HTTP (Axios) para prevenir cancelaciones prematuras por parte de la infraestructura serverless de Vercel.
+    - Agrupamiento en lote (batching) de operaciones de actualizacion e historial en `updateBcvRates`, reduciendo los viajes de ida y vuelta a Supabase de cuatro solicitudes secuenciales a dos.
+    - Creacion del endpoint unificado `/api/cron/update-rates` para permitir la ejecucion orquestada y secuencial de ambas fuentes en un unico trabajo cron de cron-job.org, evitando colisiones por concurrencia.
+  - **Investigacion previa**: El analisis de los registros de Vercel revelo que el error `Gateway Timeout` era producido por el cliente PostgREST de Supabase al recibir un codigo de estado 504 desde Cloudflare/Envoy cuando dos ejecuciones concurrentes alcanzaban la base de datos simultaneamente en el segundo cero de cada hora, sin ninguna logica de reintento ante desconexiones transitorias.
+
 ## Tareas Pendientes
 
 - [ ] **Investigacion y propuesta de diseno adaptativo para Tablet y Desktop**

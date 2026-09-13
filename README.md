@@ -68,6 +68,7 @@ CRON_SECRET=
 
 Las tasas se actualizan mediante endpoints API protegidos con `Authorization: Bearer CRON_SECRET`, disparados por [cron-job.org](https://cron-job.org/) cada hora:
 
+- `app/api/cron/update-rates/route.ts` — endpoint unificado que actualiza Binance y BCV secuencialmente (recomendado para un único cron job).
 - `app/api/cron/update-bcv-rates/route.ts` — scrapea el sitio del BCV para USD/EUR→VES.
 - `app/api/cron/update-binance-rates/route.ts` — consulta la API de Binance P2P para USDT/VES.
 - `app/api/history/route.ts` — endpoint público que devuelve el histórico de precios (downsampled).
